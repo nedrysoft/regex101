@@ -25,35 +25,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MainWindow.h"
-#include "ui_MainWindow.h"
-#include "RegExWebEnginePage.h"
-#include "RegExSplashScreen.h"
-#include <QtWebEngineWidgets>
+#ifndef REGEXWEBENGINEPROFILE_H
+#define REGEXWEBENGINEPROFILE_H
 
-MainWindow::MainWindow(RegExSplashScreen *splashScreen, QWidget *parent)
-    : QMainWindow(parent),
-      ui(new Ui::MainWindow),
-      m_page(new RegExWebEnginePage)
+#include <QWebEngineProfile>
+#include "RegExUrlSchemeHandler.h"
+
+class RegExWebEngineProfile : public QWebEngineProfile
 {
-    ui->setupUi(this);
+        Q_OBJECT
 
-    this->showMaximized();
+    public:
+        RegExWebEngineProfile(QObject *parent=nullptr);
 
-    ui->widget->setPage(m_page);
+    private:
+        RegExUrlSchemeHandler *m_schemeHandler;
+};
 
-    connect(ui->widget->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
-        if (finished) {
-            QTimer::singleShot(1000, splashScreen, [=]() {
-                splashScreen->close();
-            });
-        }
-    });
-}
-
-MainWindow::~MainWindow()
-{
-    delete m_page;
-    delete ui;
-}
-
+#endif // REGEXWEBENGINEPROFILE_H

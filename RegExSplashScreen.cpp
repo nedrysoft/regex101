@@ -25,35 +25,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MainWindow.h"
-#include "ui_MainWindow.h"
-#include "RegExWebEnginePage.h"
 #include "RegExSplashScreen.h"
-#include <QtWebEngineWidgets>
 
-MainWindow::MainWindow(RegExSplashScreen *splashScreen, QWidget *parent)
-    : QMainWindow(parent),
-      ui(new Ui::MainWindow),
-      m_page(new RegExWebEnginePage)
+constexpr auto splashScreenFilename = ":/assets/splash_620x300@2x.png";
+
+RegExSplashScreen::RegExSplashScreen() :
+    QSplashScreen(QPixmap(splashScreenFilename))
 {
-    ui->setupUi(this);
-
-    this->showMaximized();
-
-    ui->widget->setPage(m_page);
-
-    connect(ui->widget->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
-        if (finished) {
-            QTimer::singleShot(1000, splashScreen, [=]() {
-                splashScreen->close();
-            });
-        }
-    });
+    show();
 }
-
-MainWindow::~MainWindow()
-{
-    delete m_page;
-    delete ui;
-}
-

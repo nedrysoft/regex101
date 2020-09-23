@@ -25,35 +25,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MainWindow.h"
-#include "ui_MainWindow.h"
-#include "RegExWebEnginePage.h"
-#include "RegExSplashScreen.h"
-#include <QtWebEngineWidgets>
+#include "RegExWebEngineProfile.h"
+#include <QWebEngineSettings>
 
-MainWindow::MainWindow(RegExSplashScreen *splashScreen, QWidget *parent)
-    : QMainWindow(parent),
-      ui(new Ui::MainWindow),
-      m_page(new RegExWebEnginePage)
+constexpr const char *webFilesPrefix = "/regex101";
+
+RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
+    QWebEngineProfile(parent),
+    m_schemeHandler(new RegExUrlSchemeHandler(webFilesPrefix))
 {
-    ui->setupUi(this);
+    installUrlSchemeHandler(RegExUrlSchemeHandler::name().toUtf8(), m_schemeHandler);
 
-    this->showMaximized();
+    setHttpCacheType(QWebEngineProfile::NoCache);
 
-    ui->widget->setPage(m_page);
+    settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
+    settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
+    settings()->setAttribute(QWebEngineSettings::AllowRunningInsecureContent, true);
+    settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
 
-    connect(ui->widget->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
-        if (finished) {
-            QTimer::singleShot(1000, splashScreen, [=]() {
-                splashScreen->close();
-            });
-        }
-    });
+    settings()->setUnknownUrlSchemePolicy(QWebEngineSettings::AllowAllUnknownUrlSchemes);
 }
-
-MainWindow::~MainWindow()
-{
-    delete m_page;
-    delete ui;
-}
-

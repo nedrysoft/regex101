@@ -1,44 +1,51 @@
-#include "MainWindow.h"
+/*
+ * Copyright (C) 2020 Adrian Carpenter
+ *
+ * This file is part of a regex101.com offline application.
+ *
+ * https://github.com/fizzyade/regex101
+ *
+ * =====================================================================
+ * The regex101 web content is owned and used with permission from
+ * Firas Dib at regex101.com.  This application is an unofficial
+ * tool to provide an offline application version of the website.
+ * =====================================================================
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
+#include "MainWindow.h"
+#include "RegExSplashScreen.h"
+#include "RegExUrlSchemeHandler.h"
 #include <QApplication>
-#include <QWebEngineUrlScheme>
-#include <QWebEngineProfile>
-#include <QWebEngineSettings>
-#include <QSplashScreen>
+
+constexpr auto applicationName = "Regular Expressions 101";
 
 int main(int argc, char *argv[])
 {
-    QWebEngineUrlScheme scheme((RegExUrlSchemeHandler::name().toUtf8()));
+    RegExUrlSchemeHandler::registerScheme();
 
-    scheme.setFlags(QWebEngineUrlScheme::SecureScheme | QWebEngineUrlScheme::LocalScheme | QWebEngineUrlScheme::LocalAccessAllowed | QWebEngineUrlScheme::ContentSecurityPolicyIgnored);
+    QApplication application(argc, argv);
 
-    QWebEngineUrlScheme::registerScheme(scheme);
+    RegExSplashScreen splashScreen;
 
-    QApplication a(argc, argv);
+    application.setApplicationDisplayName(applicationName);
+    application.setApplicationName(applicationName);
 
-    QPixmap pixmap(":/assets/splash_620x300@2x.png");
-    QSplashScreen splash(pixmap);
-
-    splash.show();
-
-    a.setApplicationDisplayName("Regular Expressions 101");
-    a.setApplicationName("Regular Expressions 101");
-
-    RegExUrlSchemeHandler handler("/regex101");
-
-    QWebEngineProfile::defaultProfile()->installUrlSchemeHandler(RegExUrlSchemeHandler::name().toUtf8(), &handler);
-
-    QWebEngineProfile::defaultProfile()->setHttpCacheType(QWebEngineProfile::NoCache);
-    QWebEngineProfile::defaultProfile()->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
-    QWebEngineProfile::defaultProfile()->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
-    QWebEngineProfile::defaultProfile()->settings()->setAttribute(QWebEngineSettings::AllowRunningInsecureContent, true);
-    QWebEngineProfile::defaultProfile()->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
-
-    QWebEngineProfile::defaultProfile()->settings()->setUnknownUrlSchemePolicy(QWebEngineSettings::AllowAllUnknownUrlSchemes);
-
-    MainWindow mainWindow(&splash);
+    MainWindow mainWindow(&splashScreen);
 
     mainWindow.show();
 
-    return a.exec();
+    return application.exec();
 }

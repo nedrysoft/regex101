@@ -45,5 +45,30 @@
         <file>regex101/static/assets/manifest.webmanifest</file>
         <file>regex101/static/translations/english.json</file>
         <file>assets/splash_620x300@2x.png</file>
+        <file>assets/regex101.iconset/icon_16x16@2x.png</file>
+        <file>assets/regex101.iconset/icon_16x16.png</file>
+        <file>assets/regex101.iconset/icon_20x20@2x.png</file>
+        <file>assets/regex101.iconset/icon_20x20.png</file>
+        <file>assets/regex101.iconset/icon_24x24@2x.png</file>
+        <file>assets/regex101.iconset/icon_24x24.png</file>
+        <file>assets/regex101.iconset/icon_32x32@2x.png</file>
+        <file>assets/regex101.iconset/icon_32x32.png</file>
+        <file>assets/regex101.iconset/icon_40x40@2x.png</file>
+        <file>assets/regex101.iconset/icon_40x40.png</file>
+        <file>assets/regex101.iconset/icon_48x48@2x.png</file>
+        <file>assets/regex101.iconset/icon_48x48.png</file>
+        <file>assets/regex101.iconset/icon_64x64@2x.png</file>
+        <file>assets/regex101.iconset/icon_64x64.png</file>
+        <file>assets/regex101.iconset/icon_96x96@2x.png</file>
+        <file>assets/regex101.iconset/icon_96x96.png</file>
+        <file>assets/regex101.iconset/icon_128x128@2x.png</file>
+        <file>assets/regex101.iconset/icon_128x128.png</file>
+        <file>assets/regex101.iconset/icon_256x256@2x.png</file>
+        <file>assets/regex101.iconset/icon_256x256.png</file>
+        <file>assets/regex101.iconset/icon_512x512@2x.png</file>
+        <file>assets/regex101.iconset/icon_512x512.png</file>
+        <file>assets/regex101.iconset/icon_1024x1024@2x.png</file>
+        <file>assets/regex101.iconset/icon_1024x1024.png</file>
+        <file>icon.ico</file>
     </qresource>
 </RCC>

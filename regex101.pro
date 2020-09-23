@@ -10,11 +10,21 @@ CONFIG += app_bundle
 ICON = regex101.icns
 
 SOURCES += \
+    RegExSplashScreen.cpp \
+    RegExUrlRequestInterceptor.cpp \
+    RegExUrlSchemeHandler.cpp \
+    RegExWebEnginePage.cpp \
+    RegExWebEngineProfile.cpp \
     main.cpp \
     MainWindow.cpp
 
 HEADERS += \
-    MainWindow.h
+    MainWindow.h \
+    RegExSplashScreen.h \
+    RegExUrlRequestInterceptor.h \
+    RegExUrlSchemeHandler.h \
+    RegExWebEnginePage.h \
+    RegExWebEngineProfile.h
 
 FORMS += \
     MainWindow.ui

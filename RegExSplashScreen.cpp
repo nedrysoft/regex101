@@ -30,7 +30,7 @@
 constexpr auto splashScreenFilename = ":/assets/splash_620x300@2x.png";
 
 RegExSplashScreen::RegExSplashScreen() :
-    QSplashScreen(QPixmap(splashScreenFilename))
+    QSplashScreen(QPixmap(splashScreenFilename), Qt::WindowStaysOnTopHint)
 {
     show();
 }

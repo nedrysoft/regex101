@@ -30,7 +30,17 @@
 
 void RegExUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 {
+    // handle requests that are not using the regex101 uri scheme.
+
     if (info.requestUrl().scheme()!=RegExUrlSchemeHandler::name()) {
-        info.block(true);
+        QUrl redirectUrl("regex101:"+info.requestUrl().path()+info.requestUrl().query());
+
+        if (info.requestMethod()==QByteArrayLiteral("POST")) {
+            info.block(true);
+
+            return;
+        }
+
+        info.redirect(redirectUrl);
     }
 }

@@ -39,13 +39,13 @@ MainWindow::MainWindow(RegExSplashScreen *splashScreen, QWidget *parent)
 {
     ui->setupUi(this);
 
-    this->showMaximized();
+    showMaximized();
 
     ui->widget->setPage(m_page);
 
     connect(ui->widget->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
         if (finished) {
-            QTimer::singleShot(1000, splashScreen, [=]() {
+            QTimer::singleShot(1500, splashScreen, [=]() {
                 splashScreen->close();
             });
         }
@@ -58,7 +58,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
 void MainWindow::on_actionAbout_triggered()
 {
     RegExAboutDialog aboutDialog(this);
@@ -68,5 +67,5 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionExit_triggered()
 {
-    this->close();
+    close();
 }

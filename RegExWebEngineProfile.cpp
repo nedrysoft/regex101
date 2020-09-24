@@ -28,7 +28,7 @@
 #include "RegExWebEngineProfile.h"
 #include <QWebEngineSettings>
 
-constexpr const char *webFilesPrefix = "/regex101";
+constexpr auto webFilesPrefix = "/regex101";
 
 RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
     QWebEngineProfile(parent),

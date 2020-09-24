@@ -10,13 +10,15 @@ RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setAttribute(Qt::WA_TranslucentBackground);
-    this->setAttribute(Qt::WA_AlwaysStackOnTop);
+    setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_AlwaysStackOnTop);
 }
 
 void RegExAboutDialog::focusOutEvent(QFocusEvent *event)
 {
-    this->close();
+    Q_UNUSED(event)
+
+    close();
 }
 
 bool RegExAboutDialog::event(QEvent *event)
@@ -25,7 +27,7 @@ bool RegExAboutDialog::event(QEvent *event)
     {
         case QEvent::MouseButtonPress:
         case QEvent::KeyPress: {
-            this->close();
+            close();
 
             break;
         }

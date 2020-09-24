@@ -30,6 +30,7 @@
 #include <QFile>
 #include <QMimeDatabase>
 #include <QRegularExpression>
+#include <QUrlQuery>
 #include <QWebEngineSettings>
 #include <QWebEngineUrlRequestJob>
 #include <QWebEngineUrlScheme>
@@ -42,10 +43,12 @@ constexpr const char *sylesheetRegularExpressions[] = {
     nullptr
 };
 
-constexpr const char *htmlMimeType = "text/html";
-constexpr const char *javascriptMimeType = "text/javascript";
-constexpr const char *cssMimeType = "text/css";
-constexpr const char *qrcRootFolder = ":/";
+constexpr auto advertResponse = "({\"ads\":[{}]});";
+constexpr auto htmlMimeType = "text/html";
+constexpr auto cssMimeType = "text/css";
+constexpr auto javascriptMimeType = "application/javascript";
+constexpr auto qrcRootFolder = ":/";
+constexpr auto disableFetchJavascript = "<script type=\"text/javascript\">window.fetch=null</script>";
 
 QString RegExUrlSchemeHandler::name()
 {
@@ -56,7 +59,13 @@ void RegExUrlSchemeHandler::registerScheme()
 {
     QWebEngineUrlScheme scheme((RegExUrlSchemeHandler::name().toUtf8()));
 
-    scheme.setFlags(QWebEngineUrlScheme::SecureScheme | QWebEngineUrlScheme::LocalScheme | QWebEngineUrlScheme::LocalAccessAllowed | QWebEngineUrlScheme::ContentSecurityPolicyIgnored);
+    scheme.setFlags(QWebEngineUrlScheme::SecureScheme |
+                    QWebEngineUrlScheme::LocalScheme |
+                    QWebEngineUrlScheme::LocalAccessAllowed |
+                    QWebEngineUrlScheme::ContentSecurityPolicyIgnored |
+                    QWebEngineUrlScheme::ServiceWorkersAllowed |
+                    QWebEngineUrlScheme::CorsEnabled |
+                    QWebEngineUrlScheme::ContentSecurityPolicyIgnored);
 
     QWebEngineUrlScheme::registerScheme(scheme);
 }
@@ -68,17 +77,33 @@ RegExUrlSchemeHandler::RegExUrlSchemeHandler(QString resourceRootFolder)
 
 void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
 {
+    auto GET(QByteArrayLiteral("GET"));
+    auto method = job->requestMethod();
     QMimeDatabase db;
 
-    static const QByteArray GET(QByteArrayLiteral("GET"));
-
-    QByteArray method = job->requestMethod();
-
     if (method == GET) {
-        QUrl resourceUrl = job->requestUrl();
+        auto resourceUrl = job->requestUrl();
 
         resourceUrl.setScheme(qrcRootFolder);
         resourceUrl.setPath(m_resourceRootFolder+resourceUrl.path());
+
+        // if request is for the advert endpoint then send a dummy json object
+
+        if (job->requestUrl().path()=="/ads/CKYDE5QY.json") {
+            auto urlQuery = QUrlQuery(job->requestUrl());
+            auto jsonResponseString = QString("%1%2").arg(urlQuery.queryItemValue("callback")).arg(advertResponse);
+            auto *buffer = new QBuffer(job);
+
+            buffer->open(QIODevice::WriteOnly);
+            buffer->write(jsonResponseString.toUtf8());
+            buffer->close();
+
+            connect(job, &QObject::destroyed, buffer, &QObject::deleteLater);
+
+            job->reply(javascriptMimeType, buffer);
+
+            return;
+        }
 
         // if there was no file in the url, append index.html
 
@@ -91,11 +116,11 @@ void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
         QFile f(resourceUrl.toString());
 
         if (f.open(QFile::ReadOnly)) {
-            QMimeType type = db.mimeTypeForFile(resourceUrl.fileName());
-            QBuffer *buffer = new QBuffer(job);
-            QByteArray fileBuffer = f.readAll();
+            auto type = db.mimeTypeForFile(resourceUrl.fileName());
+            auto buffer = new QBuffer(job);
+            auto fileBuffer = f.readAll();
 
-            // check if we are serving the css file, if so we need to modify it to hide/move various sections of the original page
+            // hide/move various sections of the original page by modifying the css
 
             if (type.inherits(cssMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
@@ -110,10 +135,20 @@ void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
                 fileBuffer = fileString.toUtf8();
             }
 
-            // do any processing required on html or javascript files
+            // disable native fetch function, let the javascript library implement it's own as the native fetch cannot use our custom scheme
 
-            if ((type.inherits(htmlMimeType)) || (type.inherits(javascriptMimeType))) {
+            if (type.inherits(htmlMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
+
+                fileString = disableFetchJavascript+fileString;
+
+                fileBuffer = fileString.toUtf8();
+            }
+
+            if (type.inherits(javascriptMimeType)) {
+                auto fileString = QString::fromUtf8(fileBuffer);
+
+                fileString = fileString.replace(QRegularExpression("https://srv.buysellads.com/"), "regex101:/");
 
                 fileBuffer = fileString.toUtf8();
             }
@@ -128,5 +163,7 @@ void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
         }  else {
             job->fail(QWebEngineUrlRequestJob::UrlNotFound);
         }
+    } else {
+        job->fail(QWebEngineUrlRequestJob::UrlNotFound);
     }
 }

@@ -34,7 +34,7 @@
 
 class RegExWebEnginePage : public QWebEnginePage
 {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
         RegExWebEnginePage();

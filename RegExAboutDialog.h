@@ -11,17 +11,16 @@ class RegExAboutDialog : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit RegExAboutDialog(QWidget *parent = nullptr);
-    ~RegExAboutDialog();
+    public:
+        explicit RegExAboutDialog(QWidget *parent = nullptr);
+        ~RegExAboutDialog();
 
-protected:
+    protected:
+        virtual bool event(QEvent *event);
+        virtual void focusOutEvent(QFocusEvent *event);
 
-    virtual bool event(QEvent *event);
-    virtual void focusOutEvent(QFocusEvent *event);
-
-private:
-    Ui::RegExAboutDialog *ui;
+    private:
+        Ui::RegExAboutDialog *ui;
 };
 
 #endif // REGEXABOUTDIALOG_H

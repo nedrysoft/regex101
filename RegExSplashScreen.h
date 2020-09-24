@@ -32,7 +32,7 @@
 
 class RegExSplashScreen : public QSplashScreen
 {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
         RegExSplashScreen();

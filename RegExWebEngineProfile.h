@@ -33,7 +33,7 @@
 
 class RegExWebEngineProfile : public QWebEngineProfile
 {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
         RegExWebEngineProfile(QObject *parent=nullptr);

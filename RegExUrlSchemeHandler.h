@@ -33,7 +33,7 @@
 
 class RegExUrlSchemeHandler : public QWebEngineUrlSchemeHandler
 {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
         RegExUrlSchemeHandler(QString resourceRootFolder);

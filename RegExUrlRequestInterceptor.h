@@ -32,7 +32,7 @@
 
 class RegExUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor
 {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
         void interceptRequest(QWebEngineUrlRequestInfo &info);

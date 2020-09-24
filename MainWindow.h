@@ -31,8 +31,7 @@
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
-namespace Ui
-{
+namespace Ui {
     class MainWindow;
 }
 QT_END_NAMESPACE
@@ -42,18 +41,17 @@ class RegExWebEnginePage;
 
 class MainWindow : public QMainWindow
 {
-        Q_OBJECT
+    Q_OBJECT
 
     public:
         MainWindow(RegExSplashScreen *splashScreen, QWidget *parent = nullptr);
         ~MainWindow();
 
-private slots:
+    private slots:
         void on_actionAbout_triggered();
-
         void on_actionExit_triggered();
 
-private:
+    private:
         Ui::MainWindow *ui;
         RegExWebEnginePage *m_page;
 };

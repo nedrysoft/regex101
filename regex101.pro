@@ -41,6 +41,7 @@ CONFIG -= \
     qtquickcompiler
 
 SOURCES += \
+    RegExAboutDialog.cpp \
     RegExSplashScreen.cpp \
     RegExUrlRequestInterceptor.cpp \
     RegExUrlSchemeHandler.cpp \
@@ -51,6 +52,7 @@ SOURCES += \
 
 HEADERS += \
     MainWindow.h \
+    RegExAboutDialog.h \
     RegExSplashScreen.h \
     RegExUrlRequestInterceptor.h \
     RegExUrlSchemeHandler.h \
@@ -58,7 +60,8 @@ HEADERS += \
     RegExWebEngineProfile.h
 
 FORMS += \
-    MainWindow.ui
+    MainWindow.ui \
+    RegExAboutDialog.ui
 
 # embedded resources - regex101.com web files & application images
 

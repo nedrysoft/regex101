@@ -48,7 +48,12 @@ class MainWindow : public QMainWindow
         MainWindow(RegExSplashScreen *splashScreen, QWidget *parent = nullptr);
         ~MainWindow();
 
-    private:
+private slots:
+        void on_actionAbout_triggered();
+
+        void on_actionExit_triggered();
+
+private:
         Ui::MainWindow *ui;
         RegExWebEnginePage *m_page;
 };

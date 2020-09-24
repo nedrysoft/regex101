@@ -27,6 +27,7 @@
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "RegExAboutDialog.h"
 #include "RegExWebEnginePage.h"
 #include "RegExSplashScreen.h"
 #include <QtWebEngineWidgets>
@@ -57,3 +58,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
+void MainWindow::on_actionAbout_triggered()
+{
+    RegExAboutDialog aboutDialog(this);
+
+    aboutDialog.exec();
+}
+
+void MainWindow::on_actionExit_triggered()
+{
+    this->close();
+}

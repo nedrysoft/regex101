@@ -1,4 +1,7 @@
 
 .DS_Store
-
+bin
 *.user
+deployment
+tools
+assets/dmg_background.tiff

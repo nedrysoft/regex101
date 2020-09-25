@@ -25,7 +25,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# ./deploy.py --appleid="adrian.carpenter@me.com" \
+#             --password="@keychain:signingpassword" -\
+#             --cert="Developer ID Application: Adrian Carpenter (5JN9ZQ38G6)" \
+#             --arch=x86_64 \
+#             --type=release \
+#             --qtdir="/Users/adriancarpenter/Qt/5.15.0/clang_64"
+
+
 TARGET = "Regular Expressions 101"
+
+CONFIG(release, debug|release) {
+    DESTDIR = $$PWD/bin/$$QT_ARCH/Release
+} else {
+    DESTDIR = $$PWD/bin/$$QT_ARCH/Debug
+}
 
 QT += \
     core \

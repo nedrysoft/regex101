@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Regular Expressions 101
+Exec=Regular Expressions 101
+Icon=Regular Expressions 101
+Comment=Regular Expressions 101, a tool for developing, testing and learning regular expressions.
+Terminal=false
+Categories=Development;
+Name[en_GB]=Regular Expressions 101.desktop

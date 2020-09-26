@@ -230,7 +230,7 @@ if platform.system()=="Windows":
 
     endMessage(True)
 
-    # check for qt installATION
+    # check for qt installation
 
     startMessage('Checking qtdir...')
 
@@ -245,6 +245,15 @@ if platform.system()=="Windows":
     if not windeployqt:
         endMessage(False, 'qt could not be found. (see --qtdir).')
         exit(1)
+
+    endMessage(True)
+
+    # create tools folder if it doesn't exist
+
+    startMessage('Setting up tools directory...')
+
+    if not os.path.exists(f'tools'):
+        os.makedirs(f'tools')
 
     endMessage(True)
 
@@ -330,17 +339,19 @@ if platform.system()=="Windows":
                 exit(1)
 
         endMessage(True)
-
+    
     filesString = ''
 
     for file in files:
-        filesString += f' {file}'
+        filesString += f'{file} '
+
+    filesString = filesString.strip()
 
     # run windeplotqt
 
     startMessage('Running windeployqt...')
 
-    resultCode, resultOutput = execute(f'{windeployqt} --dir {deployDir} {filesString}')
+    resultCode, resultOutput = execute(f'{windeployqt} --dir "{deployDir}" "{filesString}"')
 
     if resultCode:
         endMessage(False, f'there was a problem running windeployqt.\r\n\r\n{resultOutput}\r\n')

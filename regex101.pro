@@ -37,7 +37,10 @@
 # Windows deployment
 # ------------------
 #
-# python deploy.py --curlbin="C:\Tools\curl\bin\curl.exe" --qtdir="C:\Qt\5.14.2\msvc2017_64" --type=release --cert="Open Source Developer, Adrian Carpenter"
+# python deploy.py --curlbin="C:\Tools\curl\bin\curl.exe" ^
+#                  --qtdir="C:\Qt\5.14.2\msvc2017_64" ^
+#                  --type=release ^
+#                  --cert="Open Source Developer, Adrian Carpenter"
 #
 # Linux deployment
 # ----------------

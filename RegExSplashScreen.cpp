@@ -27,7 +27,7 @@
 
 #include "RegExSplashScreen.h"
 
-constexpr auto splashScreenFilename = ":/assets/splash_620x300@2x.png";
+constexpr auto splashScreenFilename = ":/assets/splash_620x375@2x.png";
 
 RegExSplashScreen::RegExSplashScreen() :
     QSplashScreen(QPixmap(splashScreenFilename), Qt::WindowStaysOnTopHint)

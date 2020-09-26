@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2019 Adrian Carpenter
 # 
-# Multiplatform Deployment Tool
+# Multiplatform Qt Deployment Tool
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -165,22 +165,34 @@ def notarizeFile(file, username, password):
 
 # application entry point
 
+hostArch = "x86"
+
 parser = argparse.ArgumentParser(description='Qt Deployment Tool')
 
 parser.add_argument('--qtdir', type=str, nargs='?', help='path to qt')
 parser.add_argument('--curlbin', type=str, nargs='?', help='path to curl binary')
 
 if platform.system()=="Darwin":
+    status, hostArch = execute(f'arch')
+
+    if not status:
+        hostArch = hostArch.strip()
+
     parser.add_argument('--arch', choices=['x86_64', 'arm64', 'universal'], type=str, default='x64_64', nargs='?', help='architecture type to deploy')
 else:
-    parser.add_argument('--arch', choices=['x86', 'x64'], type=str, default='x64', nargs='?', help='architecture type to deploy')
+    parser.add_argument('--arch', choices=['x86', 'x86_64'], type=str, default='x86_64', nargs='?', help='architecture type to deploy')
 
 parser.add_argument('--type', choices=['release', 'debug'], default='release', type=str, nargs='?', help='type of build to deploy')
 parser.add_argument('--cert', type=str, nargs='?', help='certificate id to sign with')
 
 if platform.system()=="Linux":
-    parser.add_argument('--linuxdeployqt', type=str, default='tools/linuxdeployqt/linuxdeployqt-6-x86_64.AppImage', nargs='?', help='path to linuxdeployqt')
-    parser.add_argument('--appimagetool', type=str, default='tools/appimagetool/appimagetool-x86_64.AppImage', nargs='?', help='path to appimagetool')
+    status, hostArch = execute(f'arch')
+
+    if not status:
+        hostArch = hostArch.strip()
+
+    parser.add_argument('--linuxdeployqt', type=str, default=f'tools/linuxdeployqt/linuxdeployqt-6-{hostArch}.AppImage', nargs='?', help='path to linuxdeployqt')
+    parser.add_argument('--appimagetool', type=str, default=f'tools/appimagetool/appimagetool-{hostArch}.AppImage', nargs='?', help='path to appimagetool')
 
 if platform.system()=="Windows":
     parser.add_argument('--timeserver', type=str, default='http://time.certum.pl/', nargs='?', help='time server to use for signing')
@@ -421,6 +433,15 @@ if platform.system()=="Linux" :
 
     endMessage(True)
 
+    # create tools folder if it doesn't exist
+
+    startMessage('Setting up tools directory...')
+
+    if not os.path.exists(f'tools'):
+        os.makedirs(f'tools')
+
+    endMessage(True)
+
     # download linuxdeployqt
 
     linuxdeployqt = args.linuxdeployqt
@@ -431,19 +452,19 @@ if platform.system()=="Linux" :
         if not os.path.exists('tools/linuxdeployqt'):
             os.mkdir('tools/linuxdeployqt')
 
-        resultCode, resultOutput = execute('cd tools/linuxdeployqt; curl -LJO https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage')
+        resultCode, resultOutput = execute(f'cd tools/linuxdeployqt; curl -LJO https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-{hostArch}.AppImage')
 
         if resultCode:
             endMessage(False, f'unable to download linuxdeployqt.\r\n\r\n{resultOutput}\r\n')
             exit(1)
 
-        resultCode, resultOutput = execute('chmod +x tools/linuxdeployqt/linuxdeployqt-6-x86_64.AppImage')
+        resultCode, resultOutput = execute(f'chmod +x tools/linuxdeployqt/linuxdeployqt-6-{hostArch}.AppImage')
 
         if resultCode:
             endMessage(False, f'unable to set permissions on linuxdeployqt.\r\n\r\n{resultOutput}\r\n')
             exit(1)
 
-        linuxdeployqt = 'tools/linuxdeployqt/linuxdeployqt-6-x86_64.AppImage'
+        linuxdeployqt = f'tools/linuxdeployqt/linuxdeployqt-6-{hostArch}.AppImage'
 
         endMessage(True)
 
@@ -455,19 +476,19 @@ if platform.system()=="Linux" :
         if not os.path.exists('tools/appimagetool'):
             os.mkdir('tools/appimagetool')
 
-        resultCode, resultOutput = execute('cd tools/appimagetool; curl -LJO https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage')
+        resultCode, resultOutput = execute(f'cd tools/appimagetool; curl -LJO https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-{hostArch}.AppImage')
 
         if resultCode:
             endMessage(False, f'unable to download appimagetool.\r\n\r\n{resultOutput}\r\n')
             exit(1)
 
-        resultCode, resultOutput = execute('chmod +x tools/appimagetool/appimagetool-x86_64.AppImage')
+        resultCode, resultOutput = execute(f'chmod +x tools/appimagetool/appimagetool-{hostArch}.AppImage')
 
         if resultCode:
             endMessage(False, f'unable to set permissions on appimagetool.\r\n\r\n{resultOutput}\r\n')
             exit(1)
 
-        appimagetool = 'tools/appimagetool/appimagetool-x86_64.AppImage'
+        appimagetool = f'tools/appimagetool/appimagetool-{hostArch}.AppImage'
 
         endMessage(True)
 
@@ -485,12 +506,12 @@ if platform.system()=="Linux" :
 
     os.makedirs(f'bin/{buildArch}/Deploy/usr/bin')
     os.makedirs(f'bin/{buildArch}/Deploy/usr/lib')
-    os.makedirs(f'bin/{buildArch}/Deploy/usr/share/icons/hicolor/128x128/apps')
+    os.makedirs(f'bin/{buildArch}/Deploy/usr/share')
     os.makedirs(f'bin/{buildArch}/Deploy/usr/share/applications')
 
     shutil.copy2(f'bin/{buildArch}/{buildType}/{deploymentProject}', f'bin/{buildArch}/Deploy/usr/bin')
-    shutil.copy2(f'installer/{deploymentProject}.png', f'bin/{buildArch}/Deploy/usr/share/icons/hicolor/128x128/apps')
-    shutil.copy2(f'installer/{deploymentProject}.desktop', f'bin/{buildArch}/Deploy/usr/share/applications')
+    shutil.copy2(f'installer/{deploymentProject}.png', f'bin/{buildArch}/Deploy/regex101.png')
+    shutil.copy2(f'installer/{deploymentProject}.desktop', f'bin/{buildArch}/Deploy/{deploymentProject}.desktop')
     shutil.copy2(f'installer/AppRun', f'bin/{buildArch}/Deploy/')
 
     for file in glob.glob(f'bin/{buildArch}/{buildType}/*.so') :
@@ -502,7 +523,7 @@ if platform.system()=="Linux" :
 
     startMessage('Running linuxdeployqt...')
 
-    resultCode, resultOutput = execute(f'{linuxdeployqt} \'bin/{buildArch}/Deploy/usr/share/applications/{deploymentProject}.desktop\' -qmake=\'{qtdir}/bin/qmake\' -exclude-libs=\'libqsqlodbc,libqsqlpsql\'')
+    resultCode, resultOutput = execute(f'{linuxdeployqt} "bin/{buildArch}/Deploy/usr/bin/{deploymentProject}" -qmake="{qtdir}/bin/qmake" -exclude-libs="libqsqlodbc,libqsqlpsql" -unsupported-allow-new-glibc')
 
     if resultCode:
         endMessage(False, f'there was a problem running linuxdeployqt.\r\n\r\n{resultCode}\r\n')
@@ -519,7 +540,7 @@ if platform.system()=="Linux" :
 
     startMessage('Creating AppImage...')
 
-    resultCode, resultOutput = execute(f'{appimagetool} -g {signParameters} bin/{buildArch}/Deploy "deployment/{deploymentProject}-x86_64.AppImage"')
+    resultCode, resultOutput = execute(f'ARCH={buildArch} {appimagetool} -g {signParameters} bin/{buildArch}/Deploy "deployment/{deploymentProject}-{buildArch}.AppImage"')
 
     if resultCode:
         endMessage(False, f'there was a problem creating the AppImage.\r\n\r\n{resultCode}\r\n')
@@ -531,7 +552,7 @@ if platform.system()=="Linux" :
 
     # done!
 
-    print(f'\r\n'+Style.BRIGHT+Fore.CYAN+f'Finished! AppImage at "deployment/{deploymentProject}-x86_64.AppImage" is '+Fore.GREEN+'ready'+Fore.CYAN+' for distribution.')
+    print(f'\r\n'+Style.BRIGHT+Fore.CYAN+f'Finished! AppImage at "deployment/{deploymentProject}-{buildArch}.AppImage" is '+Fore.GREEN+'ready'+Fore.CYAN+' for distribution.')
 
     print(Style.BRIGHT+f'\r\nTotal time taken to perform deployment was '+timeDelta(endTime-startTime)+'.')
 
@@ -767,8 +788,6 @@ if platform.system()=="Darwin":
     if resultCode:
         endMessage(False, f'there was a problem creating the combined tiff.\r\n\r\n{resultOutput}\r\n')
         exit(1)
-
-    #tools/create-dmg/create-dmg --volname "Regular Expressions 101" --background "./assets/dmg_background.tiff" --window-size 768 534 --icon-size 160 --icon "Regular Expressions 101.app" 199 276 --app-drop-link 569 276 "./bin/x86_64/Deploy/Regular Expressions 101.dmg" "./bin/x86_64/Deploy/Regular Expressions 101.app"
     
     resultCode, resultOutput = execute(f'tools/create-dmg/create-dmg --volname "{deploymentProject}" --background "./assets/dmg_background.tiff" --window-size 768 534 --icon-size 160 --icon "{deploymentProject}.app" 199 276 --app-drop-link 569 276 "./bin/{buildArch}/Deploy/{deploymentProject}.dmg" "./bin/{buildArch}/Deploy/{deploymentProject}.app"')
 

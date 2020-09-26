@@ -24,14 +24,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-
+# macOS deployment
+# ----------------
+#
 # ./deploy.py --appleid="adrian.carpenter@me.com" \
 #             --password="@keychain:signingpassword" -\
 #             --cert="Developer ID Application: Adrian Carpenter (5JN9ZQ38G6)" \
 #             --arch=x86_64 \
 #             --type=release \
 #             --qtdir="/Users/adriancarpenter/Qt/5.15.0/clang_64"
-
+#
+# Windows deployment
+# ------------------
+#
+# python deploy.py --curlbin="C:\Tools\curl\bin\curl.exe" --qtdir="C:\Qt\5.14.2\msvc2017_64" --type=release --cert="Open Source Developer, Adrian Carpenter"
+#
+# Linux deployment
+# ----------------
+#
+# ./deploy.py --qtdir="/home/adrian/Qt/5.14.2/gcc_64" \
+#             --curlbin="/usr/bin/curl” \
+#             -—cert=05DDE1C3F3B50B53112A13C231A0DBA53EEA9FE6
 
 TARGET = "Regular Expressions 101"
 

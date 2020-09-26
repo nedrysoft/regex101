@@ -212,6 +212,8 @@ if platform.system()=="Windows":
 
     startTime = time.time()
 
+    isRDP = os.environ['SESSIONNAME'].startswith('RDP-')
+
     # check curl is available
 
     startMessage('Checking for curl...')
@@ -331,6 +333,10 @@ if platform.system()=="Windows":
     if args.cert:
         startMessage('Signing binaries...')
 
+        if isRDP:
+            endMessage(False, f'Unable to sign during an RDP session.')
+            exit(1)
+
         for file in signList:
             resultCode, resultOutput = winSignBinary(signtool, file, args.cert, args.timeserver)
 
@@ -375,6 +381,10 @@ if platform.system()=="Windows":
 
     if args.cert:
         startMessage('Signing installer...')
+
+        if isRDP:
+            endMessage(False, f'Unable to sign during an RDP session.')
+            exit(1)
 
         resultCode, resultOutput = winSignBinary(signtool, f'deployment\\{deploymentProject}.exe', args.cert, args.timeserver)
 

@@ -61,7 +61,8 @@ QT += \
     core \
     gui \
     widgets \
-    webenginewidgets
+    webenginewidgets \
+    webchannel
 
 CONFIG += \
     c++11 \
@@ -72,6 +73,7 @@ CONFIG -= \
 
 SOURCES += \
     RegExAboutDialog.cpp \
+    RegExApiEndpoint.cpp \
     RegExSplashScreen.cpp \
     RegExUrlRequestInterceptor.cpp \
     RegExUrlSchemeHandler.cpp \
@@ -83,6 +85,7 @@ SOURCES += \
 HEADERS += \
     MainWindow.h \
     RegExAboutDialog.h \
+    RegExApiEndpoint.h \
     RegExSplashScreen.h \
     RegExUrlRequestInterceptor.h \
     RegExUrlSchemeHandler.h \

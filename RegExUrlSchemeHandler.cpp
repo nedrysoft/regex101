@@ -34,6 +34,7 @@
 #include <QWebEngineSettings>
 #include <QWebEngineUrlRequestJob>
 #include <QWebEngineUrlScheme>
+#include <QDebug>
 
 constexpr const char *sylesheetRegularExpressions[] = {
     "(?i)\\._2eQHI\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._2eQHI{display:none;}",          // left hand panel
@@ -48,7 +49,11 @@ constexpr auto htmlMimeType = "text/html";
 constexpr auto cssMimeType = "text/css";
 constexpr auto javascriptMimeType = "application/javascript";
 constexpr auto qrcRootFolder = ":/";
-constexpr auto disableFetchJavascript = "<script type=\"text/javascript\">window.fetch=null</script>";
+constexpr auto disableFetchJavascript = "<script type=\"text/javascript\" src=\"./qwebchannel.js\"></script><script src=\"/regexbridge.js\"></script>";
+
+auto GET(QByteArrayLiteral("GET"));
+auto POST(QByteArrayLiteral("POST"));
+auto DELETE(QByteArrayLiteral("DELETE"));
 
 QString RegExUrlSchemeHandler::name()
 {
@@ -77,8 +82,8 @@ RegExUrlSchemeHandler::RegExUrlSchemeHandler(QString resourceRootFolder)
 
 void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
 {
-    auto GET(QByteArrayLiteral("GET"));
     auto method = job->requestMethod();
+    auto url = job->requestUrl().path(QUrl::FormattingOptions(QUrl::StripTrailingSlash));
     QMimeDatabase db;
 
     if (method == GET) {

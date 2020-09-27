@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QWebChannel>
 #include "RegExWebEnginePage.h"
 #include "RegExWebEngineProfile.h"
 #include <QTimer>
@@ -35,6 +36,13 @@ RegExWebEnginePage::RegExWebEnginePage() :
 {
     m_profile = dynamic_cast<RegExWebEngineProfile *>(profile());
 
+    m_apiEndpoint = new RegExApiEndpoint;
+    m_apiChannel = new QWebChannel;
+
+    setWebChannel(m_apiChannel);
+
+    m_apiChannel->registerObject(QString("RegExApiEndpoint"), m_apiEndpoint);
+
     setUrlRequestInterceptor(m_urlInterceptor);
 
     setUrl(QUrl(RegExUrlSchemeHandler::name()+":/"));
@@ -43,4 +51,14 @@ RegExWebEnginePage::RegExWebEnginePage() :
 RegExWebEnginePage::~RegExWebEnginePage()
 {
     m_profile->deleteLater();
+}
+
+void RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
+{
+    Q_UNUSED(level);
+    Q_UNUSED(lineNumber);
+    Q_UNUSED(sourceID);
+    Q_UNUSED(message);
+
+    //qDebug() << message;
 }

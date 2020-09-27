@@ -25,32 +25,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REGEXWEBENGINEPAGE_H
-#define REGEXWEBENGINEPAGE_H
 
-#include "RegExApiEndpoint.h"
-#include "RegExUrlRequestInterceptor.h"
-#include "RegExWebEngineProfile.h"
-#include <QWebEnginePage>
+// create the QWebChannel object and replace the fetch function with our own
 
-class QWebChannel;
+window.webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
+    window.apiEndPoint = channel.objects.RegExApiEndpoint;
+    window.fetch = regexApiFetch
+});
 
-class RegExWebEnginePage : public QWebEnginePage
+// replacement fetch function which uses a QWebChannel to directly communicate with the API endpointå
+
+function regexApiFetch(a,b)
 {
-    Q_OBJECT
+   return new Promise(function(resolve, reject) {
+        return window.apiEndPoint.fetch(a, b).then(function(e) {
+            var r = {
+                status: 200,
+                json : function() {
+                    return JSON.parse(e);
+                }
+            };
 
-    public:
-        RegExWebEnginePage();
-        ~RegExWebEnginePage();
-
-    protected:
-        virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
-
-    private:
-        RegExUrlRequestInterceptor *m_urlInterceptor;
-        RegExWebEngineProfile *m_profile;
-        QWebChannel *m_apiChannel;
-        RegExApiEndpoint *m_apiEndpoint;
-};
-
-#endif // REGEXWEBENGINEPAGE_H
+            resolve(r);
+        });
+    });
+}

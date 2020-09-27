@@ -28,7 +28,6 @@ bool RegExAboutDialog::event(QEvent *event)
         case QEvent::MouseButtonPress:
         case QEvent::KeyPress: {
             close();
-
             break;
         }
 

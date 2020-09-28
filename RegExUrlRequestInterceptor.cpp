@@ -28,11 +28,9 @@
 #include "RegExUrlRequestInterceptor.h"
 #include "RegExUrlSchemeHandler.h"
 
-void RegExUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
+void Nedrysoft::RegExUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 {
-    // handle requests that are not using the regex101 uri scheme.
-
-    if (info.requestUrl().scheme()!=RegExUrlSchemeHandler::name()) {
+    if (info.requestUrl().scheme()!=Nedrysoft::RegExUrlSchemeHandler::name()) {
         QUrl redirectUrl("regex101:"+info.requestUrl().path()+info.requestUrl().query());
 
         if (info.requestMethod()==QByteArrayLiteral("POST")) {

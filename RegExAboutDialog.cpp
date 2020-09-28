@@ -1,10 +1,11 @@
 #include "RegExAboutDialog.h"
 #include "ui_RegExAboutDialog.h"
+
 #include <QDebug>
 #include <QDialog>
 #include <QDesktopWidget>
 
-RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
+Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
     QDialog(parent, Qt::FramelessWindowHint),
     ui(new Ui::RegExAboutDialog)
 {
@@ -14,14 +15,14 @@ RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
     setAttribute(Qt::WA_AlwaysStackOnTop);
 }
 
-void RegExAboutDialog::focusOutEvent(QFocusEvent *event)
+void Nedrysoft::RegExAboutDialog::focusOutEvent(QFocusEvent *event)
 {
     Q_UNUSED(event)
 
     close();
 }
 
-bool RegExAboutDialog::event(QEvent *event)
+bool Nedrysoft::RegExAboutDialog::event(QEvent *event)
 {
     switch(event->type())
     {
@@ -39,7 +40,7 @@ bool RegExAboutDialog::event(QEvent *event)
     return QObject::event(event);
 }
 
-RegExAboutDialog::~RegExAboutDialog()
+Nedrysoft::RegExAboutDialog::~RegExAboutDialog()
 {
     delete ui;
 }

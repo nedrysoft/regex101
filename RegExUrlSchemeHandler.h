@@ -31,19 +31,58 @@
 #include <QWebEngineUrlSchemeHandler>
 #include <QWebEngineProfile>
 
-class RegExUrlSchemeHandler : public QWebEngineUrlSchemeHandler
-{
-    Q_OBJECT
+namespace Nedrysoft {
+    /**
+     * @brief           RegExUrlSchemeHandler class
+     *
+     * @details         This class provides a custom scheme implementation that allows content to be
+     *                  displayed in a web page from a local data source.  This class is used in conjunction
+     *                  with the RefExUrlRequestInterceptor and RegExApiEndpoint classes to provide
+     *                  a full implementation.
+     */
+    class RegExUrlSchemeHandler : public QWebEngineUrlSchemeHandler {
+        Q_OBJECT
 
-    public:
-        RegExUrlSchemeHandler(QString resourceRootFolder);
-        void requestStarted(QWebEngineUrlRequestJob *request);
+        public:
+            /**
+             * @brief       Constructs a URL scheme handler.
+             *
+             * @param[in]   resourceRootFolder is the root path of the internal web content.
+             */
+            RegExUrlSchemeHandler(QString resourceRootFolder);
 
-        static void registerScheme();
-        static QString name();
+            /**
+             * @brief       requestStarted
+             *
+             * @details     This function is called when a request is made to the custom scheme,
+             *              the job includes information about the request and functions to
+             *              tell the web engine whether or not the request was successful.
+             *
+             * @param[in]   request is the information about the request job.
+             */
+            void requestStarted(QWebEngineUrlRequestJob *request);
 
-    private:
-        QString m_resourceRootFolder;
-};
+            /**
+             * @brief       registerScheme
+             *
+             * @details     Registers the custom scheme with the web engine.
+             *
+             * @note        This must be called before the QApplication is instantiated.
+             */
+            static void registerScheme();
+
+            /**
+             * @brief       name
+             *
+             * @details     Returns the name used for the scheme.
+             *
+             * @returns     The name of the scheme.
+             */
+            static QString name();
+
+        private:
+            QString m_resourceRootFolder;
+    };
+}
 
 #endif // REGEXURLSCHEMEHANDLER_H

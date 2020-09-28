@@ -34,16 +34,16 @@ constexpr auto applicationName = "Regular Expressions 101";
 
 int main(int argc, char *argv[])
 {
-    RegExUrlSchemeHandler::registerScheme();
+    Nedrysoft::RegExUrlSchemeHandler::registerScheme();
 
     QApplication application(argc, argv);
 
-    RegExSplashScreen splashScreen;
+    Nedrysoft::RegExSplashScreen splashScreen;
 
     application.setApplicationDisplayName(applicationName);
     application.setApplicationName(applicationName);
 
-    MainWindow mainWindow(&splashScreen);
+    Nedrysoft::MainWindow mainWindow(&splashScreen);
 
     mainWindow.show();
 

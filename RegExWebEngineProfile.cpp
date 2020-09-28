@@ -26,13 +26,14 @@
  */
 
 #include "RegExWebEngineProfile.h"
+
 #include <QWebEngineSettings>
 
 constexpr auto webFilesPrefix = "/regex101";
 
-RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
+Nedrysoft::RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
     QWebEngineProfile(parent),
-    m_schemeHandler(new RegExUrlSchemeHandler(webFilesPrefix))
+    m_schemeHandler(new Nedrysoft::RegExUrlSchemeHandler(webFilesPrefix))
 {
     installUrlSchemeHandler(RegExUrlSchemeHandler::name().toUtf8(), m_schemeHandler);
 

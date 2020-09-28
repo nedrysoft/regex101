@@ -26,7 +26,9 @@
  */
 
 #include "RegExUrlSchemeHandler.h"
+
 #include <QBuffer>
+#include <QDebug>
 #include <QFile>
 #include <QMimeDatabase>
 #include <QRegularExpression>
@@ -34,14 +36,19 @@
 #include <QWebEngineSettings>
 #include <QWebEngineUrlRequestJob>
 #include <QWebEngineUrlScheme>
-#include <QDebug>
 
-constexpr const char *sylesheetRegularExpressions[] = {
-    "(?i)\\._2eQHI\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._2eQHI{display:none;}",          // left hand panel
-    "(?i)\\_2PLNZ\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "_2PLNZ{display:none;}",            // top bar items
-    "(?i)(\\._3tDL-)\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._3tDL-{margin-left=0}",        // fix left panel position
-    "(?i)\\.tNf50\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", ".tNf50{display:none;}",            // sponsors div
-    nullptr
+namespace Nedrysoft {
+    struct RegExPair {
+        const char *expression;
+        const char *replacement;
+    } RegExPair;
+}
+
+struct Nedrysoft::RegExPair sylesheetRegularExpressions[] = {
+    {"(?i)\\._2eQHI\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._2eQHI{display:none;}"},          // left hand panel
+    {"(?i)\\_2PLNZ\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "_2PLNZ{display:none;}"},            // top bar items
+    {"(?i)(\\._3tDL-)\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._3tDL-{margin-left=0}"},        // fix left panel position
+    {"(?i)\\.tNf50\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", ".tNf50{display:none;}"},            // sponsors div
 };
 
 constexpr auto advertResponse = "({\"ads\":[{}]});";
@@ -55,12 +62,12 @@ auto GET(QByteArrayLiteral("GET"));
 auto POST(QByteArrayLiteral("POST"));
 auto DELETE(QByteArrayLiteral("DELETE"));
 
-QString RegExUrlSchemeHandler::name()
+QString Nedrysoft::RegExUrlSchemeHandler::name()
 {
     return QStringLiteral("regex101");
 }
 
-void RegExUrlSchemeHandler::registerScheme()
+void Nedrysoft::RegExUrlSchemeHandler::registerScheme()
 {
     QWebEngineUrlScheme scheme((RegExUrlSchemeHandler::name().toUtf8()));
 
@@ -75,12 +82,12 @@ void RegExUrlSchemeHandler::registerScheme()
     QWebEngineUrlScheme::registerScheme(scheme);
 }
 
-RegExUrlSchemeHandler::RegExUrlSchemeHandler(QString resourceRootFolder)
+Nedrysoft::RegExUrlSchemeHandler::RegExUrlSchemeHandler(QString resourceRootFolder)
 {
     m_resourceRootFolder = resourceRootFolder;
 }
 
-void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
+void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
 {
     auto method = job->requestMethod();
     auto url = job->requestUrl().path(QUrl::FormattingOptions(QUrl::StripTrailingSlash));
@@ -129,12 +136,9 @@ void RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
 
             if (type.inherits(cssMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
-                int currentRegexIndex = 0;
 
-                while(sylesheetRegularExpressions[currentRegexIndex]) {
-                    fileString = fileString.replace(QRegularExpression(sylesheetRegularExpressions[currentRegexIndex]), sylesheetRegularExpressions[currentRegexIndex+1]);
-
-                    currentRegexIndex += 2;
+                for (auto regExPair : sylesheetRegularExpressions) {
+                    fileString = fileString.replace(QRegularExpression(regExPair.expression), regExPair.replacement);
                 }
 
                 fileBuffer = fileString.toUtf8();

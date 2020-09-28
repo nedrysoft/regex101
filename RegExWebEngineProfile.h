@@ -31,15 +31,27 @@
 #include <QWebEngineProfile>
 #include "RegExUrlSchemeHandler.h"
 
-class RegExWebEngineProfile : public QWebEngineProfile
-{
-    Q_OBJECT
+namespace Nedrysoft {
+    /**
+     * @brief           RegExWebEngineProfile class
+     *
+     * @details         Provides a profile which is set up to handle the custom scheme with
+     *                  appropriate security levels.
+     */
+    class RegExWebEngineProfile : public QWebEngineProfile {
+        Q_OBJECT
 
-    public:
-        RegExWebEngineProfile(QObject *parent=nullptr);
+        public:
+            /**
+             * @brief       Constructs a web engine profile.
+             *
+             * @param[in]   parent is the the owner of the profile.
+             */
+            RegExWebEngineProfile(QObject *parent=nullptr);
 
-    private:
-        RegExUrlSchemeHandler *m_schemeHandler;
-};
+        private:
+            Nedrysoft::RegExUrlSchemeHandler *m_schemeHandler;
+    };
+}
 
 #endif // REGEXWEBENGINEPROFILE_H

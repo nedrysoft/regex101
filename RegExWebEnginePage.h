@@ -35,22 +35,47 @@
 
 class QWebChannel;
 
-class RegExWebEnginePage : public QWebEnginePage
-{
-    Q_OBJECT
+namespace Nedrysoft {
+    /**
+     * @brief           RegExWebEnginePage class.
+     *
+     * @details         This subclass provides a web page that is set up to use the handlers,
+     *                  interceptors and web channels.
+     */
+    class RegExWebEnginePage : public QWebEnginePage {
+        Q_OBJECT
 
-    public:
-        RegExWebEnginePage();
-        ~RegExWebEnginePage();
+        public:
+            /**
+             * @brief       Constructs a web engine page.
+             */
+            RegExWebEnginePage();
 
-    protected:
-        virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
+            /**
+             * @brief       Destroys the web engine page.
+             */
+            ~RegExWebEnginePage();
 
-    private:
-        RegExUrlRequestInterceptor *m_urlInterceptor;
-        RegExWebEngineProfile *m_profile;
-        QWebChannel *m_apiChannel;
-        RegExApiEndpoint *m_apiEndpoint;
-};
+        protected:
+            /**
+             * @brief       javaScriptConsoleMessage
+             *
+             * @details     This overridden function allows debug information from the console.log functions
+             *              to be obtained.
+             *
+             * @param[in]   level is the level of message.
+             * @param[in]   message is the content of the message sent via javascript.
+             * @param[in]   lineNumber is the number of the line that caused the output.
+             * @param[in]   sourceID is the identifier of the source of the message.
+             */
+            virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
+
+        private:
+            Nedrysoft::RegExUrlRequestInterceptor *m_urlInterceptor;
+            RegExWebEngineProfile *m_profile;
+            QWebChannel *m_apiChannel;
+            Nedrysoft::RegExApiEndpoint *m_apiEndpoint;
+    };
+}
 
 #endif // REGEXWEBENGINEPAGE_H

@@ -30,30 +30,57 @@
 
 #include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
 namespace Ui {
     class MainWindow;
 }
-QT_END_NAMESPACE
 
-class RegExSplashScreen;
-class RegExWebEnginePage;
+namespace Nedrysoft {
+    class RegExSplashScreen;
+    class RegExWebEnginePage;
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+    /**
+     * @brief           The MainWindow class
+     *
+     * @details         Provides the main window for the application.
+     */
+    class MainWindow : public QMainWindow
+    {
+        Q_OBJECT
 
-    public:
-        MainWindow(RegExSplashScreen *splashScreen, QWidget *parent = nullptr);
-        ~MainWindow();
+        public:
+            /**
+             * @brief       Constructs the main window.
+             *
+             * @param[in]   splashScreen is a pointer to the splashscreen that was created
+             *              by the main thread at startup.
+             * @param[in]   parent is the parent widget that owns this main window.
+             */
+            MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent = nullptr);
 
-    private slots:
-        void on_actionAbout_triggered();
-        void on_actionExit_triggered();
+            /**
+             * @brief       Destroys the main window.
+             */
+            ~MainWindow();
 
-    private:
-        Ui::MainWindow *ui;
-        RegExWebEnginePage *m_page;
-};
+        private slots:
+            /**
+             * @brief       About slot function.
+             *
+             * @details     This slot is called when the About action is triggered, the about dialog is displayed.
+             */
+            void on_actionAbout_triggered();
+
+            /**
+             * @brief       Exit slot function.
+             *
+             * @details     This slot is called when the Exit action is triggered, the application is closed.
+             */
+            void on_actionExit_triggered();
+
+        private:
+            Ui::MainWindow *ui;
+            Nedrysoft::RegExWebEnginePage *m_page;
+    };
+}
 
 #endif // MAINWINDOW_H

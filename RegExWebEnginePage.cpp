@@ -25,14 +25,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QWebChannel>
 #include "RegExWebEnginePage.h"
 #include "RegExWebEngineProfile.h"
-#include <QTimer>
 
-RegExWebEnginePage::RegExWebEnginePage() :
-    QWebEnginePage(new RegExWebEngineProfile),
-    m_urlInterceptor(new RegExUrlRequestInterceptor)
+#include <QTimer>
+#include <QWebChannel>
+
+Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
+    QWebEnginePage(new Nedrysoft::RegExWebEngineProfile),
+    m_urlInterceptor(new Nedrysoft::RegExUrlRequestInterceptor)
 {
     m_profile = dynamic_cast<RegExWebEngineProfile *>(profile());
 
@@ -48,12 +49,12 @@ RegExWebEnginePage::RegExWebEnginePage() :
     setUrl(QUrl(RegExUrlSchemeHandler::name()+":/"));
 }
 
-RegExWebEnginePage::~RegExWebEnginePage()
+Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
 {
     m_profile->deleteLater();
 }
 
-void RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
+void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
 {
     Q_UNUSED(level);
     Q_UNUSED(lineNumber);

@@ -1,14 +1,14 @@
 #include "RegExApiEndpoint.h"
-#include <QJsonValue>
-#include <QDebug>
-#include <QJsonObject>
-#include <QJsonDocument>
 
-RegExApiEndpoint::RegExApiEndpoint()
+#include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+Nedrysoft::RegExApiEndpoint::RegExApiEndpoint()
 {
 }
 
-QString RegExApiEndpoint::fetch(const QVariant &pathParameter, const QVariant &requestParameter) const
+QString Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const QVariant &requestParameter) const
 {
     auto valueMap = requestParameter.toMap();
     auto path = pathParameter.toString();

@@ -30,13 +30,27 @@
 
 #include <QWebEngineUrlRequestInterceptor>
 
-class RegExUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor
-{
-    Q_OBJECT
+namespace Nedrysoft {
+    /**
+     * @brief           RegExUrlRequestInterceptor class
+     *
+     * @details         Class to intercept any requests that originate from the web page, the application
+     *                  blocks all requests that are not aimed at the custom scheme so ensure that the
+     *                  application is completely standalone.
+     */
+    class RegExUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor {
+        Q_OBJECT
 
-    public:
-        void interceptRequest(QWebEngineUrlRequestInfo &info);
-};
-
+        public:
+            /**
+             * @brief       interceptRequest
+             *
+             * @details     Allows or blocks requests that are send by the page
+             *
+             * @param[in]   info is an object that contains HTTP request parameters.
+             */
+            void interceptRequest(QWebEngineUrlRequestInfo &info);
+    };
+}
 
 #endif // REGEXURLREQUESTINTERCEPTOR_H

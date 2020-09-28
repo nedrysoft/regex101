@@ -30,12 +30,13 @@
 #include "RegExAboutDialog.h"
 #include "RegExWebEnginePage.h"
 #include "RegExSplashScreen.h"
+
 #include <QtWebEngineWidgets>
 
-MainWindow::MainWindow(RegExSplashScreen *splashScreen, QWidget *parent)
+Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent)
     : QMainWindow(parent),
       ui(new Ui::MainWindow),
-      m_page(new RegExWebEnginePage)
+      m_page(new Nedrysoft::RegExWebEnginePage)
 {
     ui->setupUi(this);
 
@@ -52,20 +53,20 @@ MainWindow::MainWindow(RegExSplashScreen *splashScreen, QWidget *parent)
     });
 }
 
-MainWindow::~MainWindow()
+Nedrysoft::MainWindow::~MainWindow()
 {
     delete m_page;
     delete ui;
 }
 
-void MainWindow::on_actionAbout_triggered()
+void Nedrysoft::MainWindow::on_actionAbout_triggered()
 {
-    RegExAboutDialog aboutDialog(this);
+    Nedrysoft::RegExAboutDialog aboutDialog(this);
 
     aboutDialog.exec();
 }
 
-void MainWindow::on_actionExit_triggered()
+void Nedrysoft::MainWindow::on_actionExit_triggered()
 {
     close();
 }

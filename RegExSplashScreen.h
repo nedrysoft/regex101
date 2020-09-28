@@ -30,12 +30,21 @@
 
 #include <QSplashScreen>
 
-class RegExSplashScreen : public QSplashScreen
-{
-    Q_OBJECT
+namespace Nedrysoft {
+    /**
+     * @brief           RegExSplashScreen class
+     *
+     * @details         A dialog box that provides a custom splash screen.
+     */
+    class RegExSplashScreen : public QSplashScreen {
+        Q_OBJECT
 
-    public:
-        RegExSplashScreen();
-};
+        public:
+            /**
+             * @brief       Constructs a splash screen dialog.
+             */
+            RegExSplashScreen();
+    };
+}
 
 #endif // REGEXSPLASHSCREEN_H

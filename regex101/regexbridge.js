@@ -25,28 +25,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-// create the QWebChannel object and replace the fetch function with our own
-
+/**
+ * @brief       Creates the web channel to communicate with the backend.
+ *
+ * @details     This is injected into the web page and is used to construct a web channel
+ *              which connects to the C++.  When the web channel is opened, the
+ *              api endpoint is returned and the webapi fetch function is replaced with
+ *              the custom one provided by the web channel.
+ */
 window.webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
     window.apiEndPoint = channel.objects.RegExApiEndpoint;
     window.fetch = regexApiFetch
 });
 
-// replacement fetch function which uses a QWebChannel to directly communicate with the API endpointå
-
-function regexApiFetch(a,b)
+/**
+ * @brief       Provides a webapi fetch style function
+ *
+ * @details     To provide full support for the regex101 application, the webapi fetch command
+ *              has to be replaced with something functionally similar that can directly talk
+ *              to the C++ application, this implemention provides that bridge.
+ *
+ * @param[in]   path is the path to the file.
+ * @param[in]   request is the data to be sent in the request.
+ *
+ * @returns     a promise object
+ */
+function regexApiFetch(path, request)
 {
    return new Promise(function(resolve, reject) {
-        return window.apiEndPoint.fetch(a, b).then(function(e) {
-            var r = {
+        return window.apiEndPoint.fetch(path, request).then(function(e) {
+            var response = {
                 status: 200,
                 json : function() {
                     return JSON.parse(e);
                 }
             };
 
-            resolve(r);
+            resolve(response);
         });
     });
 }

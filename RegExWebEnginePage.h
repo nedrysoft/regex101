@@ -70,6 +70,8 @@ namespace Nedrysoft {
              */
             virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
 
+            void javaScriptAlert(const QUrl &securityOrigin, const QString &msg) override;
+
             /**
              * @brief       acceptNavigationRequest
              *

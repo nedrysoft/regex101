@@ -29,6 +29,7 @@
 #define REGEXAPIENDPOINT_H
 
 #include <QObject>
+#include <QSqlDatabase>
 #include <QVariant>
 
 namespace Nedrysoft {
@@ -59,6 +60,9 @@ namespace Nedrysoft {
              * @returns     a QVariant containing the body of the response.
              */
             Q_INVOKABLE QVariant fetch(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+        private:
+            QSqlDatabase m_database;
     };
 }
 

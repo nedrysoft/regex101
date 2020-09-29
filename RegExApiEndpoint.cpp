@@ -5,9 +5,17 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QStandardPaths>
 
 Nedrysoft::RegExApiEndpoint::RegExApiEndpoint()
 {
+    m_database = QSqlDatabase::addDatabase("QSQLITE");
+
+    m_database.setDatabaseName(QDir::cleanPath(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0)+QDir::separator()+"regex101.sqlite"));
+
+    m_database.open();
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const QVariant &requestParameter) const
@@ -68,18 +76,27 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
                 QVariantList entries;
                 QVariantMap resultMap;
 
-                entryMap["title"] = "Real Numbers";
-                entryMap["description"] = "";
-                entryMap["dateModified"] = "2020-09-28T18:47:07.000Z";
-                entryMap["author"] = "";
-                entryMap["flavor"] = "pcre";
-                entryMap["version"] = 1;
-                entryMap["permalinkFragment"] = "yNU0pf";
-                entryMap["upvotes"] = 0;
-                entryMap["downvotes"] = 0;
-                entryMap["userVote"] = QVariant();
+                QSqlQuery query("SELECT * FROM expressions");
 
-                entries.append(entryMap);
+                if (query.exec()) {
+                    if (query.first()) {
+                        do {
+                            entryMap["title"] = query.value("title").toString();
+                            entryMap["description"] = query.value("description").toString();
+                            entryMap["dateModified"] = QDateTime::fromTime_t(query.value("dateModified").toInt());
+                            entryMap["author"] = query.value("author").toString();
+                            entryMap["flavor"] = query.value("flavor").toString();
+                            entryMap["version"] = query.value("version").toInt();
+                            entryMap["permalinkFragment"] = query.value("permalinkFragment").toString();
+                            entryMap["upvotes"] = query.value("upvotes").toInt();
+                            entryMap["downvotes"] = query.value("downvotes").toInt();
+                            entryMap["regex"] = query.value("regex").toInt();
+                            entryMap["userVote"] = QVariant();
+
+                            entries.append(entryMap);
+                        } while(query.next());
+                    }
+                }
 
                 resultMap["data"] = entries;
 

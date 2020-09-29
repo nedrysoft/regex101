@@ -62,7 +62,8 @@ QT += \
     gui \
     widgets \
     webenginewidgets \
-    webchannel
+    webchannel \
+    sql
 
 CONFIG += \
     c++11 \

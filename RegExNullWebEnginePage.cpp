@@ -17,4 +17,3 @@ bool Nedrysoft::RegExNullWebEnginePage::acceptNavigationRequest(const QUrl &url,
 
     return false;
 }
-

@@ -50,7 +50,8 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
 
     setUrlRequestInterceptor(m_urlInterceptor);
 
-    setUrl(url);
+    //setUrl(url);
+    setUrl(QUrl("regex101:/r/ebZRGK/1"));
 }
 
 Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
@@ -64,6 +65,14 @@ void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMe
     Q_UNUSED(lineNumber);
     Q_UNUSED(sourceID);
     Q_UNUSED(message);
+
+    qDebug() << message;
+}
+
+void Nedrysoft::RegExWebEnginePage::javaScriptAlert(const QUrl &securityOrigin, const QString &msg)
+{
+    Q_UNUSED(securityOrigin);
+    Q_UNUSED(msg);
 }
 
 QWebEnginePage *Nedrysoft::RegExWebEnginePage::createWindow(QWebEnginePage::WebWindowType type)

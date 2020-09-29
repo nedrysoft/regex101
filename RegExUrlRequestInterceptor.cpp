@@ -32,7 +32,9 @@
 void Nedrysoft::RegExUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 {
     if (info.requestUrl().scheme()!=Nedrysoft::RegExUrlSchemeHandler::name()) {
-        QUrl redirectUrl(RegExUrlSchemeHandler::name()+QStringLiteral(":")+info.requestUrl().path()+info.requestUrl().query());
+        auto redirectUrl(info.requestUrl());
+
+        redirectUrl.setScheme(Nedrysoft::RegExUrlSchemeHandler::name());
 
         if (info.requestMethod()==QByteArrayLiteral("POST")) {
             info.block(true);

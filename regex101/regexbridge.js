@@ -35,8 +35,10 @@
  */
 window.webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
     window.apiEndPoint = channel.objects.RegExApiEndpoint;
-    window.fetch = regexApiFetch
+
 });
+
+window.fetch = regexApiFetch
 
 /**
  * @brief       Provides a webapi fetch style function

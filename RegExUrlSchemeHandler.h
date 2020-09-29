@@ -97,6 +97,10 @@ namespace Nedrysoft {
              * @returns     the root url.
              */
             static QString root();
+
+        private:
+            QString setInitialState(QString fileContent, QUrl requestUrl);
+
         private:
             QString m_resourceRootFolder;
     };

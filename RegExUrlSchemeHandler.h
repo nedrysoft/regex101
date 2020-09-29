@@ -80,6 +80,23 @@ namespace Nedrysoft {
              */
             static QString name();
 
+            /**
+             * @brief       scheme
+             *
+             * @details     Returns the scheme.
+             *
+             * @returns     the scheme.
+             */
+            static QString scheme();
+
+            /**
+             * @brief       root
+             *
+             * @details     Returns the scheme root url.
+             *
+             * @returns     the root url.
+             */
+            static QString root();
         private:
             QString m_resourceRootFolder;
     };

@@ -74,6 +74,7 @@ CONFIG -= \
 SOURCES += \
     RegExAboutDialog.cpp \
     RegExApiEndpoint.cpp \
+    RegExNullWebEnginePage.cpp \
     RegExSplashScreen.cpp \
     RegExUrlRequestInterceptor.cpp \
     RegExUrlSchemeHandler.cpp \
@@ -86,6 +87,7 @@ HEADERS += \
     MainWindow.h \
     RegExAboutDialog.h \
     RegExApiEndpoint.h \
+    RegExNullWebEnginePage.h \
     RegExSplashScreen.h \
     RegExUrlRequestInterceptor.h \
     RegExUrlSchemeHandler.h \

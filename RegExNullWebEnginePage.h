@@ -25,41 +25,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REGEXAPIENDPOINT_H
-#define REGEXAPIENDPOINT_H
+#ifndef REGEXNULLWEBENGINEPAGE_H
+#define REGEXNULLWEBENGINEPAGE_H
 
-#include <QObject>
-#include <QVariant>
+#include <QWebEnginePage>
 
 namespace Nedrysoft {
     /**
-     * @brief           RegExApiEndpoint class
+     * @brief           RegExNullWebEnginePage class
      *
-     * @details         Provides functions that can be called from javascript in the web browser.
+     * @details         Provides a web engine page that is used to intercept clicked links in the main browser
+     *                  window.  This is required to catch javascript link clicks with target="_blank" as the
+     *                  link target.  This class denies the navigation request, but uses the qt desktop services
+     *                  to open the link in the system default web browser.
      */
-    class RegExApiEndpoint : public QObject {
+    class RegExNullWebEnginePage : public QWebEnginePage
+    {
         Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs an api endpoint class.
+             * @brief       Constructs a null web page.
              */
-            RegExApiEndpoint();
+            RegExNullWebEnginePage();
 
+        protected:
             /**
-             * @brief       Method for fetching data from a web page.
+             * @brief       acceptNavigationRequest
              *
-             * @details     This function uses the same signature as the fetch api provided by the web browser,
-             *              javascript is injected into the web page to replace the web browsers implementation
-             *              with this custom version which allows us to reply without having to make real network requests.
+             * @details     Allows or blocks requests that are send by the page
              *
-             * @param[in]   pathParameter contains the path of the fetch request.
-             * @param[in]   requestParameter contains the requesst parameters send via javascript.
+             * @param[in]   url is the url to be navigated to.
+             * @param[in]   type is the type of request, click etc.
+             * @param[in]   isMainFrame is true if this is the main browser; otherwise false.
              *
-             * @returns     a QVariant containing the body of the response.
+             * @returns     true if the navigation is allowed; otherwise false.
              */
-            Q_INVOKABLE QVariant fetch(const QVariant &pathParameter, const QVariant &requestParameter) const;
+            bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame);
     };
 }
-
-#endif // REGEXAPIENDPOINT_H
+#endif // REGEXNULLWEBENGINEPAGE_H

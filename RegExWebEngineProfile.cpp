@@ -43,6 +43,7 @@ Nedrysoft::RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
     settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls, true);
     settings()->setAttribute(QWebEngineSettings::AllowRunningInsecureContent, true);
     settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, true);
+    settings()->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, true);
 
     settings()->setUnknownUrlSchemePolicy(QWebEngineSettings::AllowAllUnknownUrlSchemes);
 }

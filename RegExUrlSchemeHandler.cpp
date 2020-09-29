@@ -30,6 +30,7 @@
 #include <QBuffer>
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QMimeDatabase>
 #include <QRegularExpression>
 #include <QUrlQuery>
@@ -37,26 +38,11 @@
 #include <QWebEngineUrlRequestJob>
 #include <QWebEngineUrlScheme>
 
-namespace Nedrysoft {
-    struct RegExPair {
-        const char *expression;
-        const char *replacement;
-    } RegExPair;
-}
-
-struct Nedrysoft::RegExPair sylesheetRegularExpressions[] = {
-    {"(?i)\\._2eQHI\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._2eQHI{display:none;}"},          // left hand panel
-    {"(?i)\\_2PLNZ\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "_2PLNZ{display:none;}"},            // top bar items
-    {"(?i)(\\._3tDL-)\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", "._3tDL-{margin-left=0}"},        // fix left panel position
-    {"(?i)\\.tNf50\\{([a-z]|[0-9]|\\;|\\:|\\#|\\s|\\-|\\%|\\*)*\\}", ".tNf50{display:none;}"},            // sponsors div
-};
-
-constexpr auto advertResponse = "({\"ads\":[{}]});";
+constexpr auto advertResponse = R"(({"ads":[{}]});)";
 constexpr auto htmlMimeType = "text/html";
-constexpr auto cssMimeType = "text/css";
 constexpr auto javascriptMimeType = "application/javascript";
 constexpr auto qrcRootFolder = ":/";
-constexpr auto disableFetchJavascript = "<script type=\"text/javascript\" src=\"./qwebchannel.js\"></script><script src=\"/regexbridge.js\"></script>";
+constexpr auto disableFetchJavascript = R"(<script type="text/javascript" src="./qwebchannel.js"></script><script src="/regexbridge.js"></script>)";
 
 auto GET(QByteArrayLiteral("GET"));
 auto POST(QByteArrayLiteral("POST"));
@@ -65,6 +51,16 @@ auto DELETE(QByteArrayLiteral("DELETE"));
 QString Nedrysoft::RegExUrlSchemeHandler::name()
 {
     return QStringLiteral("regex101");
+}
+
+QString Nedrysoft::RegExUrlSchemeHandler::scheme()
+{
+    return name()+QStringLiteral(":");
+}
+
+QString Nedrysoft::RegExUrlSchemeHandler::root()
+{
+    return scheme()+QStringLiteral("/");
 }
 
 void Nedrysoft::RegExUrlSchemeHandler::registerScheme()
@@ -101,7 +97,7 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
         // if request is for the advert endpoint then send a dummy json object
 
-        if (job->requestUrl().path()=="/ads/CKYDE5QY.json") {
+        if (QRegularExpression(R"(\/ads\/.*.json)").match(job->requestUrl().path()).hasMatch()) {
             auto urlQuery = QUrlQuery(job->requestUrl());
             auto jsonResponseString = QString("%1%2").arg(urlQuery.queryItemValue("callback")).arg(advertResponse);
             auto *buffer = new QBuffer(job);
@@ -119,30 +115,18 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
         // if there was no file in the url, append index.html
 
-        if (job->requestUrl().path()=="/") {
+        if (job->requestUrl().path()==QStringLiteral("/")) {
             resourceUrl.setPath(resourceUrl.path()+"index.html");
         }
 
         // serve the requested file
 
-        QFile f(resourceUrl.toString());
+        QFile requestedFile(resourceUrl.toString());
 
-        if (f.open(QFile::ReadOnly)) {
+        if (requestedFile.open(QFile::ReadOnly)) {
             auto type = db.mimeTypeForFile(resourceUrl.fileName());
             auto buffer = new QBuffer(job);
-            auto fileBuffer = f.readAll();
-
-            // hide/move various sections of the original page by modifying the css
-
-            if (type.inherits(cssMimeType)) {
-                auto fileString = QString::fromUtf8(fileBuffer);
-
-                for (auto regExPair : sylesheetRegularExpressions) {
-                    fileString = fileString.replace(QRegularExpression(regExPair.expression), regExPair.replacement);
-                }
-
-                fileBuffer = fileString.toUtf8();
-            }
+            auto fileBuffer = requestedFile.readAll();
 
             // disable native fetch function, let the javascript library implement it's own as the native fetch cannot use our custom scheme
 
@@ -157,7 +141,19 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
             if (type.inherits(javascriptMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
 
-                fileString = fileString.replace(QRegularExpression("https://srv.buysellads.com/"), "regex101:/");
+                // hide some of the left sidebar items that aren't appropriate for a offline application
+
+                if (job->requestUrl().path()=="/static/bundle.js") {
+                    auto iconList = QStringList() << "gamepad" << "chat" << "user";
+
+                    for (auto icon : iconList) {
+                        fileString = fileString.replace(QRegularExpression(QString(R"(icon:(\s*r\s*\?\s*void\s*0\s*:)?\s*"%1",)").arg(icon)), QString(R"(icon:"%1",style:{display:"none"},)").arg(icon));;
+                    }
+                }
+
+                fileString = fileString.replace(QRegularExpression("https://srv.buysellads.com/"), root());
+
+                fileString = fileString.replace(QRegularExpression(R"(className:\s*ep.a.sponsorText)"), "style:{display:\"none\"},className:ep.a.sponsorText");
 
                 fileBuffer = fileString.toUtf8();
             }
@@ -168,7 +164,7 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
             connect(job, &QObject::destroyed, buffer, &QObject::deleteLater);
 
-            job->reply(type.name().toLatin1(), buffer);
+            job->reply(type.name().toUtf8(), buffer);
         }  else {
             job->fail(QWebEngineUrlRequestJob::UrlNotFound);
         }

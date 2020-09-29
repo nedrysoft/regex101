@@ -70,6 +70,30 @@ namespace Nedrysoft {
              */
             virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
 
+            /**
+             * @brief       acceptNavigationRequest
+             *
+             * @details     Allows or blocks requests that are send by the page
+             *
+             * @param[in]   url is the url to be navigated to.
+             * @param[in]   type is the type of request, click etc.
+             * @param[in]   isMainFrame is true if this is the main browser; otherwise false.
+             *
+             * @returns     true if the navigation is allowed; otherwise false.
+             */
+            bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame);
+
+            /**
+             * @brief       createWindow
+             *
+             * @details     Called when a new window is to be opened.
+             *
+             * @param[in]   type is the type of request, click etc.
+             * @param[in]   isMainFrame is true if this is the main browser; otherwise false.
+             *
+             * @returns     a pointer to the new page page; otherwise null to deny the request.
+             */
+            QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type);
         private:
             Nedrysoft::RegExUrlRequestInterceptor *m_urlInterceptor;
             RegExWebEngineProfile *m_profile;

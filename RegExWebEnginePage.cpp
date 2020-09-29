@@ -25,6 +25,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "RegExNullWebEnginePage.h"
+#include "RegExUrlSchemeHandler.h"
 #include "RegExWebEnginePage.h"
 #include "RegExWebEngineProfile.h"
 
@@ -35,6 +37,8 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
     QWebEnginePage(new Nedrysoft::RegExWebEngineProfile),
     m_urlInterceptor(new Nedrysoft::RegExUrlRequestInterceptor)
 {
+    QUrl url(RegExUrlSchemeHandler::root());
+
     m_profile = dynamic_cast<RegExWebEngineProfile *>(profile());
 
     m_apiEndpoint = new RegExApiEndpoint;
@@ -46,7 +50,7 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
 
     setUrlRequestInterceptor(m_urlInterceptor);
 
-    setUrl(QUrl(RegExUrlSchemeHandler::name()+":/"));
+    setUrl(url);
 }
 
 Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
@@ -60,6 +64,23 @@ void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMe
     Q_UNUSED(lineNumber);
     Q_UNUSED(sourceID);
     Q_UNUSED(message);
+}
 
-    //qDebug() << message;
+QWebEnginePage *Nedrysoft::RegExWebEnginePage::createWindow(QWebEnginePage::WebWindowType type)
+{
+    Q_UNUSED(type);
+
+    return new Nedrysoft::RegExNullWebEnginePage();
+}
+
+bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame)
+{
+    Q_UNUSED(isMainFrame);
+    Q_UNUSED(type);
+
+    if (url.scheme()!=Nedrysoft::RegExUrlSchemeHandler::name()) {
+        return false;
+    }
+
+    return true;
 }

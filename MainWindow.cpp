@@ -26,10 +26,10 @@
  */
 
 #include "MainWindow.h"
-#include "ui_MainWindow.h"
 #include "RegExAboutDialog.h"
 #include "RegExWebEnginePage.h"
 #include "RegExSplashScreen.h"
+#include "ui_MainWindow.h"
 
 #include <QtWebEngineWidgets>
 

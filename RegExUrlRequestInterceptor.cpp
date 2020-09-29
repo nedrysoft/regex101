@@ -27,11 +27,12 @@
 
 #include "RegExUrlRequestInterceptor.h"
 #include "RegExUrlSchemeHandler.h"
+#include <QDebug>
 
 void Nedrysoft::RegExUrlRequestInterceptor::interceptRequest(QWebEngineUrlRequestInfo &info)
 {
     if (info.requestUrl().scheme()!=Nedrysoft::RegExUrlSchemeHandler::name()) {
-        QUrl redirectUrl("regex101:"+info.requestUrl().path()+info.requestUrl().query());
+        QUrl redirectUrl(RegExUrlSchemeHandler::name()+QStringLiteral(":")+info.requestUrl().path()+info.requestUrl().query());
 
         if (info.requestMethod()==QByteArrayLiteral("POST")) {
             info.block(true);

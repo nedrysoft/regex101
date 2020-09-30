@@ -1,6 +1,6 @@
 # Regular Expressions 101 Desktop Edition
 
-This project is a desktop version of the regex101.com site.  It embeds a copy of the site inside the application so that no internet connection is required to work on regular expressions.  The motivation behind this was that when developing regular expressions for use in products, I often find myself opening the website again and again, resulting in many tabs in various states swamped in the sea of web pages.
+This project is a desktop version of the [regex101.com](https://regex101.com) site.  It embeds a copy of the site inside the application so that no internet connection is required to work on regular expressions.  The motivation behind this was that when developing regular expressions for use in products, I often find myself opening the website again and again, resulting in many tabs in various states swamped in the sea of web pages.
 
 By embedding the website in an application, regex101 can be accessed immediately from your task bar, no more searching through tabs to find the right one!
 
@@ -78,6 +78,10 @@ A hash is provided on the AppImage, the end user can use this to validate the au
 The application and the DMG are both signed with my Apple Developer certificate.
 
 # Credits
+
+The main credit goes to the author of the [regex101.com](https://regex101.com) website, it is an amazing tool that is the best I've used for working on regular expressions, please consider supporting the author by donating to him.
+
+- [regex101.com](https://regex101.com) 
 
 The following third party libraries/assets/tools/services have been used in the development of Regular Expressions 101 Desktop Edition.
 

@@ -97,7 +97,7 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
         // if request is for the advert endpoint then send a dummy json object
 
-        if (QRegularExpression(R"(\/ads\/.*.json)").match(job->requestUrl().path()).hasMatch()) {
+        if (QRegularExpression(R"(\/ads\/.*\.json)").match(job->requestUrl().path()).hasMatch()) {
             auto urlQuery = QUrlQuery(job->requestUrl());
             auto jsonResponseString = QString("%1%2").arg(urlQuery.queryItemValue("callback")).arg(advertResponse);
             auto *buffer = new QBuffer(job);
@@ -140,7 +140,7 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
                 fileString = disableFetchJavascript+fileString;
                 fileString = setInitialState(fileString, job->requestUrl());
 
-                fileString = fileString.replace(QRegularExpression("(http)(s{0,1}):\\/\\/regex101.com"), "regex101:/");
+                fileString = fileString.replace(QRegularExpression(R"((http)(s{0,1}):\/\/regex101\.com)"), "regex101:/");
 
                 fileBuffer = fileString.toUtf8();
             }
@@ -158,11 +158,11 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
                     }
                 }
 
-                fileString = fileString.replace(QRegularExpression("https://srv.buysellads.com/"), root());
+                fileString = fileString.replace(QRegularExpression(R"(https:\/\/srv\.buysellads\.com\/)"), root());
 
-                fileString = fileString.replace(QRegularExpression(R"(className:\s*ep.a.sponsorText)"), "style:{display:\"none\"},className:ep.a.sponsorText");
+                fileString = fileString.replace(QRegularExpression(R"(className:\s*ep\.a\.sponsorText)"), "style:{display:\"none\"},className:ep.a.sponsorText");
 
-                fileString = fileString.replace(QRegularExpression("(http)(s{0,1}):\\/\\/regex101.com"), "regex101:/");
+                fileString = fileString.replace(QRegularExpression(R"((http)(s{0,1}):\\/\\/regex101\.com)"), "regex101:/");
 
                 fileBuffer = fileString.toUtf8();
             }

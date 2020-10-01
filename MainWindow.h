@@ -39,54 +39,68 @@ namespace Nedrysoft {
     class RegExWebEnginePage;
 
     /**
-     * @brief           The MainWindow class
+     * @brief               The MainWindow class
      *
-     * @details         Provides the main window for the application.
+     * @details             Provides the main window for the application.
      */
-    class MainWindow : public QMainWindow
-    {
-        Q_OBJECT
+    class MainWindow : public QMainWindow {
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs the main window.
+             * @brief           Constructs the main window.
              *
-             * @param[in]   splashScreen is a pointer to the splashscreen that was created
-             *              by the main thread at startup.
-             * @param[in]   parent is the parent widget that owns this main window.
+             * @param[in]       splashScreen is a pointer to the splashscreen that was created
+             *                  by the main thread at startup.
+             * @param[in]       parent is the parent widget that owns this main window.
              */
             MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent = nullptr);
 
             /**
-             * @brief       Destroys the main window.
+             * @brief           Destroys the main window.
              */
             ~MainWindow();
 
             /**
-             * @brief       Handles opening links via URL.
+             * @brief           Handles opening links via URL.
              *
-             * @param[in]   url is the requested url.
+             * @param[in]       url is the requested url.
              */
             void handleOpenByUrl(const QUrl &url);
 
         private slots:
             /**
-             * @brief       About slot function.
+             * @brief           About slot function.
              *
-             * @details     This slot is called when the About action is triggered, the about dialog is displayed.
+             * @details         This slot is called when the About action is triggered, the about dialog is displayed.
              */
             void on_actionAbout_triggered();
 
             /**
-             * @brief       Exit slot function.
+             * @brief           Exit slot function.
              *
-             * @details     This slot is called when the Exit action is triggered, the application is closed.
+             * @details         This slot is called when the Exit action is triggered, the application is closed.
              */
             void on_actionExit_triggered();
 
+            /**
+             * @brief           Event filter mathod
+             *
+             * @details         This event filter is using qApp as a target, this allows us to receive events from the
+             *                  operating system such as opening registered file types or handling the regex101:// URL
+             *                  scheme.
+             *
+             * @param[in]       obj is the object that has caused this event
+             * @param[in]       event contains the details of the event, such as file name or the url path.
+             *
+             * @returns         true if the event is handled; otherwise false.
+             */
+            bool eventFilter(QObject *obj, QEvent *event);
+
         private:
-            Ui::MainWindow *ui;
-            Nedrysoft::RegExWebEnginePage *m_page;
+            Ui::MainWindow *ui;                                     //! ui class for the main window
+            Nedrysoft::RegExWebEnginePage *m_page;                  //! web page object set up for our scheme
     };
 }
 

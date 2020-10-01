@@ -3,8 +3,10 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QStandardPaths>
@@ -37,7 +39,6 @@ QVariant Nedrysoft::RegExApiEndpoint::localStorageSetItem(const QVariant &key, c
 QVariant Nedrysoft::RegExApiEndpoint::localStorageGetItem(const QVariant &key)
 {
     if (m_settings->contains(key.toString())) {
-        qDebug() << m_settings->value(key.toString()).toString();
         return(m_settings->value(key.toString()).toString());
     } else {
         return QVariant();
@@ -73,7 +74,7 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
     qDebug() << "headers: " << headers;
     qDebug() << "body:" << body;*/
 
-    QVariantMap responseMap;
+    QJsonObject jsonResponse;
 
     if (method=="") {
         if (QRegularExpression(R"(^\/static\/?)").match(path).hasMatch()) {
@@ -85,22 +86,22 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
         }
     } else if (method=="POST") {
         if (QRegularExpression(R"(^\/api\/regex\/?)").match(path).hasMatch()) {
-            responseMap["deleteCode"] = "NktBHSnFCsT2M5KbWQlatnqS";
-            responseMap["permalinkFragment"] = "B123";
-            responseMap["version"] = 1;
-            responseMap["isLibraryEntry"] = false;
+            jsonResponse["deleteCode"] = "NktBHSnFCsT2M5KbWQlatnqS";
+            jsonResponse["permalinkFragment"] = "B123";
+            jsonResponse["version"] = 1;
+            jsonResponse["isLibraryEntry"] = false;
         } else if (QRegularExpression(R"(^\/api\/regex\/fork)").match(path).hasMatch()) {
-            responseMap["deleteCode"] = "NktBfSnFCsT2M5KbWQlatnqS";
-            responseMap["permalinkFragment"] = "YOMAMA";
-            responseMap["version"] = 1;
-            responseMap["isLibraryEntry"] = false;
+            jsonResponse["deleteCode"] = "NktBfSnFCsT2M5KbWQlatnqS";
+            jsonResponse["permalinkFragment"] = "YOMAMA";
+            jsonResponse["version"] = 1;
+            jsonResponse["isLibraryEntry"] = false;
         }
 
-        return QJsonDocument(QJsonObject::fromVariantMap(responseMap)).toJson();
+        return QJsonDocument(jsonResponse).toJson();
     } else if (method=="DELETE") {
-        responseMap["message"] = "Your regex has been deleted.";
+        jsonResponse["message"] = "Your regex has been deleted.";
 
-        return QJsonDocument(QJsonObject::fromVariantMap(responseMap)).toJson();
+        return QJsonDocument(jsonResponse).toJson();
     } else if (method=="GET") {
         if (QRegularExpression(R"(^\/static\/)").match(path).hasMatch()) {
             QFile file(QDir::cleanPath(":/regex101/"+path));
@@ -111,60 +112,131 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
         } else {
             auto detailsMatch = QRegularExpression(R"(\/api\/library\/details\/(?P<permalinkFragment>.*))").match(path);
 
-            qDebug() << path << detailsMatch;
-
             if (detailsMatch.hasMatch()) {
-                QVariantMap entryMap;
+                QJsonObject jsonResponse;
+                QSqlQuery query;
 
-                entryMap["title"] = "Something";
-                entryMap["description"] = "";
-                entryMap["dateModified"] = 0;
-                entryMap["author"] = "";
-                entryMap["flavor"] = "pcre";
-                entryMap["regex"] = ".*";
-                entryMap["delimiter"] = "/";
-                entryMap["flags"] = "gm";
-                entryMap["version"] = 1;
-                entryMap["permalinkFragment"] = detailsMatch.captured("permalinkFragment");
+                query.prepare("SELECT * FROM expressions WHERE permalinkFragment=:permalinkFragment");
+                query.bindValue(":permalinkFragment", detailsMatch.captured("permalinkFragment"));
 
-                return QJsonDocument(QJsonObject::fromVariantMap(entryMap)).toJson();
+                if (query.exec()) {
+                    if (query.first()) {
+                        jsonResponse["title"] = query.value("title").toString();
+                        jsonResponse["description"] = query.value("description").toString();
+                        jsonResponse["dateModified"] = query.value("dateModified").toInt();
+                        jsonResponse["author"] = query.value("author").toString();
+                        jsonResponse["flavor"] = query.value("flavor").toString();
+                        jsonResponse["regex"] = query.value("regex").toString();
+                        jsonResponse["delimeter"] = query.value("delimeter").toString();
+                        jsonResponse["version"] = query.value("version").toInt();
+                        jsonResponse["permalinkFragment"] = query.value("permalinkFragment").toString();
+                        jsonResponse["flags"] = query.value("flags").toString();
+                    }
+                }
+
+                return QJsonDocument(jsonResponse).toJson();
             }
 
             auto libraryMatch = QRegularExpression(R"(\/api\/library\/\d*\/\?orderBy=(?P<orderBy>.*)\&search=(?P<search>.*))").match(path);
 
             if (libraryMatch.hasMatch()) {
-                QVariantMap entryMap;
-                QVariantList entries;
-                QVariantMap resultMap;
+                QJsonObject jsonResponse;
+                QJsonArray resultEntries;
+                QJsonObject result;
 
                 QSqlQuery query("SELECT * FROM expressions");
 
                 if (query.exec()) {
                     if (query.first()) {
                         do {
-                            entryMap["title"] = query.value("title").toString();
-                            entryMap["description"] = query.value("description").toString();
-                            entryMap["dateModified"] = QDateTime::fromTime_t(query.value("dateModified").toInt());
-                            entryMap["author"] = query.value("author").toString();
-                            entryMap["flavor"] = query.value("flavor").toString();
-                            entryMap["version"] = query.value("version").toInt();
-                            entryMap["permalinkFragment"] = query.value("permalinkFragment").toString();
-                            entryMap["upvotes"] = query.value("upvotes").toInt();
-                            entryMap["downvotes"] = query.value("downvotes").toInt();
-                            entryMap["regex"] = query.value("regex").toString();
-                            entryMap["userVote"] = QVariant();
+                            result["title"] = query.value("title").toString();
+                            result["description"] = query.value("description").toString();
+                            result["dateModified"] = query.value("dateModified").toInt();
+                            result["author"] = query.value("author").toString();
+                            result["flavor"] = query.value("flavor").toString();
+                            result["version"] = query.value("version").toInt();
+                            result["permalinkFragment"] = query.value("permalinkFragment").toString();
+                            result["upvotes"] = query.value("upvotes").toInt();
+                            result["downvotes"] = query.value("downvotes").toInt();
+                            result["regex"] = query.value("regex").toString();
+                            result["userVote"] = QJsonValue::Null;
 
-                            entries.append(entryMap);
+                            resultEntries.append(result);
                         } while(query.next());
                     }
                 }
 
-                resultMap["data"] = entries;
+                jsonResponse["data"] = resultEntries;
 
-                return QJsonDocument(QJsonObject::fromVariantMap(resultMap)).toJson();
+                return QJsonDocument(jsonResponse).toJson();
             }
         }
     }
 
-    return(QVariant("{}"));
+    return QVariant("{}");
+}
+
+bool Nedrysoft::RegExApiEndpoint::regex(QJsonObject &stateObject, QString permalinkFragment, int version)
+{
+    QSqlQuery query;
+    QJsonObject general, matchResult, regexEditor, resultMap, libraryEntry;
+    bool didLoadRegEx = false;
+
+    query.prepare("SELECT * FROM expressions WHERE permalinkFragment=:permalinkFragment AND version=:version");
+    query.bindValue(":permalinkFragment", permalinkFragment);
+    query.bindValue(":version", version);
+
+    matchResult["data"] = QJsonArray();
+    matchResult["time"] = 0;
+
+    if (stateObject.contains("general")) {
+        general = stateObject["general"].toObject();
+    }
+
+    if (stateObject.contains("regexEditor")) {
+        regexEditor = stateObject["regexEditor"].toObject();
+    }
+
+    if (stateObject.contains("libraryEntry")) {
+        libraryEntry = stateObject["libraryEntry"].toObject();
+    }
+
+    if (query.exec()) {
+        if (query.first()) {
+            regexEditor["title"] = query.value("title").toString();
+            regexEditor["description"] = query.value("description").toString();
+            regexEditor["dateModified"] = query.value("dateModified").toInt();
+            regexEditor["author"] = query.value("author").toString();
+            regexEditor["flavor"] = query.value("flavor").toString();
+            regexEditor["regex"] = query.value("regex").toString();
+            regexEditor["delimeter"] = query.value("delimeter").toString();
+            regexEditor["version"] = query.value("version").toInt();
+            regexEditor["permalinkFragment"] = query.value("permalinkFragment").toString();
+            regexEditor["flags"] = query.value("flags").toString();
+            regexEditor["testString"] = query.value("testString").toString();
+            regexEditor["matchResult"] = matchResult;
+            regexEditor["error"] = query.value("error").toString();
+            regexEditor["substString"] = query.value("substString").toString();
+            regexEditor["hasUnsavedData"] = false;
+            regexEditor["regexVersions"] = 1;
+            regexEditor["showMatchArea"] = false;
+            regexEditor["showSubstitutionArea"] = true;
+            regexEditor["showUnitTestArea"] = false;
+
+            general["permalinkFragment"] = permalinkFragment;
+            general["version"] = query.value("version").toInt();
+
+            libraryEntry["title"] = query.value("title").toString();
+            libraryEntry["description"] = query.value("description").toString();
+            libraryEntry["author"] = query.value("author").toString();
+
+            didLoadRegEx = true;
+        }
+    }
+
+    stateObject["regexEditor"] = regexEditor;
+    stateObject["general"] = general;
+    stateObject["libraryEntry"] = libraryEntry;
+
+    return(didLoadRegEx);
 }

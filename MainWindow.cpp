@@ -31,6 +31,7 @@
 #include "RegExSplashScreen.h"
 #include "ui_MainWindow.h"
 
+#include <QDebug>
 #include <QtWebEngineWidgets>
 
 Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent)
@@ -40,11 +41,13 @@ Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QW
 {
     ui->setupUi(this);
 
+    qApp->installEventFilter(this);
+
     showMaximized();
 
-    ui->widget->setPage(m_page);
+    ui->webEngineView->setPage(m_page);
 
-    connect(ui->widget->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
+    connect(ui->webEngineView->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
         if (finished) {
             QTimer::singleShot(1500, splashScreen, [=]() {
                 splashScreen->close();
@@ -75,5 +78,23 @@ void Nedrysoft::MainWindow::on_actionExit_triggered()
 
 void Nedrysoft::MainWindow::handleOpenByUrl(const QUrl &url)
 {
-    qDebug() << url;
+    Q_UNUSED(url);
 }
+
+bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type()==QEvent::FileOpen) {
+        QFileOpenEvent *fileEvent = static_cast<QFileOpenEvent*>(event);
+
+        if (!fileEvent->url().isEmpty()) {
+            qDebug() << fileEvent->url();
+        } else if (!fileEvent->file().isEmpty()) {
+            qDebug() << fileEvent->file();
+        }
+
+        return false;
+    }
+
+    return QObject::eventFilter(obj, event);
+}
+

@@ -32,22 +32,23 @@
 
 namespace Nedrysoft {
     /**
-     * @brief           RegExUrlRequestInterceptor class
+     * @brief               RegExUrlRequestInterceptor class
      *
-     * @details         Class to intercept any requests that originate from the web page, the application
-     *                  blocks all requests that are not aimed at the custom scheme so ensure that the
-     *                  application is completely standalone.
+     * @details             Class to intercept any requests that originate from the web page, the application
+     *                      blocks all requests that are not aimed at the custom scheme so ensure that the
+     *                      application is completely standalone.
      */
     class RegExUrlRequestInterceptor : public QWebEngineUrlRequestInterceptor {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       interceptRequest
+             * @brief           interceptRequest
              *
-             * @details     Allows or blocks requests that are send by the page
+             * @details         Allows or blocks requests that are send by the page
              *
-             * @param[in]   info is an object that contains HTTP request parameters.
+             * @param[in]       info is an object that contains HTTP request parameters.
              */
             void interceptRequest(QWebEngineUrlRequestInfo &info);
     };

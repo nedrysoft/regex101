@@ -65,7 +65,7 @@ void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMe
     Q_UNUSED(sourceID);
     Q_UNUSED(message);
 
-    qDebug() << message;
+    //qDebug() << message;
 }
 
 void Nedrysoft::RegExWebEnginePage::javaScriptAlert(const QUrl &securityOrigin, const QString &msg)

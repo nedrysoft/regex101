@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDialog>
 #include <QDesktopWidget>
+#include <QString>
 
 Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
     QDialog(parent, Qt::FramelessWindowHint),
@@ -13,6 +14,8 @@ Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_AlwaysStackOnTop);
+
+    ui->versionLabel->setText(QString("%1.%2.%3 (%4 %5)").arg(APPLICATION_GIT_YEAR).arg(APPLICATION_GIT_MONTH).arg(APPLICATION_GIT_DAY).arg(APPLICATION_GIT_BRANCH).arg(APPLICATION_GIT_HASH));
 }
 
 void Nedrysoft::RegExAboutDialog::focusOutEvent(QFocusEvent *event)

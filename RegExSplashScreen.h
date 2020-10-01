@@ -32,16 +32,17 @@
 
 namespace Nedrysoft {
     /**
-     * @brief           RegExSplashScreen class
+     * @brief               RegExSplashScreen class
      *
-     * @details         A dialog box that provides a custom splash screen.
+     * @details             A dialog box that provides a custom splash screen.
      */
     class RegExSplashScreen : public QSplashScreen {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs a splash screen dialog.
+             * @brief           Constructs a splash screen dialog.
              */
             RegExSplashScreen();
     };

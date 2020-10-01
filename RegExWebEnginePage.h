@@ -68,8 +68,16 @@ namespace Nedrysoft {
              * @param[in]   lineNumber is the number of the line that caused the output.
              * @param[in]   sourceID is the identifier of the source of the message.
              */
-            virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID);
+            virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID) override;
 
+            /**
+             * @brief       javaScriptAlert
+             *
+             * @details     This overridden function allows javascript alerts to be handled.
+             *
+             * @param[in]   securityOrigin is the origin which is considered secure.
+             * @param[in]   msg is the alert message.
+             */
             void javaScriptAlert(const QUrl &securityOrigin, const QString &msg) override;
 
             /**
@@ -83,7 +91,7 @@ namespace Nedrysoft {
              *
              * @returns     true if the navigation is allowed; otherwise false.
              */
-            bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame);
+            bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame) override;
 
             /**
              * @brief       createWindow
@@ -95,12 +103,12 @@ namespace Nedrysoft {
              *
              * @returns     a pointer to the new page page; otherwise null to deny the request.
              */
-            QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type);
+            QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type) override;
+
         private:
             Nedrysoft::RegExUrlRequestInterceptor *m_urlInterceptor;
             RegExWebEngineProfile *m_profile;
             QWebChannel *m_apiChannel;
-            Nedrysoft::RegExApiEndpoint *m_apiEndpoint;
     };
 }
 

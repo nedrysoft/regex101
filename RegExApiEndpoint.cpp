@@ -11,11 +11,51 @@
 
 Nedrysoft::RegExApiEndpoint::RegExApiEndpoint()
 {
+    m_settings = new QSettings("nedrysoft", "regex101");
+
     m_database = QSqlDatabase::addDatabase("QSQLITE");
 
     m_database.setDatabaseName(QDir::cleanPath(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0)+QDir::separator()+"regex101.sqlite"));
 
     m_database.open();
+}
+
+Nedrysoft::RegExApiEndpoint *Nedrysoft::RegExApiEndpoint::getInstance()
+{
+    static RegExApiEndpoint *instance = new RegExApiEndpoint();
+
+    return instance;
+}
+
+QVariant Nedrysoft::RegExApiEndpoint::localStorageSetItem(const QVariant &key, const QVariant &value)
+{
+    m_settings->setValue(key.toString(), value);
+
+    return QVariant();
+}
+
+QVariant Nedrysoft::RegExApiEndpoint::localStorageGetItem(const QVariant &key)
+{
+    if (m_settings->contains(key.toString())) {
+        qDebug() << m_settings->value(key.toString()).toString();
+        return(m_settings->value(key.toString()).toString());
+    } else {
+        return QVariant();
+    }
+}
+
+QVariant Nedrysoft::RegExApiEndpoint::localStorageRemoveItem(const QVariant &key)
+{
+    m_settings->remove(key.toString());
+
+    return QVariant();
+}
+
+QVariant Nedrysoft::RegExApiEndpoint::localStorageClear()
+{
+    m_settings->clear();
+
+    return QVariant();
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const QVariant &requestParameter) const
@@ -69,9 +109,30 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
                return file.readAll();
             }
         } else {
-            auto match = QRegularExpression(R"(\/api\/library\/\d*\/\?orderBy=(?P<orderBy>.*)\&search=(?P<search>.*))").match(path);
+            auto detailsMatch = QRegularExpression(R"(\/api\/library\/details\/(?P<permalinkFragment>.*))").match(path);
 
-            if (match.hasMatch()) {
+            qDebug() << path << detailsMatch;
+
+            if (detailsMatch.hasMatch()) {
+                QVariantMap entryMap;
+
+                entryMap["title"] = "Something";
+                entryMap["description"] = "";
+                entryMap["dateModified"] = 0;
+                entryMap["author"] = "";
+                entryMap["flavor"] = "pcre";
+                entryMap["regex"] = ".*";
+                entryMap["delimiter"] = "/";
+                entryMap["flags"] = "gm";
+                entryMap["version"] = 1;
+                entryMap["permalinkFragment"] = detailsMatch.captured("permalinkFragment");
+
+                return QJsonDocument(QJsonObject::fromVariantMap(entryMap)).toJson();
+            }
+
+            auto libraryMatch = QRegularExpression(R"(\/api\/library\/\d*\/\?orderBy=(?P<orderBy>.*)\&search=(?P<search>.*))").match(path);
+
+            if (libraryMatch.hasMatch()) {
                 QVariantMap entryMap;
                 QVariantList entries;
                 QVariantMap resultMap;
@@ -90,7 +151,7 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
                             entryMap["permalinkFragment"] = query.value("permalinkFragment").toString();
                             entryMap["upvotes"] = query.value("upvotes").toInt();
                             entryMap["downvotes"] = query.value("downvotes").toInt();
-                            entryMap["regex"] = query.value("regex").toInt();
+                            entryMap["regex"] = query.value("regex").toString();
                             entryMap["userVote"] = QVariant();
 
                             entries.append(entryMap);

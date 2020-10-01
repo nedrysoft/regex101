@@ -27,6 +27,8 @@
 
 #include "RegExWebEngineProfile.h"
 
+#include <QDir>
+#include <QStandardPaths>
 #include <QWebEngineSettings>
 
 constexpr auto webFilesPrefix = "/regex101";

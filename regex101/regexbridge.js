@@ -39,6 +39,10 @@ window.webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
 });
 
 window.fetch = regexApiFetch
+window.localStorage.setItem = regexApiLocalStorageSetItem
+window.localStorage.getItem = regexApiLocalStorageGetItem
+window.localStorage.clear = regexApiLocalStorageClear
+window.localStorage.removeItem = regexApiLocalStorageRemoveItem
 
 /**
  * @brief       Provides a webapi fetch style function
@@ -66,4 +70,43 @@ function regexApiFetch(path, request)
             resolve(response);
         });
     });
+}
+
+function regexApiLocalStorageSetItem(key, value)
+{
+    return new Promise(function(resolve, reject) {
+         return window.apiEndPoint.localStorageSetItem(key, value).then(function(e) {
+
+             resolve(e);
+         });
+     });
+}
+
+function regexApiLocalStorageGetItem(key)
+{
+    return new Promise(function(resolve, reject) {
+         return window.apiEndPoint.localStorageGetItem(key).then(function(e) {
+             console.log(key+" response was:"+typeof(e)+" "+e);
+             resolve(e);
+         });
+     });
+}
+
+
+function regexApiLocalStorageClear()
+{
+    return new Promise(function(resolve, reject) {
+         return window.apiEndPoint.localStorageClear().then(function(e) {
+             resolve();
+         });
+     });
+}
+
+function regexApiLocalStorageRemoveItem(key)
+{
+    return new Promise(function(resolve, reject) {
+         return window.apiEndPoint.localStorageRemoveItem(key).then(function(e) {
+             resolve();
+         });
+     });
 }

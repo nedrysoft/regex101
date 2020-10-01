@@ -62,6 +62,13 @@ namespace Nedrysoft {
              */
             ~MainWindow();
 
+            /**
+             * @brief       Handles opening links via URL.
+             *
+             * @param[in]   url is the requested url.
+             */
+            void handleOpenByUrl(const QUrl &url);
+
         private slots:
             /**
              * @brief       About slot function.

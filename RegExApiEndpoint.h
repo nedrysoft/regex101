@@ -29,6 +29,7 @@
 #define REGEXAPIENDPOINT_H
 
 #include <QObject>
+#include <QSettings>
 #include <QSqlDatabase>
 #include <QVariant>
 
@@ -41,11 +42,20 @@ namespace Nedrysoft {
     class RegExApiEndpoint : public QObject {
         Q_OBJECT
 
+        private:
+            /**
+             * @brief       Constructs an api endpoint class.
+             *
+             * @note        The constructor is private and the api endpoint is a singleton object
+             *              that should be retrieved using the getInstance() method.
+             */
+            RegExApiEndpoint();
+
         public:
             /**
              * @brief       Constructs an api endpoint class.
              */
-            RegExApiEndpoint();
+            static RegExApiEndpoint *getInstance();
 
             /**
              * @brief       Method for fetching data from a web page.
@@ -61,8 +71,61 @@ namespace Nedrysoft {
              */
             Q_INVOKABLE QVariant fetch(const QVariant &pathParameter, const QVariant &requestParameter) const;
 
+            /**
+             * @brief       Method setting a localstorage value
+             *
+             * @details     This function sets the storage item identified by the parameter key to the given value,
+             *              the injected javascript overrides the native implmentation of the local storage api
+             *              so that we have full control over it.
+             *
+             * @param[in]   key contains the key of item.
+             * @param[in]   value contains the value of the item.
+             *
+             * @returns     a null QVariant
+             */
+            Q_INVOKABLE QVariant localStorageSetItem(const QVariant &key, const QVariant &value);
+
+            /**
+             * @brief       Method retrieving a localstorage value
+             *
+             * @details     This function retrieves the storage item identified by the parameter key,
+             *              the injected javascript overrides the native implmentation of the local storage api
+             *              so that we have full control over it.
+             *
+             * @param[in]   key contains the key of item.
+             *
+             * @returns     the value if set; otherwise null
+             */
+            Q_INVOKABLE QVariant localStorageGetItem(const QVariant &key);
+
+            /**
+             * @brief       Method removing a localstorage value
+             *
+             * @details     This function removes the storage item identified by the parameter key,
+             *              the injected javascript overrides the native implmentation of the local storage api
+             *              so that we have full control over it.
+             *
+             * @param[in]   key contains the key of item.
+             *
+             * @returns     a null QVariant
+             */
+            Q_INVOKABLE QVariant localStorageRemoveItem(const QVariant &key);
+
+            /**
+             * @brief       Method clearing the localstorage
+             *
+             * @details     This function clears the local storage.  The injected javascript overrides the native implmentation
+             *              of the local storage api so that we have full control over it.
+             *
+             * @param[in]   key contains the key of item.
+             *
+             * @returns     a null QVariant
+             */
+            Q_INVOKABLE QVariant localStorageClear();
+
         private:
             QSqlDatabase m_database;
+            QSettings *m_settings;
     };
 }
 

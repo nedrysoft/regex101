@@ -51,6 +51,8 @@ Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QW
             });
         }
     });
+
+    QDesktopServices::setUrlHandler(RegExUrlSchemeHandler::name(), this, SLOT("handleOpenByUrl"));
 }
 
 Nedrysoft::MainWindow::~MainWindow()
@@ -69,4 +71,9 @@ void Nedrysoft::MainWindow::on_actionAbout_triggered()
 void Nedrysoft::MainWindow::on_actionExit_triggered()
 {
     close();
+}
+
+void Nedrysoft::MainWindow::handleOpenByUrl(const QUrl &url)
+{
+    qDebug() << url;
 }

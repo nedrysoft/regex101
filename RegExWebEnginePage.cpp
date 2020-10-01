@@ -41,17 +41,16 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
 
     m_profile = dynamic_cast<RegExWebEngineProfile *>(profile());
 
-    m_apiEndpoint = new RegExApiEndpoint;
     m_apiChannel = new QWebChannel;
 
     setWebChannel(m_apiChannel);
 
-    m_apiChannel->registerObject(QString("RegExApiEndpoint"), m_apiEndpoint);
+    m_apiChannel->registerObject(QString("RegExApiEndpoint"), RegExApiEndpoint::getInstance());
 
     setUrlRequestInterceptor(m_urlInterceptor);
 
-    //setUrl(url);
-    setUrl(QUrl("regex101:/r/ebZRGK/1"));
+    setUrl(url);
+    //setUrl(QUrl("regex101:/r/ebZRGK/1"));
 }
 
 Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()

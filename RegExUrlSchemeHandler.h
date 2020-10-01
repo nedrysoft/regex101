@@ -98,7 +98,20 @@ namespace Nedrysoft {
              */
             static QString root();
 
-        private:
+        protected:
+
+            /**
+             * @brief       setInitialState
+             *
+             * @details     Creates the initial state information that is set in the html file, this includes
+             *              information such as settings as well as information about the current regular expression.
+             *
+             * @param[in]   fileContent is the html file content which the initial state is to be added to.
+             * @param[in]   requestUrl is the URL, the html is avaialble on multiple endpoints and this parameter
+             *              is used to populate the initial state correctly.
+             *
+             * @returns     the modified html file ready to be served.
+             */
             QString setInitialState(QString fileContent, QUrl requestUrl);
 
         private:

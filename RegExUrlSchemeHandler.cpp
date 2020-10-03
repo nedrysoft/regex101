@@ -48,6 +48,7 @@ constexpr auto htmlMimeType = "text/html";
 constexpr auto javascriptMimeType = "application/javascript";
 constexpr auto qrcRootFolder = ":/";
 constexpr auto disableFetchJavascript = R"(<script type="text/javascript" src="/qwebchannel.js"></script><script src="/regexbridge.js"></script>)";
+constexpr auto javascriptBridgeFilename = ":/regex101/regexbridge.js";
 
 auto GET(QByteArrayLiteral("GET"));
 auto POST(QByteArrayLiteral("POST"));
@@ -86,6 +87,12 @@ void Nedrysoft::RegExUrlSchemeHandler::registerScheme()
 Nedrysoft::RegExUrlSchemeHandler::RegExUrlSchemeHandler(QString resourceRootFolder)
 {
     m_resourceRootFolder = resourceRootFolder;
+
+    QFile regexBridgeFile(javascriptBridgeFilename);
+
+    if (regexBridgeFile.open(QFile::ReadOnly)) {
+        m_injectedJavascript = QString::fromLatin1(regexBridgeFile.readAll());
+    }
 }
 
 void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
@@ -93,6 +100,8 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
     auto method = job->requestMethod();
     auto url = job->requestUrl().path(QUrl::FormattingOptions(QUrl::StripTrailingSlash));
     QMimeDatabase db;
+
+    //qDebug() << "Nedrysoft::RegExUrlSchemeHandler::requestStarted" << job;
 
     if (method==GET) {
         auto resourceUrl = job->requestUrl();
@@ -152,6 +161,12 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
             if (type.inherits(javascriptMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
+
+                // inject our javascript override functions
+
+                if (QRegularExpression(R"((bundle\.js)|(chunk.js))").match(job->requestUrl().path()).hasMatch()) {
+                    fileString = m_injectedJavascript+fileString;
+                }
 
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 
@@ -228,18 +243,31 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
         regexEditor["testString"] = "";
         regexEditor["matchResult"] = matchResult;
 
-        libraryEntry["title"] = "";
-        libraryEntry["description"] = "";
-        libraryEntry["author"] = "";
+        libraryEntry["title"] = QJsonValue::Null;//"";
+        libraryEntry["description"] = QJsonValue::Null;//";
+        libraryEntry["author"] = QJsonValue::Null;
 
-        general["permalinkFragment"] = "";
-        general["version"] = 1;
+        general["permalinkFragment"] = QJsonValue::Null;
+        general["version"] = QJsonValue::Null;
+
+        qDebug().noquote() << QJsonDocument(general).toJson(QJsonDocument::Indented);
+
     } else {
         Nedrysoft::RegExApiEndpoint::getInstance()->regex(initialState, match.captured("permalinkFragment"), match.captured("version").toInt());
 
         regexEditor = initialState["regexEditor"].toObject();
         general = initialState["general"].toObject();
         libraryEntry = initialState["libraryEntry"].toObject();
+
+        /*general["title"] = QJsonValue::Null;
+        general["error"] = QJsonValue::Null;
+
+        regexEditor.remove("author");
+        regexEditor.remove("dateModified");
+        regexEditor.remove("description");
+        regexEditor.remove("permalinkFragment");
+        regexEditor.remove("title");
+        regexEditor.remove("version");*/
     }
 
     general["deleteCode"] = QJsonValue::Null;
@@ -248,13 +276,18 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     general["profilePicture"] = QJsonValue::Null;
     general["serviceProvider"] = QJsonValue::Null;
     general["isFavorite"] = false;
-    general["isLibraryEntry"] = true;
+    general["isLibraryEntry"] = false;
     general["cookie"] = "_ga=GA1.2.1171425424.1599835688; _gid=GA1.2.1060624053.1601204614";
     general["sponsorData"] = QJsonValue::Null;
-    general["error"] = QJsonValue::Null;
+    //general["error"] = QJsonValue::Null;
 
-    initialState["general"] = general;
-    initialState["regexEditor"] = regexEditor;
+    if (general.count()) {
+        initialState["general"] = general;
+    }
+
+    if (regexEditor.count()) {
+        initialState["regexEditor"] = regexEditor;
+    }
     initialState["libraryEntry"] = libraryEntry;
 
     // set up unit tests data
@@ -315,6 +348,8 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     quiz["mostRecentTaskIdx"] = QJsonValue::Null;
 
     initialState["quiz"] = quiz;
+
+    //qDebug().noquote() << QJsonDocument(initialState).toJson(QJsonDocument::Indented);
 
     auto initialStateString = QUrl::toPercentEncoding(QJsonDocument(initialState).toJson(QJsonDocument::Compact));
 

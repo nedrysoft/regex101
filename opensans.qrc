@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/fonts">
+        <file>assets/Open_Sans/OpenSans-Bold.ttf</file>
+        <file>assets/Open_Sans/OpenSans-BoldItalic.ttf</file>
+        <file>assets/Open_Sans/OpenSans-ExtraBold.ttf</file>
+        <file>assets/Open_Sans/OpenSans-ExtraBoldItalic.ttf</file>
+        <file>assets/Open_Sans/OpenSans-Italic.ttf</file>
+        <file>assets/Open_Sans/OpenSans-Light.ttf</file>
+        <file>assets/Open_Sans/OpenSans-LightItalic.ttf</file>
+        <file>assets/Open_Sans/OpenSans-Regular.ttf</file>
+        <file>assets/Open_Sans/OpenSans-SemiBold.ttf</file>
+        <file>assets/Open_Sans/OpenSans-SemiBoldItalic.ttf</file>
+    </qresource>
+</RCC>

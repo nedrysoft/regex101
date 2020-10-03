@@ -32,6 +32,8 @@
 
 #include <QTimer>
 #include <QWebChannel>
+#include <QWindow>
+#include <QGridLayout>
 
 Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
     QWebEnginePage(new Nedrysoft::RegExWebEngineProfile),
@@ -50,7 +52,6 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
     setUrlRequestInterceptor(m_urlInterceptor);
 
     setUrl(url);
-    //setUrl(QUrl("regex101:/r/ebZRGK/1"));
 }
 
 Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
@@ -65,7 +66,7 @@ void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMe
     Q_UNUSED(sourceID);
     Q_UNUSED(message);
 
-    //qDebug() << message;
+    qDebug() << message;
 }
 
 void Nedrysoft::RegExWebEnginePage::javaScriptAlert(const QUrl &securityOrigin, const QString &msg)

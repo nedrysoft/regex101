@@ -9,9 +9,9 @@
 	<key>CFBundleGetInfoString</key>
 	<string></string>
 	<key>CFBundleIconFile</key>
-	<string>regex101.icns</string>
+        <string>@APPLICATION_BUNDLE_ICONS@</string>
 	<key>CFBundleIdentifier</key>
-        <string>com.nedrysoft</string>
+        <string>@APPLICATION_BUNDLE_IDENTIFIER@</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
@@ -36,10 +36,10 @@
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
                 <key>CFBundleURLName</key>
-                <string>com.nedrysoft.regex101</string>
+                <string>@APPLICATION_BUNDLE_IDENTIFIER@</string>
                 <key>CFBundleURLSchemes</key>
                 <array>
-                    <string>regex101</string>
+                    <string>@APPLICATION_BUNDLE_SCHEME@</string>
                 </array>
             </dict>
         </array>

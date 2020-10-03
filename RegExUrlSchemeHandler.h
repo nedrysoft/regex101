@@ -117,6 +117,7 @@ namespace Nedrysoft {
 
         private:
             QString m_resourceRootFolder;                               //! string that contains the root folder where web is served from
+            QString m_injectedJavascript;                               //! string that contains the javascript to replace storage and fetch apis
     };
 }
 

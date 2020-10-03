@@ -4,18 +4,26 @@
 #include <QDebug>
 #include <QDialog>
 #include <QDesktopWidget>
+#include <QFont>
+#include <QFontDatabase>
+#include <QPainter>
 #include <QString>
 
+constexpr auto splashScreenFilename = ":/assets/splash_620x375@2x.png";
+constexpr auto fontFamily = "Open Sans";
+constexpr auto fontSize = 14;
+
 Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
-    QDialog(parent, Qt::FramelessWindowHint),
-    ui(new Ui::RegExAboutDialog)
+    QDialog(parent, Qt::FramelessWindowHint)
 {
-    ui->setupUi(this);
+    m_backgroundPixmap = QPixmap(splashScreenFilename);
+
+    auto dialogSize = (QSizeF(m_backgroundPixmap.size())*(devicePixelRatioF()/m_backgroundPixmap.devicePixelRatioF())).toSize();
+
+    resize(dialogSize);
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_AlwaysStackOnTop);
-
-    ui->versionLabel->setText(QString("%1.%2.%3 (%4 %5)").arg(APPLICATION_GIT_YEAR).arg(APPLICATION_GIT_MONTH).arg(APPLICATION_GIT_DAY).arg(APPLICATION_GIT_BRANCH).arg(APPLICATION_GIT_HASH));
 }
 
 void Nedrysoft::RegExAboutDialog::focusOutEvent(QFocusEvent *event)
@@ -40,11 +48,32 @@ bool Nedrysoft::RegExAboutDialog::event(QEvent *event)
         }
     }
 
-    return QObject::event(event);
+    return QDialog::event(event);
 }
 
 Nedrysoft::RegExAboutDialog::~RegExAboutDialog()
 {
-    delete ui;
 }
 
+void Nedrysoft::RegExAboutDialog::paintEvent(QPaintEvent *paintEvent)
+{
+    QDialog::paintEvent(paintEvent);
+
+    auto font = QFont(fontFamily, fontSize, QFont::Weight::Normal);
+    auto versionText = QString("%1.%2.%3 (%4 %5)").arg(APPLICATION_GIT_YEAR).arg(APPLICATION_GIT_MONTH).arg(APPLICATION_GIT_DAY).arg(APPLICATION_GIT_BRANCH).arg(APPLICATION_GIT_HASH);
+
+    QPainter painter(this);
+
+    painter.save();
+
+    painter.drawPixmap(0, 0, m_backgroundPixmap);
+
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter.setPen(Qt::white);
+    painter.setBrush(Qt::white);
+    painter.setFont(font);
+
+    painter.drawText(QRect(350, 300, 250, 71), Qt::AlignRight | Qt::AlignVCenter, versionText);
+
+    painter.restore();
+}

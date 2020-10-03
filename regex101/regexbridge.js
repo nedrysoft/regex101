@@ -26,87 +26,114 @@
  */
 
 /**
- * @brief       Creates the web channel to communicate with the backend.
+ * @brief       Javascript overridden functions
  *
- * @details     This is injected into the web page and is used to construct a web channel
- *              which connects to the C++.  When the web channel is opened, the
- *              api endpoint is returned and the webapi fetch function is replaced with
- *              the custom one provided by the web channel.
+ * @details     In order to make the original regex101.com site work correctly as a standalone application
+ *              various built-in javascript functions are replaced with our own implementations which allows
+ *              the C++ application to interact with the web application, this includes the local storage api
+ *              which is replaced with an implementation that allows the C++ applicaiton to handle storage of
+ *              data rather than the web engine.
+ *
+ *              This javascript file is injected into requests that the web applicaiton makes.
+ *
+ * @notes       The typeof guard is used to ensure that the code is only exectued once if the file happens
+ *              to be injected more than once.
  */
-window.webChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
-    window.apiEndPoint = channel.objects.RegExApiEndpoint;
 
-});
+if (typeof window.webChannel=="undefined") {
 
-window.fetch = regexApiFetch
-window.localStorage.setItem = regexApiLocalStorageSetItem
-window.localStorage.getItem = regexApiLocalStorageGetItem
-window.localStorage.clear = regexApiLocalStorageClear
-window.localStorage.removeItem = regexApiLocalStorageRemoveItem
-
-/**
- * @brief       Provides a webapi fetch style function
- *
- * @details     To provide full support for the regex101 application, the webapi fetch command
- *              has to be replaced with something functionally similar that can directly talk
- *              to the C++ application, this implemention provides that bridge.
- *
- * @param[in]   path is the path to the file.
- * @param[in]   request is the data to be sent in the request.
- *
- * @returns     a promise object
- */
-function regexApiFetch(path, request)
-{
-   return new Promise(function(resolve, reject) {
-        return window.apiEndPoint.fetch(path, request).then(function(e) {
-            var response = {
-                status: 200,
-                json : function() {
-                    return JSON.parse(e);
-                }
-            };
-
-            resolve(response);
-        });
+    /**
+     * @brief       Creates the web channel to communicate with the backend.
+     *
+     * @details     Creates and iniitialises a QWebChannel object which allows access
+     *              to C++ functions from javascript.
+     *
+     * @notes       The resulting web channel object is stored in window
+     */
+    window.nedrysoftWebChannel = new QWebChannel(qt.webChannelTransport, function(channel) {
+        window.nedrysoftApiEndPoint = channel.objects.RegExApiEndpoint;
     });
+
+    /**
+     * @brief       Provides a webapi fetch style function
+     *
+     * @details     To provide full support for the regex101 application, the webapi fetch command
+     *              has to be replaced with something functionally similar that can directly talk
+     *              to the C++ application, this implemention provides that bridge.
+     *
+     * @param[in]   path is the path to the file.
+     * @param[in]   request is the data to be sent in the request.
+     *
+     * @returns     a promise object
+     */
+    window.fetch = fetch = function(path, request) {
+       return new Promise(function(resolve, reject) {
+            return window.nedrysoftApiEndPoint.fetch(path, request).then(function(e) {
+                var response = {
+                    status: 200,
+                    json : function() {
+                        return JSON.parse(e);
+                    }
+                };
+
+                resolve(response);
+            });
+        });
+    }
+
+    /**
+     * @brief           Store item in local storage
+     *
+     * @details         Overrides the default implementation of the local storage api and redirects requests to
+     *                  the C++ implementation.
+     *
+     * @param[in]       key is the identifier of the data item to set
+     * @param[in]       value is the data to be stored by the given key
+     *
+     * @returns         An empty JSON object
+     */
+    window.localStorage.setItem = function (key, value) {
+        return JSON.stringify(window.nedrysoftApiEndPoint.localStorageSetItem(key, value))
+    }
+
+    /**
+     * @brief           Retrieve item from local storage
+     *
+     * @details         Overrides the default implementation of the local storage api and redirects requests to
+     *                  the C++ implementation.
+     *
+     * @param[in]       key is the identifier of the data item to retrieve
+     *
+     * @returns         A string containing a JSON representation of the stored object
+     */
+    window.localStorage.getItem = function(key) {
+        return JSON.stringify(window.nedrysoftApiEndPoint.localStorageGetItem(key))
+    }
+
+    /**
+     * @brief           Clear local storage
+     *
+     * @details         Overrides the default implementation of the local storage api and redirects requests to
+     *                  the C++ implementation.  This function clears the local storage.
+     *
+     * @returns         An empty JSON object
+     */
+    window.localStorage.clear = function() {
+        return JSON.stringify(window.nedrysoftApiEndPoint.regexApiLocalStorageClear())
+    }
+
+    /**
+     * @brief           Remove a specific item from local storage
+     *
+     * @details         Overrides the default implementation of the local storage api and redirects requests to
+     *                  the C++ implementation.
+     *
+     * @param[in]       key is the identifier of the data item to remove
+     *
+     * @returns         An empty JSON object
+     */
+    window.localStorage.removeItem = function(key) {
+        return JSON.stringify(window.nedrysoftApiEndPoint.regexApiLocalStorageRemoveItem(key))
+    }
 }
 
-function regexApiLocalStorageSetItem(key, value)
-{
-    return new Promise(function(resolve, reject) {
-         return window.apiEndPoint.localStorageSetItem(key, value).then(function(e) {
-
-             resolve(e);
-         });
-     });
-}
-
-function regexApiLocalStorageGetItem(key)
-{
-    return new Promise(function(resolve, reject) {
-         return window.apiEndPoint.localStorageGetItem(key).then(function(e) {
-             console.log(key+" response was:"+typeof(e)+" "+e);
-             resolve(e);
-         });
-     });
-}
-
-
-function regexApiLocalStorageClear()
-{
-    return new Promise(function(resolve, reject) {
-         return window.apiEndPoint.localStorageClear().then(function(e) {
-             resolve();
-         });
-     });
-}
-
-function regexApiLocalStorageRemoveItem(key)
-{
-    return new Promise(function(resolve, reject) {
-         return window.apiEndPoint.localStorageRemoveItem(key).then(function(e) {
-             resolve();
-         });
-     });
-}

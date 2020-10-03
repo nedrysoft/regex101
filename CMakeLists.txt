@@ -48,10 +48,26 @@
 # ./deploy.py --qtdir="/home/adrian/Qt/5.14.2/gcc_64" \
 #             --curlbin="/usr/bin/curl” \
 #             -—cert=05DDE1C3F3B50B53112A13C231A0DBA53EEA9FE6
+#
+# ------------
+#
+# The follow definitions are available to the compiler preprocessor:
+#
+# APPLICATION_LONG_NAME             The full application name.
+# APPLICATION_SHORT_NAME            The abbreviated application name.
+#
+# APPLICATION_GIT_YEAR              The year of the current git commit.
+# APPLICATION_GIT_MONTH             The month of the current git commit.
+# APPLICATION_GIT_DAY               The day of the current git commit.
+# APPLICATION_GIT_BRANCH            The branch of the current git commit.
+# APPLICATION_GIT_HASH              The hash of the current git commit.
 
 cmake_minimum_required(VERSION 3.5)
 
-project("Regular Expressions 101" LANGUAGES CXX)
+set(APPLICATION_SHORT_NAME "regex101")
+set(APPLICATION_LONG_NAME "Regular Expressions 101")
+
+project(${APPLICATION_LONG_NAME} LANGUAGES CXX)
 
 if((APPLE) AND (CMAKE_OSX_ARCHITECTURES MATCHES "arm64"))
     set(APPLICATION_PLATFORM_ARCH "arm64")
@@ -85,7 +101,6 @@ set(APPLICATION_SOURCES
     MainWindow.ui
     RegExAboutDialog.cpp
     RegExAboutDialog.h
-    RegExAboutDialog.ui
     RegExApiEndpoint.cpp
     RegExApiEndpoint.h
     RegExNullWebEnginePage.cpp
@@ -103,6 +118,7 @@ set(APPLICATION_SOURCES
     regex101.qrc
     regex101.icns
     Info.plist.in
+    opensans.qrc
 )
 
 # List of Qt libraries used by the application
@@ -114,6 +130,7 @@ set(APPLICATION_QT_LIBRARIES
     WebEngineWidgets
     WebChannel
     Widgets
+    MacExtras
 )
 
 # Check that the Qt libraries are available
@@ -151,11 +168,15 @@ else()
     string(STRIP "${APPLICATION_GIT_HASH}" APPLICATION_GIT_HASH)
 endif()
 
+# Add prepressor definitions
+
 add_definitions("-DAPPLICATION_GIT_YEAR=\"${APPLICATION_GIT_YEAR}\"")
 add_definitions("-DAPPLICATION_GIT_MONTH=\"${APPLICATION_GIT_MONTH}\"")
 add_definitions("-DAPPLICATION_GIT_DAY=\"${APPLICATION_GIT_DAY}\"")
 add_definitions("-DAPPLICATION_GIT_BRANCH=\"${APPLICATION_GIT_BRANCH}\"")
 add_definitions("-DAPPLICATION_GIT_HASH=\"${APPLICATION_GIT_HASH}\"")
+add_definitions("-DAPPLICATION_LONG_NAME=\"${APPLICATION_LONG_NAME}\"")
+add_definitions("-DAPPLICATION_SHORT_NAME=\"${APPLICATION_SHORT_NAME}\"")
 
 # Generate the list of Qt libraries to link into the application
 
@@ -167,27 +188,28 @@ endforeach()
 
 # Create an application executable (and ensure it's an application bundle under macOS)
 
-add_executable(regex101 MACOSX_BUNDLE ${APPLICATION_SOURCES})
+add_executable(${APPLICATION_SHORT_NAME} MACOSX_BUNDLE ${APPLICATION_SOURCES})
 
 # Set the target executable name
 
-set_target_properties(regex101 PROPERTIES OUTPUT_NAME "Regular Expressions 101")
+set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES OUTPUT_NAME "${APPLICATION_LONG_NAME}")
 
 # Set the folder where the binary should be placed
 
-set_target_properties(regex101 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${APPLICATION_BIN_OUTPUT})
+set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${APPLICATION_BIN_OUTPUT})
 
-# If macOS build, then set the bundle icon and copy to rhe resulting application bundle
+# If macOS build, then ensure the icon is copied to the bundle and set up the Info.plist file
 
 if(APPLE)
-    #set(MACOSX_BUNDLE_ICON_FILE regex101.icns)
-
-    set_source_files_properties(regex101.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    set_target_properties(regex101 PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${APPLICATON_SOURCE_ROOT}/Info.plist.in)
+    set_source_files_properties(${APPLICATION_SHORT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${APPLICATON_SOURCE_ROOT}/Info.plist.in)
 
     set(APPLICATION_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+    set(APPLICATION_BUNDLE_ICONS "${APPLICATION_SHORT_NAME}.icns")
+    set(APPLICATION_BUNDLE_IDENTIFIER "com.nedrysoft.${APPLICATION_SHORT_NAME}")
+    set(APPLICATION_BUNDLE_SCHEME "${APPLICATION_SHORT_NAME}")
 endif()
 
 # Set the libraries be linked in
 
-target_link_libraries(regex101 PRIVATE ${APPLICATION_QT_LINK_LIBRARIES})
+target_link_libraries(${APPLICATION_SHORT_NAME} PRIVATE ${APPLICATION_QT_LINK_LIBRARIES})

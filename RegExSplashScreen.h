@@ -30,6 +30,8 @@
 
 #include <QSplashScreen>
 
+class QLabel;
+
 namespace Nedrysoft {
     /**
      * @brief               RegExSplashScreen class
@@ -45,6 +47,22 @@ namespace Nedrysoft {
              * @brief           Constructs a splash screen dialog.
              */
             RegExSplashScreen();
+
+            /**
+             * @brief           Destructor for the splash screen dialog.
+             */
+            ~RegExSplashScreen();
+
+        protected:
+            /**
+             * @brief           Draw contents of splash screen
+             *
+             * @details         Draws the splash screen, uses the default implementation and then overlays version
+             *                  information over the top
+             *
+             * @param[in]       painter is the painter to draw to.
+             */
+            virtual void drawContents(QPainter *painter);
     };
 }
 

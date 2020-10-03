@@ -33,15 +33,15 @@ QVariant Nedrysoft::RegExApiEndpoint::localStorageSetItem(const QVariant &key, c
 {
     m_settings->setValue(key.toString(), value);
 
-    return QVariant();
+    return QVariant::Map;
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::localStorageGetItem(const QVariant &key)
 {
     if (m_settings->contains(key.toString())) {
-        return(m_settings->value(key.toString()).toString());
+        return(m_settings->value(key.toString()));
     } else {
-        return QVariant();
+        return QVariant::Map;
     }
 }
 
@@ -49,14 +49,14 @@ QVariant Nedrysoft::RegExApiEndpoint::localStorageRemoveItem(const QVariant &key
 {
     m_settings->remove(key.toString());
 
-    return QVariant();
+    return QVariant::Map;
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::localStorageClear()
 {
     m_settings->clear();
 
-    return QVariant();
+    return QVariant::Map;
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const QVariant &requestParameter) const
@@ -68,11 +68,6 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
     auto body = valueMap["body"].toString();
     auto credentials = valueMap["credentials"].toString();
     auto headers = valueMap["headers"].toMap();
-
-    /*qDebug() << "path:" << path;
-    qDebug() << "method: " << method;
-    qDebug() << "headers: " << headers;
-    qDebug() << "body:" << body;*/
 
     QJsonObject jsonResponse;
 
@@ -218,7 +213,7 @@ bool Nedrysoft::RegExApiEndpoint::regex(QJsonObject &stateObject, QString permal
             regexEditor["error"] = query.value("error").toString();
             regexEditor["substString"] = query.value("substString").toString();
             regexEditor["hasUnsavedData"] = false;
-            regexEditor["regexVersions"] = 1;
+            regexEditor["regexVersions"] = 0;
             regexEditor["showMatchArea"] = false;
             regexEditor["showSubstitutionArea"] = true;
             regexEditor["showUnitTestArea"] = false;

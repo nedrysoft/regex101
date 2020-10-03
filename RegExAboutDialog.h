@@ -29,10 +29,7 @@
 #define REGEXABOUTDIALOG_H
 
 #include <QDialog>
-
-namespace Ui {
-    class RegExAboutDialog;
-}
+#include <QPixmap>
 
 namespace Nedrysoft {
     /**
@@ -78,8 +75,17 @@ namespace Nedrysoft {
              */
             virtual void focusOutEvent(QFocusEvent *event) override;
 
+            /**
+             * @brief           Renders the dialog.
+             *
+             * @details         Calls QDialog::paintEvent and then draws version information over the top in the correct place.
+             *
+             * @param[in]       event contains information about the paint event.
+             */
+            virtual void paintEvent(QPaintEvent *paintEvent) override;
+
         private:
-            Ui::RegExAboutDialog *ui;                   //! ui class for the about dialog
+            QPixmap m_backgroundPixmap;                      //! the background image used for the about dialog
     };
 }
 #endif // REGEXABOUTDIALOG_H

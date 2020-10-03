@@ -43,77 +43,7 @@
   <property name="modal">
    <bool>false</bool>
   </property>
-  <widget class="QLabel" name="imageLabel">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>620</width>
-     <height>375</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>620</width>
-     <height>375</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>620</width>
-     <height>375</height>
-    </size>
-   </property>
-   <property name="baseSize">
-    <size>
-     <width>620</width>
-     <height>375</height>
-    </size>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap resource="regex101.qrc">:/assets/splash_620x375@2x.png</pixmap>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="versionLabel">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>300</y>
-     <width>250</width>
-     <height>71</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>14</pointsize>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: white;
-</string>
-   </property>
-   <property name="text">
-    <string>Version Information</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-   </property>
-  </widget>
  </widget>
- <resources>
-  <include location="regex101.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

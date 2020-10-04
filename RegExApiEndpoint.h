@@ -183,6 +183,18 @@ namespace Nedrysoft {
             QVariant processGetRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
 
             /**
+             * @brief           Processes HTTP PUT request
+             *
+             * @details         Any PUT request that is made to the api endpoint is handled with this function
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processPutRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
              * @brief           Processes HTTP POST request
              *
              * @details         Any POST request that is made to the api endpoint is handled with this function
@@ -268,6 +280,31 @@ namespace Nedrysoft {
              * @returns         a QVariant response to the request
              */
             QVariant processGetStatic(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
+            /**
+             * @brief           Processes a request made to the put history endpoint
+             *
+             * @details         Function for handling a request made to the put history endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processPutHistoryRequest(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
+            /**
+             * @brief           Reads the content of a query stored in the resources
+             *
+             * @details         Allows SQL queries to be stored in the resources file under /sql", the
+             *                  queries can be written as formatted text and then loaded simply using this function.
+             *
+             * @param[in]       queryName the name of the query (no prefix or extension)
+             *
+             * @returns         a string containing the query
+             */
+            QString getQuery(QString queryName) const;
 
         private:
             QSqlDatabase m_database;                        //! database instance to store regular expressions

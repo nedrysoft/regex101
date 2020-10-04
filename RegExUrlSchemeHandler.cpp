@@ -170,13 +170,13 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 
-                if (job->requestUrl().path()=="/static/bundle.js") {
+                /*if (job->requestUrl().path()=="/static/bundle.js") {
                     auto iconList = QStringList() << "gamepad" << "chat" << "user";
 
                     for (auto icon : iconList) {
                         fileString = fileString.replace(QRegularExpression(QString(R"(icon:(\s*r\s*\?\s*void\s*0\s*:)?\s*"%1",)").arg(icon)), QString(R"(icon:"%1",style:{display:"none"},)").arg(icon));;
                     }
-                }
+                }*/
 
                 fileString = fileString.replace(QRegularExpression(R"(https:\/\/srv\.buysellads\.com\/)"), root());
 
@@ -271,8 +271,8 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     }
 
     general["deleteCode"] = QJsonValue::Null;
-    general["userId"] = QJsonValue::Null;
-    general["email"] = QJsonValue::Null;
+    general["userId"] = 1234;//QJsonValue::Null;
+    general["email"] = "adrian.carpenter@me.com";//QJsonValue::Null;
     general["profilePicture"] = QJsonValue::Null;
     general["serviceProvider"] = QJsonValue::Null;
     general["isFavorite"] = false;
@@ -353,5 +353,5 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
 
     auto initialStateString = QUrl::toPercentEncoding(QJsonDocument(initialState).toJson(QJsonDocument::Compact));
 
-    return(fileContent.replace(QRegularExpression(R"(nedrySoft\.initialState)"), QString::fromUtf8(initialStateString)));
+    return fileContent.replace(QRegularExpression(R"(nedrySoft\.initialState)"), QString::fromUtf8(initialStateString));
 }

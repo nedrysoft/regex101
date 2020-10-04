@@ -72,5 +72,13 @@
         <file>icon.ico</file>
         <file>regex101/regexbridge.js</file>
         <file>regex101/qwebchannel.js</file>
+        <file>regex101/sql/getStoredExpression.sql</file>
+        <file>regex101/sql/getLibraryItems.sql</file>
+        <file>regex101/sql/insertExpression.sql</file>
+        <file>regex101/sql/insertVersion.sql</file>
+        <file>regex101/sql/getItemDetails.sql</file>
+        <file>regex101/sql/updateTitle.sql</file>
+        <file>regex101/sql/deleteTags.sql</file>
+        <file>regex101/sql/insertTag.sql</file>
     </qresource>
 </RCC>

@@ -108,5 +108,5 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
 
     this->window()->winId();
 
-    return(this->window()->windowHandle());
+    return this->window()->windowHandle();
 }

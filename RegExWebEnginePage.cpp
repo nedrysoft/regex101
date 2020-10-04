@@ -35,6 +35,12 @@
 #include <QWindow>
 #include <QGridLayout>
 
+#include <QFile>
+
+constexpr const char *injectedJavascriptFilenames[]={
+    ":/regex101/qwebchannel.js"
+};
+
 Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
     QWebEnginePage(new Nedrysoft::RegExWebEngineProfile),
     m_urlInterceptor(new Nedrysoft::RegExUrlRequestInterceptor)
@@ -48,6 +54,14 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
     setWebChannel(m_apiChannel);
 
     m_apiChannel->registerObject(QString("RegExApiEndpoint"), RegExApiEndpoint::getInstance());
+
+    // get the API channel up and running as soon as possible
+
+    prepareWebChannel();
+
+    connect(this, &QWebEnginePage::loadStarted, [=]() {
+        prepareWebChannel();
+    });
 
     setUrlRequestInterceptor(m_urlInterceptor);
 
@@ -92,4 +106,15 @@ bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, QWe
     }
 
     return true;
+}
+
+void Nedrysoft::RegExWebEnginePage::prepareWebChannel()
+{
+    for(auto javascriptFilename : injectedJavascriptFilenames) {
+        QFile javascriptFile(javascriptFilename);
+
+        if (javascriptFile.open(QFile::ReadOnly)) {
+            this->runJavaScript(javascriptFile.readAll());
+        }
+    }
 }

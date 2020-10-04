@@ -119,6 +119,10 @@ set(APPLICATION_SOURCES
     regex101.icns
     Info.plist.in
     opensans.qrc
+    SettingsDialog.cpp
+    SettingsDialog.h
+    TransparentWidget.cpp
+    TransparentWidget.h
 )
 
 # List of Qt libraries used by the application
@@ -130,8 +134,11 @@ set(APPLICATION_QT_LIBRARIES
     WebEngineWidgets
     WebChannel
     Widgets
-    MacExtras
 )
+
+if(APPLE)
+    list(APPEND APPLICATION_QT_LIBRARIES MacExtras)
+endif()
 
 # Check that the Qt libraries are available
 

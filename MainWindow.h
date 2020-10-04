@@ -37,6 +37,7 @@ namespace Ui {
 namespace Nedrysoft {
     class RegExSplashScreen;
     class RegExWebEnginePage;
+    class SettingsDialog;
 
     /**
      * @brief               The MainWindow class
@@ -69,6 +70,15 @@ namespace Nedrysoft {
              */
             void handleOpenByUrl(const QUrl &url);
 
+        protected:
+
+            /**
+             * @brief           Event handler for window close event
+             *
+             * @param[in]       closeEvent contains the information about the event including accpt/regect functions
+             */
+            virtual void closeEvent(QCloseEvent *closeEvent);
+
         private slots:
             /**
              * @brief           About slot function.
@@ -98,9 +108,12 @@ namespace Nedrysoft {
              */
             bool eventFilter(QObject *obj, QEvent *event);
 
-        private:
+            void on_actionPreferences_triggered();
+
+    private:
             Ui::MainWindow *ui;                                     //! ui class for the main window
             Nedrysoft::RegExWebEnginePage *m_page;                  //! web page object set up for our scheme
+            SettingsDialog *m_settingsDialog;                       //! the settings dialog
     };
 }
 

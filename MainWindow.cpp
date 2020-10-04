@@ -29,6 +29,7 @@
 #include "RegExAboutDialog.h"
 #include "RegExWebEnginePage.h"
 #include "RegExSplashScreen.h"
+#include "SettingsDialog.h"
 #include "ui_MainWindow.h"
 
 #include <QDebug>
@@ -40,6 +41,8 @@ Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QW
       m_page(new Nedrysoft::RegExWebEnginePage)
 {
     ui->setupUi(this);
+
+    m_settingsDialog = nullptr;
 
     qApp->installEventFilter(this);
 
@@ -84,12 +87,12 @@ void Nedrysoft::MainWindow::handleOpenByUrl(const QUrl &url)
 bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type()==QEvent::FileOpen) {
-        QFileOpenEvent *fileEvent = static_cast<QFileOpenEvent*>(event);
+        QFileOpenEvent *fileOpenEvent = static_cast<QFileOpenEvent*>(event);
 
-        if (!fileEvent->url().isEmpty()) {
-            qDebug() << fileEvent->url();
-        } else if (!fileEvent->file().isEmpty()) {
-            qDebug() << fileEvent->file();
+        if (!fileOpenEvent->url().isEmpty()) {
+            // fileOpenEvent->url() contains the url if launched via url sceme
+        } else if (!fileOpenEvent->file().isEmpty()) {
+            // fileOpenEvent->file() contains the filename if launched via file association
         }
 
         return false;
@@ -98,3 +101,27 @@ bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
+
+void Nedrysoft::MainWindow::on_actionPreferences_triggered()
+{
+    if (m_settingsDialog) {
+        m_settingsDialog->raise();
+
+        return;
+    }
+
+    m_settingsDialog = new SettingsDialog;
+
+    m_settingsDialog->show();
+}
+
+void Nedrysoft::MainWindow::closeEvent(QCloseEvent *closeEvent)
+{
+    if (m_settingsDialog) {
+        m_settingsDialog->close();
+        m_settingsDialog->deleteLater();
+        m_settingsDialog = nullptr;
+    }
+
+    closeEvent->accept();
+}

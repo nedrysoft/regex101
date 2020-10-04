@@ -140,6 +140,136 @@ namespace Nedrysoft {
             Q_INVOKABLE QVariant localStorageClear();
 
         private:
+
+            /**
+             * @brief           Creates a random string of characters
+             *
+             * @details         Creates a string which is made of random characters from the set (a-z, A-z, 0-9)
+             *
+             * @param[in]       numberOfCharacters is the desired length of the string
+             *
+             * @returns         a string of the desired length consisting of random characters
+             */
+            QString createRandomString(int numberOfCharacters) const;
+
+            /**
+             * @brief           Creates a permalink fragment
+             *
+             * @details         Creates a string which is made of random characters from the set (a-z, A-z, 0-9)
+             *
+             * @returns         a string containing the permalink fragment
+             */
+            QString createPermalinkFragment() const;
+
+            /**
+             * @brief           Creates a deletecode
+             *
+             * @details         Creates a string which is made of random characters from the set (a-z, A-z, 0-9)
+             *
+             * @returns         a string containing the deletecode fragment
+             */
+            QString createDeleteCode() const;
+
+            /**
+             * @brief           Processes HTTP GET request
+             *
+             * @details         Any GET request that is made to the api endpoint is handled with this function
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processGetRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
+             * @brief           Processes HTTP POST request
+             *
+             * @details         Any POST request that is made to the api endpoint is handled with this function
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processPostRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
+             * @brief           Processes HTTP DELETE request
+             *
+             * @details         Any DELETE request that is made to the api endpoint is handled with this function
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processDeleteRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
+             * @brief           Processes a request made to the save endpoint
+             *
+             * @details         Function for handling a request made to the save api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processSaveRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
+             * @brief           Processes a request made to the fork endpoint
+             *
+             * @details         Function for handling a request made to the save api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processForkRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
+             * @brief           Processes a request made to the get library items endpoint
+             *
+             * @details         Function for handling a request made to the save api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processGetLibraryItems(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
+            /**
+             * @brief           Processes a request made to the get items endpoint
+             *
+             * @details         Function for handling a request made to the save api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processGetItemDetails(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
+            /**
+             * @brief           Processes a request made to the static endpoint
+             *
+             * @details         Function for handling a request made to the save api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processGetStatic(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
+        private:
             QSqlDatabase m_database;                        //! database instance to store regular expressions
             QSettings *m_settings;                          //! settings object to store the web application local storage data
     };

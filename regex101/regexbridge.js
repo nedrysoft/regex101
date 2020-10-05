@@ -37,6 +37,26 @@
  *              This javascript file is injected into requests that the web applicaiton makes.
  */
 
+console.log("running code")
+
+window.fetch = null;
+
+window.localStorage.setItem = function (key, value) {
+    console.log('setItem '+key+' '+value)
+};
+
+window.localStorage.removeItem = function (key) {
+    console.log('removeItem '+key)
+};
+
+window.localStorage.getItem = function (key) {
+    return "{}"
+};
+
+window.localStorage.clear = function () {
+    console.log('clear')
+};
+
 if (typeof window.nedrysoftWebChannel=="undefined") {
     /**
      * @brief       Creates the web channel to communicate with the backend.
@@ -129,7 +149,7 @@ if (typeof window.nedrysoftWebChannel=="undefined") {
          window.localStorage.removeItem = function(key) {
              return JSON.stringify(window.nedrysoftApiEndPoint.regexApiLocalStorageRemoveItem(key))
          }
-
+/*
          // Inform application that the injected javascript has finished initialisation
 
          window.nedrysoftApiEndPoint.notifyApplication("injection started.");
@@ -144,14 +164,14 @@ if (typeof window.nedrysoftWebChannel=="undefined") {
 
          window.dispatchEvent(evt);
 
-         window.nedrysoftApiEndPoint.notifyApplication("load event triggered.");
+         window.nedrysoftApiEndPoint.notifyApplication("load event triggered.");*/
      });
- } else {
+ } /*else {
     window.nedrysoftApiEndPoint.notifyApplication("injection started.");
 
      // !!!NEDRYSOFT_INJECT_FILE!!!
 
     window.nedrysoftApiEndPoint.notifyApplication("injection ended.");
  }
-
+*/
 

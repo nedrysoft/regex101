@@ -467,9 +467,8 @@ QVariant Nedrysoft::RegExApiEndpoint::processPutHistoryRequest([[maybe_unused]] 
     return QString();
 }
 
-void Nedrysoft::RegExApiEndpoint::notifyApplication(QVariant message) const
+void Nedrysoft::RegExApiEndpoint::notifyApplication([[maybe_unused]] QVariant message) const
 {
-    qDebug() << "notifyApplication:" << message.toString();
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::processGetRegEx([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const

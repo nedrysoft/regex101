@@ -35,12 +35,21 @@
 #include <QFontDatabase>
 #include <QMimeDatabase>
 #include <QRegularExpression>
+#include <stdio.h>
+#include <stdlib.h>
 
 constexpr auto applicationName = APPLICATION_LONG_NAME;                     //! Provided by CMake to the preprocessor
 constexpr auto applicationFontsPrefix = ":/fonts";                          //! Fonts are stored under :/fonts (recursive search is performed)
 
+void regexMessageHandler([[maybe_unused]] QtMsgType type, [[maybe_unused]] const QMessageLogContext &context, const QString &msg)
+{
+    fprintf(stdout, "%s\r\n", msg.toLatin1().data());
+}
+
 int main(int argc, char *argv[])
 {
+    qInstallMessageHandler(regexMessageHandler);
+
     Nedrysoft::RegExUrlSchemeHandler::registerScheme();
     QMimeDatabase mimeDatabase;
     QApplication application(argc, argv);

@@ -47,9 +47,7 @@ constexpr auto advertResponse = R"(({"ads":[{}]});)";
 constexpr auto htmlMimeType = "text/html";
 constexpr auto javascriptMimeType = "application/javascript";
 constexpr auto qrcRootFolder = ":/";
-constexpr auto injectHtmlWebChannel = R"(<script type="text/javascript" src="/qwebchannel.js"></script>)";
 constexpr auto javascriptBridgeFilename = ":/regex101/regexbridge.js";
-constexpr auto javascriptFileMarker = "// !!!NEDRYSOFT_INJECT_FILE!!!";
 
 auto GET(QByteArrayLiteral("GET"));
 auto POST(QByteArrayLiteral("POST"));
@@ -150,7 +148,6 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
             if (type.inherits(htmlMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
 
-                //fileString = injectHtmlWebChannel+fileString;
                 fileString = setInitialState(fileString, job->requestUrl());
 
                 fileString = fileString.replace(QRegularExpression(R"((http)(s{0,1}):\/\/regex101\.com)"), "regex101:/");
@@ -160,19 +157,6 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
             if (type.inherits(javascriptMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
-
-                // when the applicaton javascript is requested, we wrap it in a bridge object which stops the application
-                // from executing before our replacement functions for fetch and local storage have been installed.
-
-                /*if (QRegularExpression(R"((bundle\.js)|(chunk.js))").match(job->requestUrl().path()).hasMatch()) {
-                    QFile bridgeFile(":/regex101/regexbridge.js");
-
-                    if (bridgeFile.open(QFile::ReadOnly)) {
-                        auto bridgeContent = QString::fromUtf8(bridgeFile.readAll());
-
-                        fileString = bridgeContent.replace(javascriptFileMarker, fileString);
-                    }
-                }*/
 
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 

@@ -273,13 +273,11 @@ function QObject(name, data, webChannel)
                     console.error("Bad callback given to disconnect from signal " + signalName);
                     return;
                 }
-                object.__objectSignals__[signalIndex] = object.__objectSignals__[signalIndex] || [];
-                var idx = object.__objectSignals__[signalIndex].indexOf(callback);
-                if (idx === -1) {
-                    console.error("Cannot find connection of signal " + signalName + " to " + callback.name);
-                    return;
-                }
-                object.__objectSignals__[signalIndex].splice(idx, 1);
+                // This makes a new list. This is important because it won't interfere with
+                // signal processing if a disconnection happens while emittig a signal
+                object.__objectSignals__[signalIndex] = (object.__objectSignals__[signalIndex] || []).filter(function(c) {
+                  return c != callback;
+                });
                 if (!isPropertyNotifySignal && object.__objectSignals__[signalIndex].length === 0) {
                     // only required for "pure" signals, handled separately for properties in propertyUpdate
                     webChannel.exec({
@@ -341,10 +339,6 @@ function QObject(name, data, webChannel)
                 var argument = arguments[i];
                 if (typeof argument === "function")
                     callback = argument;
-                else if (argument instanceof QObject && webChannel.objects[argument.__id__] !== undefined)
-                    args.push({
-                        "id": argument.__id__
-                    });
                 else
                     args.push(argument);
             }
@@ -416,8 +410,6 @@ function QObject(name, data, webChannel)
                 }
                 object.__propertyCache__[propertyIndex] = value;
                 var valueToSend = value;
-                if (valueToSend instanceof QObject && webChannel.objects[valueToSend.__id__] !== undefined)
-                    valueToSend = { "id": valueToSend.__id__ };
                 webChannel.exec({
                     "type": QWebChannelMessageTypes.setProperty,
                     "object": object.__id__,
@@ -439,6 +431,14 @@ function QObject(name, data, webChannel)
 
     Object.assign(object, data.enums);
 }
+
+QObject.prototype.toJSON = function() {
+    if (this.__id__ === undefined) return {};
+    return {
+        id: this.__id__,
+        "__QObject*__": true
+    };
+};
 
 //required for use with nodejs
 if (typeof module === 'object') {

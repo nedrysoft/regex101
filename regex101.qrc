@@ -75,10 +75,11 @@
         <file>regex101/sql/getStoredExpression.sql</file>
         <file>regex101/sql/getLibraryItems.sql</file>
         <file>regex101/sql/insertExpression.sql</file>
-        <file>regex101/sql/insertVersion.sql</file>
+        <file>regex101/sql/insertFirstVersion.sql</file>
         <file>regex101/sql/getItemDetails.sql</file>
         <file>regex101/sql/updateTitle.sql</file>
         <file>regex101/sql/deleteTags.sql</file>
         <file>regex101/sql/insertTag.sql</file>
+        <file>regex101/sql/insertNewVersion.sql</file>
     </qresource>
 </RCC>

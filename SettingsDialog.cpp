@@ -41,7 +41,8 @@
 
 constexpr auto transisionDuration = 100;
 
-Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) : QWidget(parent)
+Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
+    QWidget(parent)
 {
 #if defined(Q_OS_MACOS)
     m_toolBar = new QMacToolBar(this);

@@ -50,6 +50,16 @@ namespace Nedrysoft {
              */
             RegExWebEngineProfile(QObject *parent=nullptr);
 
+        protected:
+            /**
+             * @brief           Reads a file into a string
+             *
+             * @param[in]       filename is the file name to open and read
+             *
+             * @returns         returns the content of the file
+             */
+            QString readFile(QString filename);
+
         private:
             Nedrysoft::RegExUrlSchemeHandler *m_schemeHandler;                  //! pointer to the regex101: scheme handler object
     };

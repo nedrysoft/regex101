@@ -29,6 +29,8 @@
 
 #include <QDir>
 #include <QStandardPaths>
+#include <QWebEngineScript>
+#include <QWebEngineScriptCollection>
 #include <QWebEngineSettings>
 
 constexpr auto webFilesPrefix = "/regex101";
@@ -37,6 +39,9 @@ Nedrysoft::RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
     QWebEngineProfile(parent),
     m_schemeHandler(new Nedrysoft::RegExUrlSchemeHandler(webFilesPrefix))
 {
+    QString injectedScript;
+    QWebEngineScript script;
+
     installUrlSchemeHandler(RegExUrlSchemeHandler::name().toUtf8(), m_schemeHandler);
 
     setHttpCacheType(QWebEngineProfile::NoCache);
@@ -48,4 +53,26 @@ Nedrysoft::RegExWebEngineProfile::RegExWebEngineProfile(QObject *parent) :
     settings()->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows, true);
 
     settings()->setUnknownUrlSchemePolicy(QWebEngineSettings::AllowAllUnknownUrlSchemes);
+
+    injectedScript += readFile(":/regex101/qwebchannel.js");
+    injectedScript += readFile(":/regex101/regexbridge.js");
+
+    script.setSourceCode(injectedScript);
+    script.setName("bridge.js");
+    script.setWorldId(QWebEngineScript::MainWorld);
+    script.setInjectionPoint(QWebEngineScript::DocumentCreation);
+    script.setRunsOnSubFrames(false);
+
+    scripts()->insert(script);
+}
+
+QString Nedrysoft::RegExWebEngineProfile::readFile(QString filename)
+{
+    QFile file(filename);
+
+    if (file.open(QFile::ReadOnly)) {
+        return file.readAll();
+    }
+
+    return QString();
 }

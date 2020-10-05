@@ -37,10 +37,6 @@
 
 #include <QFile>
 
-constexpr const char *injectedJavascriptFilenames[]={
-    ":/regex101/qwebchannel.js"
-};
-
 Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
     QWebEnginePage(new Nedrysoft::RegExWebEngineProfile),
     m_urlInterceptor(new Nedrysoft::RegExUrlRequestInterceptor)
@@ -55,14 +51,6 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
 
     m_apiChannel->registerObject(QString("RegExApiEndpoint"), RegExApiEndpoint::getInstance());
 
-    // get the API channel up and running as soon as possible
-
-    prepareWebChannel();
-
-    connect(this, &QWebEnginePage::loadStarted, [=]() {
-        prepareWebChannel();
-    });
-
     setUrlRequestInterceptor(m_urlInterceptor);
 
     setUrl(url);
@@ -73,34 +61,22 @@ Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
     m_profile->deleteLater();
 }
 
-void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
+void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage([[maybe_unused]] JavaScriptConsoleMessageLevel level, [[maybe_unused]] const QString &message, [[maybe_unused]] int lineNumber, [[maybe_unused]] const QString &sourceID)
 {
-    Q_UNUSED(level);
-    Q_UNUSED(lineNumber);
-    Q_UNUSED(sourceID);
-    Q_UNUSED(message);
-
     qDebug() << message;
 }
 
-void Nedrysoft::RegExWebEnginePage::javaScriptAlert(const QUrl &securityOrigin, const QString &msg)
+void Nedrysoft::RegExWebEnginePage::javaScriptAlert([[maybe_unused]] const QUrl &securityOrigin, [[maybe_unused]] const QString &msg)
 {
-    Q_UNUSED(securityOrigin);
-    Q_UNUSED(msg);
 }
 
-QWebEnginePage *Nedrysoft::RegExWebEnginePage::createWindow(QWebEnginePage::WebWindowType type)
+QWebEnginePage *Nedrysoft::RegExWebEnginePage::createWindow([[maybe_unused]] QWebEnginePage::WebWindowType type)
 {
-    Q_UNUSED(type);
-
     return new Nedrysoft::RegExNullWebEnginePage();
 }
 
-bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame)
+bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, [[maybe_unused]] QWebEnginePage::NavigationType type, [[maybe_unused]] bool isMainFrame)
 {
-    Q_UNUSED(isMainFrame);
-    Q_UNUSED(type);
-
     if (url.scheme()!=Nedrysoft::RegExUrlSchemeHandler::name()) {
         return false;
     }
@@ -108,13 +84,3 @@ bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, QWe
     return true;
 }
 
-void Nedrysoft::RegExWebEnginePage::prepareWebChannel()
-{
-    for(auto javascriptFilename : injectedJavascriptFilenames) {
-        QFile javascriptFile(javascriptFilename);
-
-        if (javascriptFile.open(QFile::ReadOnly)) {
-            this->runJavaScript(javascriptFile.readAll());
-        }
-    }
-}

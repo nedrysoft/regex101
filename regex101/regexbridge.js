@@ -129,7 +129,29 @@ if (typeof window.nedrysoftWebChannel=="undefined") {
          window.localStorage.removeItem = function(key) {
              return JSON.stringify(window.nedrysoftApiEndPoint.regexApiLocalStorageRemoveItem(key))
          }
-    });
-}
+
+         // Inform application that the injected javascript has finished initialisation
+
+         window.nedrysoftApiEndPoint.notifyApplication("injection started.");
+
+         // !!!NEDRYSOFT_INJECT_FILE!!!
+
+         window.nedrysoftApiEndPoint.notifyApplication("injection ended.");
+
+         var evt = document.createEvent('Event');
+
+         evt.initEvent('load', false, false);
+
+         window.dispatchEvent(evt);
+
+         window.nedrysoftApiEndPoint.notifyApplication("load event triggered.");
+     });
+ } else {
+    window.nedrysoftApiEndPoint.notifyApplication("injection started.");
+
+     // !!!NEDRYSOFT_INJECT_FILE!!!
+
+    window.nedrysoftApiEndPoint.notifyApplication("injection ended.");
+ }
 
 

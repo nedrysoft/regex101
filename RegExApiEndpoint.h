@@ -139,6 +139,12 @@ namespace Nedrysoft {
              */
             Q_INVOKABLE QVariant localStorageClear();
 
+            /**
+             * @brief           Method for sending message from javascript to c++
+             *
+             * @param[in]       message contains the message received.
+             */
+            Q_INVOKABLE void notifyApplication(QVariant message) const;
         private:
 
             /**
@@ -295,16 +301,29 @@ namespace Nedrysoft {
             QVariant processPutHistoryRequest(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
             /**
-             * @brief           Reads the content of a query stored in the resources
+             * @brief           Prepares a SQL query stored in the resources
              *
              * @details         Allows SQL queries to be stored in the resources file under /sql", the
              *                  queries can be written as formatted text and then loaded simply using this function.
              *
              * @param[in]       queryName the name of the query (no prefix or extension)
              *
-             * @returns         a string containing the query
+             * @returns         the prepared query
              */
-            QString getQuery(QString queryName) const;
+            QSqlQuery prepareQuery(QString queryName) const;
+
+            /**
+             * @brief           Processes a request made to the get regex endpoint
+             *
+             * @details         Function for handling a request made to the get regex endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processGetRegEx(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
         private:
             QSqlDatabase m_database;                        //! database instance to store regular expressions

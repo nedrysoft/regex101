@@ -47,8 +47,9 @@ constexpr auto advertResponse = R"(({"ads":[{}]});)";
 constexpr auto htmlMimeType = "text/html";
 constexpr auto javascriptMimeType = "application/javascript";
 constexpr auto qrcRootFolder = ":/";
-constexpr auto disableFetchJavascript = R"(<script type="text/javascript" src="/qwebchannel.js"></script><script src="/regexbridge.js"></script>)";
+constexpr auto injectHtmlWebChannel = R"(<script type="text/javascript" src="/qwebchannel.js"></script>)";
 constexpr auto javascriptBridgeFilename = ":/regex101/regexbridge.js";
+constexpr auto javascriptFileMarker = "// !!!NEDRYSOFT_INJECT_FILE!!!";
 
 auto GET(QByteArrayLiteral("GET"));
 auto POST(QByteArrayLiteral("POST"));
@@ -101,8 +102,6 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
     auto url = job->requestUrl().path(QUrl::FormattingOptions(QUrl::StripTrailingSlash));
     QMimeDatabase db;
 
-    //qDebug() << "Nedrysoft::RegExUrlSchemeHandler::requestStarted" << job;
-
     if (method==GET) {
         auto resourceUrl = job->requestUrl();
 
@@ -151,7 +150,7 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
             if (type.inherits(htmlMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
 
-                fileString = disableFetchJavascript+fileString;
+                //fileString = injectHtmlWebChannel+fileString;
                 fileString = setInitialState(fileString, job->requestUrl());
 
                 fileString = fileString.replace(QRegularExpression(R"((http)(s{0,1}):\/\/regex101\.com)"), "regex101:/");
@@ -162,21 +161,28 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
             if (type.inherits(javascriptMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
 
-                // inject our javascript override functions
+                // when the applicaton javascript is requested, we wrap it in a bridge object which stops the application
+                // from executing before our replacement functions for fetch and local storage have been installed.
 
-                if (QRegularExpression(R"((bundle\.js)|(chunk.js))").match(job->requestUrl().path()).hasMatch()) {
-                    fileString = m_injectedJavascript+fileString;
-                }
+                /*if (QRegularExpression(R"((bundle\.js)|(chunk.js))").match(job->requestUrl().path()).hasMatch()) {
+                    QFile bridgeFile(":/regex101/regexbridge.js");
+
+                    if (bridgeFile.open(QFile::ReadOnly)) {
+                        auto bridgeContent = QString::fromUtf8(bridgeFile.readAll());
+
+                        fileString = bridgeContent.replace(javascriptFileMarker, fileString);
+                    }
+                }*/
 
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 
-                /*if (job->requestUrl().path()=="/static/bundle.js") {
+                if (job->requestUrl().path()=="/static/bundle.js") {
                     auto iconList = QStringList() << "gamepad" << "chat" << "user";
 
                     for (auto icon : iconList) {
                         fileString = fileString.replace(QRegularExpression(QString(R"(icon:(\s*r\s*\?\s*void\s*0\s*:)?\s*"%1",)").arg(icon)), QString(R"(icon:"%1",style:{display:"none"},)").arg(icon));;
                     }
-                }*/
+                }
 
                 fileString = fileString.replace(QRegularExpression(R"(https:\/\/srv\.buysellads\.com\/)"), root());
 
@@ -204,7 +210,6 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
 QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, QUrl requestUrl)
 {
-    Q_UNUSED(requestUrl);
     QJsonObject initialState, regexEditor, matchResult, unitTests, editTest, general, account, regexLibrary,libraryEntry,quiz;
     auto match = QRegularExpression(R"(\/r\/(?P<permalinkFragment>.*)\/(?P<version>\d+))").match(requestUrl.path());
 
@@ -249,25 +254,12 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
 
         general["permalinkFragment"] = QJsonValue::Null;
         general["version"] = QJsonValue::Null;
-
-        qDebug().noquote() << QJsonDocument(general).toJson(QJsonDocument::Indented);
-
     } else {
         Nedrysoft::RegExApiEndpoint::getInstance()->regex(initialState, match.captured("permalinkFragment"), match.captured("version").toInt());
 
         regexEditor = initialState["regexEditor"].toObject();
         general = initialState["general"].toObject();
         libraryEntry = initialState["libraryEntry"].toObject();
-
-        /*general["title"] = QJsonValue::Null;
-        general["error"] = QJsonValue::Null;
-
-        regexEditor.remove("author");
-        regexEditor.remove("dateModified");
-        regexEditor.remove("description");
-        regexEditor.remove("permalinkFragment");
-        regexEditor.remove("title");
-        regexEditor.remove("version");*/
     }
 
     general["deleteCode"] = QJsonValue::Null;
@@ -279,7 +271,6 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     general["isLibraryEntry"] = false;
     general["cookie"] = "_ga=GA1.2.1171425424.1599835688; _gid=GA1.2.1060624053.1601204614";
     general["sponsorData"] = QJsonValue::Null;
-    //general["error"] = QJsonValue::Null;
 
     if (general.count()) {
         initialState["general"] = general;
@@ -288,6 +279,7 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     if (regexEditor.count()) {
         initialState["regexEditor"] = regexEditor;
     }
+
     initialState["libraryEntry"] = libraryEntry;
 
     // set up unit tests data
@@ -348,8 +340,6 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     quiz["mostRecentTaskIdx"] = QJsonValue::Null;
 
     initialState["quiz"] = quiz;
-
-    //qDebug().noquote() << QJsonDocument(initialState).toJson(QJsonDocument::Indented);
 
     auto initialStateString = QUrl::toPercentEncoding(QJsonDocument(initialState).toJson(QJsonDocument::Compact));
 

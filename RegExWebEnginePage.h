@@ -107,14 +107,6 @@ namespace Nedrysoft {
             QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type) override;
 
         private:
-            /**
-             * @brief           prepareWebChannel
-             *
-             * @details         Executes the javascript to create the web channel
-             */
-            void prepareWebChannel();
-
-        private:
             Nedrysoft::RegExUrlRequestInterceptor *m_urlInterceptor;            //! url interceptor object to block everything other than our scheme
             RegExWebEngineProfile *m_profile;                                   //! profile object with access settings for our scheme
             QWebChannel *m_apiChannel;                                          //! channel object to pass functions between c++ & javascript

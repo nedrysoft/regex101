@@ -123,6 +123,8 @@ set(APPLICATION_SOURCES
     SettingsDialog.h
     TransparentWidget.cpp
     TransparentWidget.h
+    RegExDatabase.cpp
+    RegExDatabase.h
 )
 
 # List of Qt libraries used by the application

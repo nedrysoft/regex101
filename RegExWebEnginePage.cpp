@@ -63,6 +63,7 @@ Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
 
 void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage([[maybe_unused]] JavaScriptConsoleMessageLevel level, [[maybe_unused]] const QString &message, [[maybe_unused]] int lineNumber, [[maybe_unused]] const QString &sourceID)
 {
+    qDebug() << message;
 }
 
 void Nedrysoft::RegExWebEnginePage::javaScriptAlert([[maybe_unused]] const QUrl &securityOrigin, [[maybe_unused]] const QString &msg)

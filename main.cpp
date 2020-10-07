@@ -48,7 +48,7 @@ void regexMessageHandler([[maybe_unused]] QtMsgType type, [[maybe_unused]] const
 
 int main(int argc, char *argv[])
 {
-    qInstallMessageHandler(regexMessageHandler);
+    //qInstallMessageHandler(regexMessageHandler);
 
     Nedrysoft::RegExUrlSchemeHandler::registerScheme();
     QMimeDatabase mimeDatabase;

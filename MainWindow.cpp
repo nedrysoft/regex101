@@ -89,7 +89,7 @@ bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)
         QFileOpenEvent *fileOpenEvent = static_cast<QFileOpenEvent*>(event);
 
         if (!fileOpenEvent->url().isEmpty()) {
-            // fileOpenEvent->url() contains the url if launched via url sceme
+            // fileOpenEvent->url() contains the url if launched via url scheme
         } else if (!fileOpenEvent->file().isEmpty()) {
             // fileOpenEvent->file() contains the filename if launched via file association
         }
@@ -99,7 +99,6 @@ bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)
 
     return QObject::eventFilter(obj, event);
 }
-
 
 void Nedrysoft::MainWindow::on_actionPreferences_triggered()
 {

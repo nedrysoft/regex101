@@ -35,6 +35,8 @@
 #include <QVariant>
 
 namespace Nedrysoft {
+     class RegExDatabase;
+
     /**
      * @brief               RegExApiEndpoint class
      *
@@ -301,18 +303,6 @@ namespace Nedrysoft {
             QVariant processPutHistoryRequest(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
             /**
-             * @brief           Prepares a SQL query stored in the resources
-             *
-             * @details         Allows SQL queries to be stored in the resources file under /sql", the
-             *                  queries can be written as formatted text and then loaded simply using this function.
-             *
-             * @param[in]       queryName the name of the query (no prefix or extension)
-             *
-             * @returns         the prepared query
-             */
-            QSqlQuery prepareQuery(QString queryName) const;
-
-            /**
              * @brief           Processes a request made to the get regex endpoint
              *
              * @details         Function for handling a request made to the get regex endpoint
@@ -326,8 +316,9 @@ namespace Nedrysoft {
             QVariant processGetRegEx(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
         private:
-            QSqlDatabase m_database;                        //! database instance to store regular expressions
             QSettings *m_settings;                          //! settings object to store the web application local storage data
+            RegExDatabase *m_database;                      //! the database
+            QMap<QString, QString> m_librarySearchSortMap;  //! map containing mapping from application sort type to database field
     };
 }
 

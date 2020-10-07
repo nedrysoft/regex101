@@ -45,9 +45,11 @@ Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
 {
     m_backgroundPixmap = QPixmap(splashScreenFilename);
 
-    auto dialogSize = (QSizeF(m_backgroundPixmap.size())*(devicePixelRatioF()/m_backgroundPixmap.devicePixelRatioF())).toSize();
+    auto dialogSize = (QSizeF(m_backgroundPixmap.size())/m_backgroundPixmap.devicePixelRatioF());
 
-    resize(dialogSize);
+    qDebug() << dialogSize << devicePixelRatioF() << m_backgroundPixmap.devicePixelRatioF();
+
+    resize((dialogSize.toSize()));
 
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_AlwaysStackOnTop);

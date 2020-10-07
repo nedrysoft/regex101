@@ -26,6 +26,7 @@
  */
 
 #include "RegExApiEndpoint.h"
+#include "RegExDatabase.h"
 
 #include <QDebug>
 #include <QDir>
@@ -48,11 +49,13 @@ Nedrysoft::RegExApiEndpoint::RegExApiEndpoint()
 {
     m_settings = new QSettings("nedrysoft", "regex101");
 
-    m_database = QSqlDatabase::addDatabase("QSQLITE");
+    m_database = RegExDatabase::getInstance();
 
-    m_database.setDatabaseName(QDir::cleanPath(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0)+QDir::separator()+"regex101.sqlite"));
-
-    m_database.open();
+    m_librarySearchSortMap[""] = "dateModified DESC";
+    m_librarySearchSortMap["MOST_RECENT"] = "dateModified DESC";
+    m_librarySearchSortMap["MOST_POINTS"] = "userVote DESC";
+    m_librarySearchSortMap["LEAST_POINTS"] = "userVote ASC";
+    m_librarySearchSortMap["RELEVANCE"] = "upVotes";
 }
 
 Nedrysoft::RegExApiEndpoint *Nedrysoft::RegExApiEndpoint::getInstance()
@@ -108,25 +111,13 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
     return processGetRequest(pathParameter, requestParameter);
 }
 
-QSqlQuery Nedrysoft::RegExApiEndpoint::prepareQuery(QString queryName) const
-{
-    QFile sqlFile(QString(":/regex101/sql/%1.sql").arg(queryName));
-    QSqlQuery query;
-
-    if (sqlFile.open(QFile::ReadOnly)) {
-        query.prepare(QString::fromLatin1(sqlFile.readAll()));
-    }
-
-    return query;
-}
-
 bool Nedrysoft::RegExApiEndpoint::regex(QJsonObject &stateObject, QString permalinkFragment, int version)
 {
     QSqlQuery query;
     QJsonObject general, matchResult, regexEditor, resultMap, libraryEntry;
     bool didLoadRegEx = false;
 
-    query = prepareQuery("getStoredExpression");
+    query = m_database->prepareQuery("getStoredExpression");
 
     query.bindValue(":permalinkFragment", permalinkFragment);
     query.bindValue(":version", version);
@@ -228,10 +219,12 @@ QVariant Nedrysoft::RegExApiEndpoint::processPostRequest(const QVariant &pathPar
     QJsonObject jsonResponse;
     auto path = pathParameter.toString();
 
-    if (QRegularExpression(R"(^\/api\/regex\/?)").match(path).hasMatch()) {
+    qDebug() << path;
+
+    if (QRegularExpression(R"(^\/api\/regex\/fork)").match(path).hasMatch()) {
+            return processForkRequest(pathParameter, requestParameter);
+    } else  if (QRegularExpression(R"(^\/api\/regex\/?)").match(path).hasMatch()) {
         return processSaveRequest(pathParameter, requestParameter);
-    } else if (QRegularExpression(R"(^\/api\/regex\/fork)").match(path).hasMatch()) {
-        return processForkRequest(pathParameter, requestParameter);
     }
 
     return QVariantMap();
@@ -257,7 +250,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
 
     if (bodyObject["permalinkFragment"].isNull())
     {
-        query = prepareQuery("insertExpression");
+        query = m_database->prepareQuery("insertExpression");
 
         query.bindValue(":permalinkFragment", permalinkFragment);
         query.bindValue(":deleteCode", deleteCode);
@@ -270,7 +263,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
             // return some error
         }
 
-        query = prepareQuery("insertFirstVersion");
+        query = m_database->prepareQuery("insertFirstVersion");
 
         query.bindValue(":permalinkFragment", permalinkFragment);
         query.bindValue(":regex", bodyObject["regex"].toString());
@@ -278,6 +271,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
         query.bindValue(":flags", bodyObject["flags"].toString());
         query.bindValue(":delimeter", bodyObject["delimiter"].toString());
         query.bindValue(":flavor", bodyObject["flavor"].toString());
+        query.bindValue(":substitution", bodyObject["substitution"].toString());
         query.bindValue(":version", 1);
 
         if (query.exec()) {
@@ -289,7 +283,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
             // SQL insert failed
         }
     } else {
-        query = prepareQuery("insertNewVersion");
+        query = m_database->prepareQuery("insertNewVersion");
 
         query.bindValue(":permalinkFragment", bodyObject["permalinkFragment"].toString());
         query.bindValue(":regex", bodyObject["regex"].toString());
@@ -297,6 +291,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
         query.bindValue(":flags", bodyObject["flags"].toString());
         query.bindValue(":delimeter", bodyObject["delimiter"].toString());
         query.bindValue(":flavor", bodyObject["flavor"].toString());
+        query.bindValue(":substitution", bodyObject["substitution"].toString());
 
         if (query.exec()) {
             jsonResponse["deleteCode"] = deleteCode;
@@ -314,44 +309,77 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
 QVariant Nedrysoft::RegExApiEndpoint::processForkRequest([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter) const
 {
     QJsonObject jsonResponse;
+    QJsonObject bodyObject = QJsonDocument::fromJson(requestParameter.toMap()["body"].toByteArray()).object();
+    QString permalinkFragment = createPermalinkFragment();
+    QString deleteCode = createDeleteCode();
 
-    jsonResponse["deleteCode"] = "NktBfSnFCsT2M5KbWQlatnqS";
-    jsonResponse["permalinkFragment"] = "YOMAMA";
-    jsonResponse["version"] = 1;
-    jsonResponse["isLibraryEntry"] = false;
+    auto query = m_database->prepareQuery("insertExpression");
+
+    query.bindValue(":permalinkFragment", permalinkFragment);
+    query.bindValue(":deleteCode", deleteCode);
+    query.bindValue(":upvote", 0);
+    query.bindValue(":downvote", 0);
+    query.bindValue(":userVote", 0);
+    query.bindValue(":dateModified", QDateTime::currentDateTime().toTime_t());
+
+    if (!query.exec()) {
+        // return some error
+    }
+
+    query = m_database->prepareQuery("insertFirstVersion");
+
+    query.bindValue(":permalinkFragment", permalinkFragment);
+    query.bindValue(":regex", bodyObject["regex"].toString());
+    query.bindValue(":testString", bodyObject["testString"].toString());
+    query.bindValue(":flags", bodyObject["flags"].toString());
+    query.bindValue(":delimeter", bodyObject["delimiter"].toString());
+    query.bindValue(":flavor", bodyObject["flavor"].toString());
+    query.bindValue(":substitution", bodyObject["substitution"].toString());
+    query.bindValue(":version", 1);
+
+    if (query.exec()) {
+        jsonResponse["deleteCode"] = deleteCode;
+        jsonResponse["permalinkFragment"] = permalinkFragment;
+        jsonResponse["version"] = 1;
+        jsonResponse["isLibraryEntry"] = false;
+    } else {
+        // SQL insert failed
+    }
 
     return QJsonDocument(jsonResponse).toJson();
 }
 
 QVariant Nedrysoft::RegExApiEndpoint::processGetLibraryItems([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, [[maybe_unused]] const QRegularExpressionMatch &match) const
 {
-    QJsonArray resultEntries;
-    QJsonObject result;
-    QJsonObject jsonResponse;
+    QJsonArray jsonResultArray;
+    QJsonObject jsonResponse, jsonResult;
 
-    QSqlQuery query = prepareQuery("getLibraryItems");
+    QSqlQuery query = m_database->prepareQuery("getLibraryItems");
+
+    query.bindValue(":search", QString("%%1%").arg(match.captured("search")));
+    query.bindValue(":orderBy", m_librarySearchSortMap[match.captured("orderBy")]);
 
     if (query.exec()) {
         if (query.first()) {
             do {
-                result["title"] = query.value("title").toString();
-                result["description"] = query.value("description").toString();
-                result["dateModified"] = query.value("dateModified").toInt();
-                result["author"] = query.value("author").toString();
-                result["flavor"] = query.value("flavor").toString();
-                result["version"] = query.value("version").toInt();
-                result["permalinkFragment"] = query.value("permalinkFragment").toString();
-                result["upvotes"] = query.value("upvotes").toInt();
-                result["downvotes"] = query.value("downvotes").toInt();
-                result["regex"] = query.value("regex").toString();
-                result["userVote"] = QJsonValue::Null;
+                jsonResult["title"] = query.value("title").toString();
+                jsonResult["description"] = query.value("description").toString();
+                jsonResult["dateModified"] = query.value("dateModified").toInt();
+                jsonResult["author"] = query.value("author").toString();
+                jsonResult["flavor"] = query.value("flavor").toString();
+                jsonResult["version"] = query.value("version").toInt();
+                jsonResult["permalinkFragment"] = query.value("permalinkFragment").toString();
+                jsonResult["upvotes"] = query.value("upvotes").toInt();
+                jsonResult["downvotes"] = query.value("downvotes").toInt();
+                jsonResult["regex"] = query.value("regex").toString();
+                jsonResult["userVote"] = QJsonValue::Null;
 
-                resultEntries.append(result);
+                jsonResultArray.append(jsonResult);
             } while(query.next());
         }
     }
 
-    jsonResponse["data"] = resultEntries;
+    jsonResponse["data"] = jsonResultArray;
 
     return QJsonDocument(jsonResponse).toJson();
 }
@@ -362,7 +390,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processGetItemDetails([[maybe_unused]] con
     QSqlQuery query;
     auto path = pathParameter.toString();
 
-    query = prepareQuery("getItemDetails");
+    query = m_database->prepareQuery("getItemDetails");
 
     query.bindValue(":permalinkFragment", match.captured("permalinkFragment"));
 
@@ -439,22 +467,24 @@ QVariant Nedrysoft::RegExApiEndpoint::processPutHistoryRequest([[maybe_unused]] 
     if (action=="tags") {
         auto tags = bodyObject["tags"].toArray();
 
-        query = prepareQuery("deleteTags");
+        query = m_database->prepareQuery("deleteTags");
 
         query.bindValue(":permalinkFragment", permalinkFragment);
 
         if (query.exec()) {
             for(auto tag: tags) {
-                query = prepareQuery("insertTag");
+                query = m_database->prepareQuery("insertTag");
 
                 query.bindValue(":tag", tag.toString());
                 query.bindValue(":permalinkFragment", permalinkFragment);
 
-                query.exec();
+                if (query.exec()) {
+                    // success
+                }
             }
         }
     } else if (action=="title") {
-        query = prepareQuery("updateTitle");
+        query = m_database->prepareQuery("updateTitle");
 
         query.bindValue(":title", bodyObject["title"].toString());
         query.bindValue(":permalinkFragment", permalinkFragment);
@@ -476,7 +506,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processGetRegEx([[maybe_unused]] const QVa
     QSqlQuery query;
     QJsonObject jsonResponse;
 
-    query = prepareQuery("getStoredExpression");
+    query = m_database->prepareQuery("getStoredExpression");
 
     query.bindValue(":permalinkFragment", match.captured("permalinkFragment"));
     query.bindValue(":version", 1);

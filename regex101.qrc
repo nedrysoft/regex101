@@ -81,5 +81,7 @@
         <file>regex101/sql/deleteTags.sql</file>
         <file>regex101/sql/insertTag.sql</file>
         <file>regex101/sql/insertNewVersion.sql</file>
+        <file>regex101/sql/createDatabase.sql</file>
+        <file>regex101/sql/getUserDetails.sql</file>
     </qresource>
 </RCC>

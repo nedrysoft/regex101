@@ -4,7 +4,6 @@ INSERT INTO expressions
                         upvotes,
                         downvotes,
                         uservote,
-                        ,
                         datemodified,
                         title,
                         description

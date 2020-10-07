@@ -26,6 +26,7 @@
  */
 
 #include "RegExApiEndpoint.h"
+#include "RegExDatabase.h"
 #include "RegExUrlSchemeHandler.h"
 
 #include <QBuffer>
@@ -38,6 +39,7 @@
 #include <QJsonObject>
 #include <QMimeDatabase>
 #include <QRegularExpression>
+#include <QSqlQuery>
 #include <QUrlQuery>
 #include <QWebEngineSettings>
 #include <QWebEngineUrlRequestJob>
@@ -158,6 +160,15 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
             if (type.inherits(javascriptMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
 
+                // when the applicaton javascript is requested, we wrap it in a bridge object which stops the application
+                // from executing before our replacement functions for fetch and local storage have been installed.
+
+                if (QRegularExpression(R"((bundle\.js)|(chunk.js))").match(job->requestUrl().path()).hasMatch()) {
+                    auto bridgeContent = m_injectedJavascript;
+
+                    fileString = bridgeContent.replace(QRegularExpression(R"(\/\/\s*!{3}NEDRYSOFT_INJECT_FILE!{3}.*)"), fileString);
+                }
+
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 
                 if (job->requestUrl().path()=="/static/bundle.js") {
@@ -232,8 +243,8 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
         regexEditor["testString"] = "";
         regexEditor["matchResult"] = matchResult;
 
-        libraryEntry["title"] = QJsonValue::Null;//"";
-        libraryEntry["description"] = QJsonValue::Null;//";
+        libraryEntry["title"] = QJsonValue::Null;
+        libraryEntry["description"] = QJsonValue::Null;
         libraryEntry["author"] = QJsonValue::Null;
 
         general["permalinkFragment"] = QJsonValue::Null;
@@ -247,14 +258,27 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     }
 
     general["deleteCode"] = QJsonValue::Null;
-    general["userId"] = 1234;//QJsonValue::Null;
-    general["email"] = "adrian.carpenter@me.com";//QJsonValue::Null;
+    general["userId"] = QJsonValue::Null;
+    general["email"] = QJsonValue::Null;
     general["profilePicture"] = QJsonValue::Null;
     general["serviceProvider"] = QJsonValue::Null;
     general["isFavorite"] = false;
     general["isLibraryEntry"] = false;
-    general["cookie"] = "_ga=GA1.2.1171425424.1599835688; _gid=GA1.2.1060624053.1601204614";
+    general["cookie"] = QJsonValue::Null;
     general["sponsorData"] = QJsonValue::Null;
+
+    auto database = RegExDatabase::getInstance();
+
+    auto query = database->prepareQuery("getUserDetails");
+
+    query.bindValue(":userId", 1);
+
+    if (query.exec()) {
+        if (query.first()) {
+            general["userId"] = query.value("userId").toString();
+            general["email"] = query.value("email").toString();
+        }
+    }
 
     if (general.count()) {
         initialState["general"] = general;

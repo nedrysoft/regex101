@@ -1,20 +1,18 @@
 INSERT INTO expressions
             (
                         permalinkfragment,
-                        upvotes,
-                        downvotes,
-                        uservote,
-                        datemodified,
+                        dateModified,
                         title,
-                        description
+                        description,
+                        author,
+                        deleteCode
             )
             VALUES
             (
                         :permalinkFragment,
-                        :upvotes,
-                        :downvotes,
-                        :userVote,
                         :dateModified,
                         :title,
-                        :description
+                        :description,
+                        :author,
+                        :deleteCode
             )

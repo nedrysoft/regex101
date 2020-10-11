@@ -1,8 +1,8 @@
 SELECT *
 FROM   expressions
        INNER JOIN versions
-               ON versions.permalinkfragment = expressions.permalinkfragment
+               ON versions.expressionId = expressions.id
        INNER JOIN (SELECT COUNT(*) AS versionCount FROM versions)
-              ON versions.permalinkfragment = expressions.permalinkfragment
-WHERE  expressions.permalinkfragment='XYNZFJ'
+              ON versions.expressionId = expressions.id
+WHERE  expressions.permalinkfragment=:permalinkFragment
        AND versions.version = :version;

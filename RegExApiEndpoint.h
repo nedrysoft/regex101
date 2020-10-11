@@ -315,6 +315,44 @@ namespace Nedrysoft {
              */
             QVariant processGetRegEx(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
+            /**
+             * @brief           Uploads a regular expression to the library
+             *
+             * @details         Function for handling a request made to the library api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processUploadToLibraryRequest(const QVariant &pathParameter, const QVariant &requestParameter) const;
+
+            /**
+             * @brief           Sets or unsets a favourite
+             *
+             * @details         Function for handling a request made to the favourite api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processSetFavorite([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
+            /**
+             * @brief           Handles calls to the get history api endpoint
+             *
+             * @details         Function for handling a request made to the get history api endpoint
+             *
+             * @param[in]       pathParameter contains the path of the api request
+             * @param[in]       requestParameter contains the request detail such as HTTP headers and body
+             * @param[in]       match contains the regular expression that was used determine the endpoint
+             *
+             * @returns         a QVariant response to the request
+             */
+            QVariant processGetHistory([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+
         private:
             QSettings *m_settings;                          //! settings object to store the web application local storage data
             RegExDatabase *m_database;                      //! the database

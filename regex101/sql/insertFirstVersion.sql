@@ -5,7 +5,7 @@ INSERT INTO versions
              delimeter,
              flavor,
              version,
-             permalinkfragment,
+             expressionId,
              substString)
 VALUES      (:regex,
              :testString,
@@ -13,5 +13,5 @@ VALUES      (:regex,
              :delimeter,
              :flavor,
              :version,
-             :permalinkFragment,
+             :expressionId,
              :substitution)

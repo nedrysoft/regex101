@@ -83,5 +83,8 @@
         <file>regex101/sql/insertNewVersion.sql</file>
         <file>regex101/sql/createDatabase.sql</file>
         <file>regex101/sql/getUserDetails.sql</file>
+        <file>regex101/sql/uploadToLibrary.sql</file>
+        <file>regex101/sql/setFavorite.sql</file>
+        <file>regex101/sql/deleteFavorite.sql</file>
     </qresource>
 </RCC>

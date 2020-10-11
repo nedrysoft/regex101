@@ -59,6 +59,7 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
 Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
 {
     m_profile->deleteLater();
+    m_urlInterceptor->deleteLater();
 }
 
 void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage([[maybe_unused]] JavaScriptConsoleMessageLevel level, [[maybe_unused]] const QString &message, [[maybe_unused]] int lineNumber, [[maybe_unused]] const QString &sourceID)

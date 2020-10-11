@@ -133,6 +133,10 @@ Nedrysoft::SettingsDialog::~SettingsDialog()
     m_treeWidget->deleteLater();
     m_categoryLabel->deleteLater();
     m_stackedWidget->deleteLater();
+
+    for(auto page : m_pages) {
+        delete page;
+    }
 #endif
 }
 
@@ -150,9 +154,9 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
     // @note the call to winId() is required as it sets up windowHandle() to return the correct value,
     //       failing to call this will result in windowHandle not returning the correct value.
 
-    this->window()->winId();
+    window()->winId();
 
-    return this->window()->windowHandle();
+    return window()->windowHandle();
 }
 
 Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QString description, QIcon icon, QWidget *widget, bool defaultPage)
@@ -175,9 +179,9 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
         auto currentItem = m_pages[m_currentPage->m_toolBarItem]->m_widget;
         auto nextItem = settingsPage->m_widget;
 
-        QParallelAnimationGroup *animationGroup = new QParallelAnimationGroup;
+        auto animationGroup = new QParallelAnimationGroup;
 
-        QPropertyAnimation *sizeAnimation = new QPropertyAnimation(this, "size");
+        auto sizeAnimation = new QPropertyAnimation(this, "size");
 
         sizeAnimation->setDuration(transisionDuration);
         sizeAnimation->setStartValue(currentItem->sizeHint()+QSize(200,200));
@@ -185,7 +189,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
 
         animationGroup->addAnimation(sizeAnimation);
 
-        QPropertyAnimation *outgoingAnimation = new QPropertyAnimation(currentItem->transparencyEffect(), "opacity");
+        auto outgoingAnimation = new QPropertyAnimation(currentItem->transparencyEffect(), "opacity");
 
         outgoingAnimation->setDuration(transisionDuration);
         outgoingAnimation->setStartValue(1);
@@ -193,7 +197,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
 
         animationGroup->addAnimation(outgoingAnimation);
 
-        QPropertyAnimation *incomingAnimation = new QPropertyAnimation(nextItem->transparencyEffect(), "opacity");
+        auto incomingAnimation = new QPropertyAnimation(nextItem->transparencyEffect(), "opacity");
 
         incomingAnimation->setDuration(transisionDuration);
         incomingAnimation->setStartValue(0);
@@ -222,7 +226,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
 
     return settingsPage;
 #else
-    QTreeWidgetItem *newTreeItem = new QTreeWidgetItem;
+    auto newTreeItem = new QTreeWidgetItem(m_treeWidget);
 
     newTreeItem->setIcon(0, icon);
     newTreeItem->setText(0, name);

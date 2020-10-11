@@ -28,13 +28,36 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
+#include <QIcon>
 #include <QWidget>
 
 #if defined(Q_OS_MACOS)
 class QMacToolBar;
 #endif
 
+class QHBoxLayout;
+class QStackedWidget;
+class QTreeWidget;
+
 namespace Nedrysoft {
+
+    /**
+     * @brief               Settings page class
+     *
+     * @details             Describes an individual page of the application settings
+     */
+    class SettingsPage
+    {
+        private:
+            friend class SettingsDialog;
+
+        private:
+            QString m_name;                     //! display name of the settings category page
+            QString m_description;              //! description of the settings category page
+            QWidget *m_widget;                  //! the widget that contains the settings for this category
+            QIcon m_icon;                       //! the icon of the page
+    };
+
     class TransparentWidget;
     /**
      * @brief               Settings dialog class
@@ -73,11 +96,28 @@ namespace Nedrysoft {
              */
             virtual void resizeEvent(QResizeEvent *event);
 
+            /**
+             * @brief           Adds a setting page
+             *
+             * @details         Adds the given page to the settings dialog
+             *
+             * @params[in]      name is the displayed name of the page
+             * @params[in]      description is the description of the purpose of the page
+             * @params[in]      icon is the icon of the page
+             * @params[in]      widget is the widget containing the page content
+             */
+            void addPage(QString name, QString description, QIcon icon, QWidget *widget);
+
         private:
 #if defined(Q_OS_MACOS)
             QMacToolBar *m_toolBar;                         //! A native macOS toolbar (unified style)
+#else
+            QHBoxLayout *m_layout;                          //! box layout
+            QTreeWidget *m_treeWidget;                      //! tree widget for categories
+            QStackedWidget *m_stackedWidget;                //! stacked widget for page content
 #endif
-            QList<TransparentWidget *> m_widgets;           //! The list of settings widgets
+            QList<SettingsPage *> m_pages;                  //! The list of settings widgets
+
     };
 }
 

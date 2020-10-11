@@ -31,6 +31,8 @@
 #include <QDebug>
 #include <QGraphicsOpacityEffect>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QIcon>
 #include <QLabel>
 #if defined(Q_OS_MACOS)
 #include <QMacToolBar>
@@ -38,18 +40,47 @@
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
 #include <QResizeEvent>
+#include <QStackedWidget>
+#include <QTreeWidget>
+#include <QVBoxLayout>
 
+#if defined(Q_OS_MACOS)
 constexpr auto transisionDuration = 100;
+#endif
 
 Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
     QWidget(parent)
 {
 #if defined(Q_OS_MACOS)
     m_toolBar = new QMacToolBar(this);
+#else
+    m_layout = new QHBoxLayout;
+
+    m_treeWidget = new QTreeWidget(this);
+
+    m_treeWidget->setMinimumWidth(128);
+    m_treeWidget->setMaximumWidth(128);
+
+    m_treeWidget->setHeaderHidden(true);
+
+    m_treeWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+    m_stackedWidget = new QStackedWidget(this);
+
+    m_stackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    m_layout->addWidget(m_treeWidget);
+    m_layout->addWidget(m_stackedWidget);
+
+
+    this->setLayout(m_layout);
 #endif
 
     resize(600,400);
 
+    addPage("Database", "The database settings", QIcon(), new QWidget);
+
+#if defined(Q_OS_MACOS)
     auto primary = new TransparentWidget(new QLabel("HELLO"), 1, this);
     auto secondary = new TransparentWidget(new QLabel("GOODBYE"), 0, this);
 
@@ -59,7 +90,6 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
     auto primaryEffect = primary->transparencyEffect();
     auto secondaryEffect = secondary->transparencyEffect();
 
-#if defined(Q_OS_MACOS)
     QMacToolBarItem *toolBarItem = m_toolBar->addItem(QIcon(":/assets/regex101.iconset/icon_256x256@2x.png"), QStringLiteral("foo"));
 
     connect(toolBarItem, &QMacToolBarItem::activated, this, [this,primaryEffect,secondaryEffect]() {
@@ -97,8 +127,10 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
 void Nedrysoft::SettingsDialog::resizeEvent(QResizeEvent *event)
 {
-    for(auto widget : m_widgets) {
-        widget->resize(event->size());
+    for(auto page : m_pages) {
+        if (page->m_widget) {
+            page->m_widget->resize(event->size());
+        }
     }
 }
 
@@ -110,4 +142,12 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
     this->window()->winId();
 
     return this->window()->windowHandle();
+}
+
+void Nedrysoft::SettingsDialog::addPage(QString name, QString description, QIcon icon, QWidget *widget)
+{
+    Q_UNUSED(name);
+    Q_UNUSED(description);
+    Q_UNUSED(icon);
+    Q_UNUSED(widget);
 }

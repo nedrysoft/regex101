@@ -36,8 +36,10 @@ class QMacToolBar;
 #endif
 
 class QHBoxLayout;
+class QVBoxLayout;
 class QStackedWidget;
 class QTreeWidget;
+class QLabel;
 
 namespace Nedrysoft {
 
@@ -113,8 +115,10 @@ namespace Nedrysoft {
             QMacToolBar *m_toolBar;                         //! A native macOS toolbar (unified style)
 #else
             QHBoxLayout *m_layout;                          //! box layout
+            QVBoxLayout *m_detailLayout;                    //! detail layout
             QTreeWidget *m_treeWidget;                      //! tree widget for categories
             QStackedWidget *m_stackedWidget;                //! stacked widget for page content
+            QLabel *m_categoryLabel;                        //! category label
 #endif
             QList<SettingsPage *> m_pages;                  //! The list of settings widgets
 

@@ -116,7 +116,7 @@ set(APPLICATION_SOURCES
     RegExWebEngineProfile.cpp
     RegExWebEngineProfile.h
     regex101.qrc
-    regex101.icns
+    assets/regex101.icns
     Info.plist.in
     opensans.qrc
     SettingsDialog.cpp
@@ -125,8 +125,6 @@ set(APPLICATION_SOURCES
     TransparentWidget.h
     RegExDatabase.cpp
     RegExDatabase.h
-    MacHelper.mm
-    MacHelper.h
 )
 
 # List of Qt libraries used by the application
@@ -141,6 +139,11 @@ set(APPLICATION_QT_LIBRARIES
 )
 
 if(APPLE)
+    list(APPEND APPLICATION_SOURCES
+        MacHelper.mm
+        MacHelper.h
+    )
+
     list(APPEND APPLICATION_QT_LIBRARIES MacExtras)
 endif()
 
@@ -212,7 +215,7 @@ set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECT
 # If macOS build, then ensure the icon is copied to the bundle and set up the Info.plist file
 
 if(APPLE)
-    set_source_files_properties(${APPLICATION_SHORT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    set_source_files_properties("assets/${APPLICATION_SHORT_NAME}.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${APPLICATON_SOURCE_ROOT}/Info.plist.in)
 
     set(APPLICATION_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")

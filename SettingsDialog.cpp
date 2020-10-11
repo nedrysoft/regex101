@@ -49,7 +49,11 @@
 #if defined(Q_OS_MACOS)
 #include "MacHelper.h"
 
-constexpr auto macOStransisionDuration = 100;
+constexpr auto transisionDuration = 100;
+#else
+constexpr auto categoryFontSize = 24;
+constexpr auto settingsTreeWidth = 144;
+constexpr auto settingsIconSize = 32;
 #endif
 
 Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
@@ -60,33 +64,50 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
     resize(600,400);
 
-    auto databaseIcon = QIcon("://Gianni-Polito-Colobrush-System-database.icns");
+    auto databaseIcon = QIcon("://assets/Gianni-Polito-Colobrush-System-database.icns");
     auto generalIcon = QIcon(Nedrysoft::MacHelper::macStandardImage(Nedrysoft::StandardImage::NSImageNamePreferencesGeneral, QSize(256,256)));
 #else
     m_layout = new QHBoxLayout;
 
     m_treeWidget = new QTreeWidget(this);
 
-    m_treeWidget->setMinimumWidth(128);
-    m_treeWidget->setMaximumWidth(128);
+    m_treeWidget->setIndentation(0);
+
+    m_treeWidget->setMinimumWidth(settingsTreeWidth);
+    m_treeWidget->setMaximumWidth(settingsTreeWidth);
+    m_treeWidget->setIconSize(QSize(settingsIconSize, settingsIconSize));
 
     m_treeWidget->setHeaderHidden(true);
 
+    m_treeWidget->setSelectionBehavior(QTreeWidget::SelectRows);
+
     m_treeWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 
-    m_stackedWidget = new QStackedWidget(this);
+    m_stackedWidget = new QStackedWidget;
 
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     m_layout->addWidget(m_treeWidget);
-    m_layout->addWidget(m_stackedWidget);
 
-    this->setLayout(m_layout);
+    m_categoryLabel = new QLabel;
 
-    auto databaseIcon = QIcon();
-    auto generalIcon = QIcon();
+    m_categoryLabel->setFont(QFont(m_categoryLabel->font().family(), categoryFontSize));
+    m_categoryLabel->setAlignment(Qt::AlignLeft);
+
+    m_detailLayout = new QVBoxLayout;
+
+    m_detailLayout->addWidget(m_categoryLabel);
+    m_detailLayout->addWidget(m_stackedWidget);
+
+    m_detailLayout->setAlignment(m_categoryLabel, Qt::AlignLeft);
+
+    m_layout->addLayout(m_detailLayout);
+
+    setLayout(m_layout);
+
+    auto databaseIcon = QIcon(":/assets/noun_database_2757856.png");
+    auto generalIcon = QIcon(":/assets/noun_Settings_716654.png");
 #endif
-
     addPage(tr("General"), tr("General settings"), generalIcon, new QLabel("HELLO"));
     addPage(tr("Database"), tr("The database settings"), databaseIcon, new QLabel("GOODBYE"));
 
@@ -114,7 +135,7 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
     return this->window()->windowHandle();
 }
 
-void Nedrysoft::SettingsDialog::addPage(QString name, [[maybe_unused]] QString description, QIcon icon, [[maybe_unused]] QWidget *widget)
+void Nedrysoft::SettingsDialog::addPage(QString name, QString description, QIcon icon, QWidget *widget)
 {
 #if defined(Q_OS_MACOS)
     //auto widgetContainer = new TransparentWidget(widget, 1, this);
@@ -131,7 +152,7 @@ void Nedrysoft::SettingsDialog::addPage(QString name, [[maybe_unused]] QString d
         /*
         QPropertyAnimation *animation = new QPropertyAnimation(this, "geometry");
 
-        animation->setDuration(macOStransisionDuration);
+        animation->setDuration(transisionDuration);
         animation->setStartValue(this->frameGeometry());
         animation->setEndValue(this->frameGeometry().adjusted(-100, -100, 100, 100));
 
@@ -141,20 +162,40 @@ void Nedrysoft::SettingsDialog::addPage(QString name, [[maybe_unused]] QString d
 
         QPropertyAnimation *fo = new QPropertyAnimation(primaryEffect,"opacity");
 
-        fo->setDuration(macOStransisionDuration);
+        fo->setDuration(transisionDuration);
         fo->setStartValue(1);
         fo->setEndValue(0);
         group->addAnimation(fo);
 
         QPropertyAnimation *fi = new QPropertyAnimation(secondaryEffect,"opacity");
 
-        fi->setDuration(macOStransisionDuration);
+        fi->setDuration(transisionDuration);
         fi->setStartValue(0);
         fi->setEndValue(1);
 
         group->addAnimation(fi);
 
         group->start();*/
+    });
+#else
+    QTreeWidgetItem *newTreeItem = new QTreeWidgetItem;
+
+    newTreeItem->setIcon(0, icon);
+    newTreeItem->setText(0, name);
+    newTreeItem->setData(0, Qt::UserRole, QVariant::fromValue(widget));
+    newTreeItem->setData(0, Qt::ToolTipRole, description);
+
+    m_treeWidget->addTopLevelItem(newTreeItem);
+
+    m_stackedWidget->addWidget(widget);
+
+    connect(m_treeWidget, &QTreeWidget::currentItemChanged, [=](QTreeWidgetItem *current, [[maybe_unused]] QTreeWidgetItem *previous) {
+        auto widget = current->data(0, Qt::UserRole).value<QWidget *>();
+
+        if (widget) {
+            m_stackedWidget->setCurrentWidget(widget);
+            m_categoryLabel->setText(current->text(0));
+        }
     });
 #endif
 }

@@ -28,6 +28,7 @@
 #include "SettingsDialog.h"
 #include "TransparentWidget.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QGraphicsOpacityEffect>
 #include <QGridLayout>
@@ -35,6 +36,7 @@
 #include <QIcon>
 #include <QLabel>
 #if defined(Q_OS_MACOS)
+#include <QtMac>
 #include <QMacToolBar>
 #endif
 #include <QParallelAnimationGroup>
@@ -45,7 +47,9 @@
 #include <QVBoxLayout>
 
 #if defined(Q_OS_MACOS)
-constexpr auto transisionDuration = 100;
+#include "MacHelper.h"
+
+constexpr auto macOStransisionDuration = 100;
 #endif
 
 Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
@@ -53,6 +57,11 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 {
 #if defined(Q_OS_MACOS)
     m_toolBar = new QMacToolBar(this);
+
+    resize(600,400);
+
+    auto databaseIcon = QIcon("://Gianni-Polito-Colobrush-System-database.icns");
+    auto generalIcon = QIcon(Nedrysoft::MacHelper::macStandardImage(Nedrysoft::StandardImage::NSImageNamePreferencesGeneral, QSize(256,256)));
 #else
     m_layout = new QHBoxLayout;
 
@@ -72,55 +81,16 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
     m_layout->addWidget(m_treeWidget);
     m_layout->addWidget(m_stackedWidget);
 
-
     this->setLayout(m_layout);
+
+    auto databaseIcon = QIcon();
+    auto generalIcon = QIcon();
 #endif
 
-    resize(600,400);
-
-    addPage("Database", "The database settings", QIcon(), new QWidget);
+    addPage(tr("General"), tr("General settings"), generalIcon, new QLabel("HELLO"));
+    addPage(tr("Database"), tr("The database settings"), databaseIcon, new QLabel("GOODBYE"));
 
 #if defined(Q_OS_MACOS)
-    auto primary = new TransparentWidget(new QLabel("HELLO"), 1, this);
-    auto secondary = new TransparentWidget(new QLabel("GOODBYE"), 0, this);
-
-    m_widgets.append(primary);
-    m_widgets.append(secondary);
-
-    auto primaryEffect = primary->transparencyEffect();
-    auto secondaryEffect = secondary->transparencyEffect();
-
-    QMacToolBarItem *toolBarItem = m_toolBar->addItem(QIcon(":/assets/regex101.iconset/icon_256x256@2x.png"), QStringLiteral("foo"));
-
-    connect(toolBarItem, &QMacToolBarItem::activated, this, [this,primaryEffect,secondaryEffect]() {
-        QPropertyAnimation *animation = new QPropertyAnimation(this, "geometry");
-
-        animation->setDuration(transisionDuration);
-        animation->setStartValue(this->frameGeometry());
-        animation->setEndValue(this->frameGeometry().adjusted(-100, -100, 100, 100));
-
-        QParallelAnimationGroup *group = new QParallelAnimationGroup;
-
-        group->addAnimation(animation);
-
-        QPropertyAnimation *fo = new QPropertyAnimation(primaryEffect,"opacity");
-
-        fo->setDuration(transisionDuration);
-        fo->setStartValue(1);
-        fo->setEndValue(0);
-        group->addAnimation(fo);
-
-        QPropertyAnimation *fi = new QPropertyAnimation(secondaryEffect,"opacity");
-
-        fi->setDuration(transisionDuration);
-        fi->setStartValue(0);
-        fi->setEndValue(1);
-
-        group->addAnimation(fi);
-
-        group->start();
-    });
-
     m_toolBar->attachToWindow(nativeWindowHandle());
 #endif
 }
@@ -144,10 +114,47 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
     return this->window()->windowHandle();
 }
 
-void Nedrysoft::SettingsDialog::addPage(QString name, QString description, QIcon icon, QWidget *widget)
+void Nedrysoft::SettingsDialog::addPage(QString name, [[maybe_unused]] QString description, QIcon icon, [[maybe_unused]] QWidget *widget)
 {
-    Q_UNUSED(name);
-    Q_UNUSED(description);
-    Q_UNUSED(icon);
-    Q_UNUSED(widget);
+#if defined(Q_OS_MACOS)
+    //auto widgetContainer = new TransparentWidget(widget, 1, this);
+
+    //m_widgets.append(primary);
+    //m_widgets.append(secondary);
+
+    //auto transparencyEffect = widgetContainer->transparencyEffect();
+
+    QMacToolBarItem *toolBarItem = m_toolBar->addItem(icon, name);
+
+    connect(toolBarItem, &QMacToolBarItem::activated, this, [this]() {
+        Q_UNUSED(this);
+        /*
+        QPropertyAnimation *animation = new QPropertyAnimation(this, "geometry");
+
+        animation->setDuration(macOStransisionDuration);
+        animation->setStartValue(this->frameGeometry());
+        animation->setEndValue(this->frameGeometry().adjusted(-100, -100, 100, 100));
+
+        QParallelAnimationGroup *group = new QParallelAnimationGroup;
+
+        group->addAnimation(animation);
+
+        QPropertyAnimation *fo = new QPropertyAnimation(primaryEffect,"opacity");
+
+        fo->setDuration(macOStransisionDuration);
+        fo->setStartValue(1);
+        fo->setEndValue(0);
+        group->addAnimation(fo);
+
+        QPropertyAnimation *fi = new QPropertyAnimation(secondaryEffect,"opacity");
+
+        fi->setDuration(macOStransisionDuration);
+        fi->setStartValue(0);
+        fi->setEndValue(1);
+
+        group->addAnimation(fi);
+
+        group->start();*/
+    });
+#endif
 }

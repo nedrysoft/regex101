@@ -125,6 +125,8 @@ set(APPLICATION_SOURCES
     TransparentWidget.h
     RegExDatabase.cpp
     RegExDatabase.h
+    MacHelper.mm
+    MacHelper.h
 )
 
 # List of Qt libraries used by the application
@@ -219,6 +221,14 @@ if(APPLE)
     set(APPLICATION_BUNDLE_SCHEME "${APPLICATION_SHORT_NAME}")
 endif()
 
+# cocoa frameworks
+
+if(APPLE)
+    list(APPEND APPLICATION_QT_LINK_LIBRARIES "-framework AppKit")
+endif()
+
 # Set the libraries be linked in
 
 target_link_libraries(${APPLICATION_SHORT_NAME} PRIVATE ${APPLICATION_QT_LINK_LIBRARIES})
+
+

@@ -83,5 +83,6 @@
         <file>regex101/sql/insertNewVersion.sql</file>
         <file>regex101/sql/createDatabase.sql</file>
         <file>regex101/sql/getUserDetails.sql</file>
+        <file>Gianni-Polito-Colobrush-System-database.icns</file>
     </qresource>
 </RCC>

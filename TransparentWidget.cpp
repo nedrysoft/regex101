@@ -45,9 +45,21 @@ Nedrysoft::TransparentWidget::TransparentWidget(QWidget *childWidget, double opa
         m_layout->addWidget(childWidget);
     }
 
+    connect(m_transparencyEffect, &QGraphicsOpacityEffect::opacityChanged, [=](qreal opacity) {
+        if (opacity) {
+            setVisible(true);
+        } else {
+            setVisible(false);
+        }
+    });
+
     m_transparencyEffect->setOpacity(opacity);
 
-    this->setGraphicsEffect(m_transparencyEffect);
+    setGraphicsEffect(m_transparencyEffect);
+
+    if (opacity==0) {
+        hide();
+    }
 }
 
 QGraphicsOpacityEffect *Nedrysoft::TransparentWidget::transparencyEffect()

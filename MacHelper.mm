@@ -71,9 +71,9 @@ QPixmap Nedrysoft::MacHelper::macStandardImage(StandardImage::StandardImageName 
 
     [NSGraphicsContext saveGraphicsState];
 
-    [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep: bitmapRepresentation]];
+    [NSGraphicsContext setCurrentContext: [NSGraphicsContext graphicsContextWithBitmapImageRep: bitmapRepresentation]];
 
-    [nsImage drawInRect:NSMakeRect(0, 0, imageSize.width(), imageSize.height()) fromRect:NSZeroRect operation: NSCompositingOperationSourceOver fraction: 1];
+    [nsImage drawInRect: NSMakeRect(0, 0, imageSize.width(), imageSize.height()) fromRect: NSZeroRect operation: NSCompositingOperationSourceOver fraction: 1];
 
     [NSGraphicsContext restoreGraphicsState];
 

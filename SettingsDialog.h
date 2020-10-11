@@ -29,6 +29,7 @@
 #define SETTINGSDIALOG_H
 
 #include <QIcon>
+#include <QMap>
 #include <QWidget>
 
 #if defined(Q_OS_MACOS)
@@ -40,8 +41,10 @@ class QVBoxLayout;
 class QStackedWidget;
 class QTreeWidget;
 class QLabel;
+class QMacToolBarItem;
 
 namespace Nedrysoft {
+    class TransparentWidget;
 
     /**
      * @brief               Settings page class
@@ -56,11 +59,15 @@ namespace Nedrysoft {
         private:
             QString m_name;                     //! display name of the settings category page
             QString m_description;              //! description of the settings category page
+#if defined(Q_OS_MACOS)
+            TransparentWidget *m_widget;        //! the widget that contains the settings for this category
+#else
             QWidget *m_widget;                  //! the widget that contains the settings for this category
+#endif
             QIcon m_icon;                       //! the icon of the page
+            QMacToolBarItem *m_toolBarItem;     //! toolbar item
     };
 
-    class TransparentWidget;
     /**
      * @brief               Settings dialog class
      *
@@ -79,6 +86,11 @@ namespace Nedrysoft {
              * @param[in]       parent is the the owner of the window.
              */
             explicit SettingsDialog(QWidget *parent=nullptr);
+
+            /**
+             * @brief           Destroys a settings window
+             */
+            ~SettingsDialog();
 
         private:
             /**
@@ -107,20 +119,24 @@ namespace Nedrysoft {
              * @params[in]      description is the description of the purpose of the page
              * @params[in]      icon is the icon of the page
              * @params[in]      widget is the widget containing the page content
+             * @params[in]      defaultPage true if page is the default shown page; otherwise false
+             *
+             * @returns         the settings page structure
              */
-            void addPage(QString name, QString description, QIcon icon, QWidget *widget);
+            Nedrysoft::SettingsPage *addPage(QString name, QString description, QIcon icon, QWidget *widget, bool defaultPage=false);
 
         private:
 #if defined(Q_OS_MACOS)
-            QMacToolBar *m_toolBar;                         //! A native macOS toolbar (unified style)
+            QMacToolBar *m_toolBar;                             //! A native macOS toolbar (unified style)
+            SettingsPage *m_currentPage;                        //! current widget
 #else
-            QHBoxLayout *m_layout;                          //! box layout
-            QVBoxLayout *m_detailLayout;                    //! detail layout
-            QTreeWidget *m_treeWidget;                      //! tree widget for categories
-            QStackedWidget *m_stackedWidget;                //! stacked widget for page content
-            QLabel *m_categoryLabel;                        //! category label
+            QHBoxLayout *m_layout;                              //! box layout
+            QVBoxLayout *m_detailLayout;                        //! detail layout
+            QTreeWidget *m_treeWidget;                          //! tree widget for categories
+            QStackedWidget *m_stackedWidget;                    //! stacked widget for page content
+            QLabel *m_categoryLabel;                            //! category label
 #endif
-            QList<SettingsPage *> m_pages;                  //! The list of settings widgets
+            QMap<QMacToolBarItem *, SettingsPage *> m_pages;    //! The list of settings widgets
 
     };
 }

@@ -1,5 +1,5 @@
 INSERT INTO tags
-            (permalinkfragment,
+            (expressionId,
              tag)
-VALUES     (:permalinkFragment,
+VALUES     (:expressionId,
             :tag)

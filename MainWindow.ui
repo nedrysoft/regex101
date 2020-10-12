@@ -57,6 +57,7 @@
     </property>
     <addaction name="actionPreferences"/>
     <addaction name="actionExit"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>

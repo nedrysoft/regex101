@@ -5,14 +5,15 @@ INSERT INTO versions
              delimeter,
              flavor,
              version,
-             permalinkfragment,
+             expressionId,
              substString)
 VALUES      (:regex,
              :testString,
              :flags,
              :delimeter,
              :flavor,
-              (SELECT Max(versions.version)+1 FROM versions WHERE versions.permalinkFragment=:permalinkFragment),
-             :permalinkFragment,
+              (SELECT Max(versions.version)+1 FROM versions WHERE versions.expressionId=(SELECT id FROM expressions WHERE permalinkFragment=:permalinkFragment)),
+              (SELECT id FROM expressions WHERE permalinkFragment=:permalinkFragment),
              :substitution)
+
 

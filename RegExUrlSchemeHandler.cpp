@@ -172,7 +172,7 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 
                 if (job->requestUrl().path()=="/static/bundle.js") {
-                    auto iconList = QStringList() << "gamepad" << "chat" << "user";
+                    auto iconList = QStringList() << "gamepad" << "chat";
 
                     for (auto icon : iconList) {
                         fileString = fileString.replace(QRegularExpression(QString(R"(icon:(\s*r\s*\?\s*void\s*0\s*:)?\s*"%1",)").arg(icon)), QString(R"(icon:"%1",style:{display:"none"},)").arg(icon));;
@@ -262,8 +262,6 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     general["email"] = QJsonValue::Null;
     general["profilePicture"] = QJsonValue::Null;
     general["serviceProvider"] = QJsonValue::Null;
-    general["isFavorite"] = false;
-    general["isLibraryEntry"] = false;
     general["cookie"] = QJsonValue::Null;
     general["sponsorData"] = QJsonValue::Null;
 

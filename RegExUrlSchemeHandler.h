@@ -41,81 +41,83 @@ namespace Nedrysoft {
      *                  a full implementation.
      */
     class RegExUrlSchemeHandler : public QWebEngineUrlSchemeHandler {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs a URL scheme handler.
+             * @brief           Constructs a URL scheme handler.
              *
-             * @param[in]   resourceRootFolder is the root path of the internal web content.
+             * @param[in]       resourceRootFolder is the root path of the internal web content.
              */
             RegExUrlSchemeHandler(QString resourceRootFolder);
 
             /**
-             * @brief       requestStarted
+             * @brief           requestStarted
              *
-             * @details     This function is called when a request is made to the custom scheme,
-             *              the job includes information about the request and functions to
-             *              tell the web engine whether or not the request was successful.
+             * @details         This function is called when a request is made to the custom scheme,
+             *                  the job includes information about the request and functions to
+             *                  tell the web engine whether or not the request was successful.
              *
-             * @param[in]   request is the information about the request job.
+             * @param[in]       request is the information about the request job.
              */
             void requestStarted(QWebEngineUrlRequestJob *request);
 
             /**
-             * @brief       registerScheme
+             * @brief           registerScheme
              *
-             * @details     Registers the custom scheme with the web engine.
+             * @details         Registers the custom scheme with the web engine.
              *
-             * @note        This must be called before the QApplication is instantiated.
+             * @note            This must be called before the QApplication is instantiated.
              */
             static void registerScheme();
 
             /**
-             * @brief       name
+             * @brief           name
              *
-             * @details     Returns the name used for the scheme.
+             * @details         Returns the name used for the scheme.
              *
-             * @returns     The name of the scheme.
+             * @returns         The name of the scheme.
              */
             static QString name();
 
             /**
-             * @brief       scheme
+             * @brief           scheme
              *
-             * @details     Returns the scheme.
+             * @details         Returns the scheme.
              *
-             * @returns     the scheme.
+             * @returns         the scheme.
              */
             static QString scheme();
 
             /**
-             * @brief       root
+             * @brief           root
              *
-             * @details     Returns the scheme root url.
+             * @details         Returns the scheme root url.
              *
-             * @returns     the root url.
+             * @returns         the root url.
              */
             static QString root();
 
         protected:
 
             /**
-             * @brief       setInitialState
+             * @brief           setInitialState
              *
-             * @details     Creates the initial state information that is set in the html file, this includes
-             *              information such as settings as well as information about the current regular expression.
+             * @details         Creates the initial state information that is set in the html file, this includes
+             *                  information such as settings as well as information about the current regular expression.
              *
-             * @param[in]   fileContent is the html file content which the initial state is to be added to.
-             * @param[in]   requestUrl is the URL, the html is avaialble on multiple endpoints and this parameter
-             *              is used to populate the initial state correctly.
+             * @param[in]       fileContent is the html file content which the initial state is to be added to.
+             * @param[in]       requestUrl is the URL, the html is avaialble on multiple endpoints and this parameter
+             *                  is used to populate the initial state correctly.
              *
-             * @returns     the modified html file ready to be served.
+             * @returns         the modified html file ready to be served.
              */
             QString setInitialState(QString fileContent, QUrl requestUrl);
 
         private:
-            QString m_resourceRootFolder;
+            QString m_resourceRootFolder;                               //! string that contains the root folder where web is served from
+            QString m_injectedJavascript;                               //! string that contains the javascript to replace storage and fetch apis
     };
 }
 

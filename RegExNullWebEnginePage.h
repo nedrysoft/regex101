@@ -32,34 +32,34 @@
 
 namespace Nedrysoft {
     /**
-     * @brief           RegExNullWebEnginePage class
+     * @brief               RegExNullWebEnginePage class
      *
-     * @details         Provides a web engine page that is used to intercept clicked links in the main browser
-     *                  window.  This is required to catch javascript link clicks with target="_blank" as the
-     *                  link target.  This class denies the navigation request, but uses the qt desktop services
-     *                  to open the link in the system default web browser.
+     * @details             Provides a web engine page that is used to intercept clicked links in the main browser
+     *                      window.  This is required to catch javascript link clicks with target="_blank" as the
+     *                      link target.  This class denies the navigation request, but uses the qt desktop services
+     *                      to open the link in the system default web browser.
      */
-    class RegExNullWebEnginePage : public QWebEnginePage
-    {
-        Q_OBJECT
+    class RegExNullWebEnginePage : public QWebEnginePage {
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs a null web page.
+             * @brief           Constructs a null web page.
              */
             RegExNullWebEnginePage();
 
         protected:
             /**
-             * @brief       acceptNavigationRequest
+             * @brief           acceptNavigationRequest
              *
-             * @details     Allows or blocks requests that are send by the page
+             * @details         Allows or blocks requests that are send by the page
              *
-             * @param[in]   url is the url to be navigated to.
-             * @param[in]   type is the type of request, click etc.
-             * @param[in]   isMainFrame is true if this is the main browser; otherwise false.
+             * @param[in]       url is the url to be navigated to.
+             * @param[in]       type is the type of request, click etc.
+             * @param[in]       isMainFrame is true if this is the main browser; otherwise false.
              *
-             * @returns     true if the navigation is allowed; otherwise false.
+             * @returns         true if the navigation is allowed; otherwise false.
              */
             bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame);
     };

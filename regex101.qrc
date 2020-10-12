@@ -69,8 +69,22 @@
         <file>assets/regex101.iconset/icon_512x512.png</file>
         <file>assets/regex101.iconset/icon_1024x1024@2x.png</file>
         <file>assets/regex101.iconset/icon_1024x1024.png</file>
-        <file>icon.ico</file>
+        <file>assets/icon.ico</file>
         <file>regex101/regexbridge.js</file>
         <file>regex101/qwebchannel.js</file>
+        <file>regex101/sql/getStoredExpression.sql</file>
+        <file>regex101/sql/getLibraryItems.sql</file>
+        <file>regex101/sql/insertExpression.sql</file>
+        <file>regex101/sql/insertFirstVersion.sql</file>
+        <file>regex101/sql/getItemDetails.sql</file>
+        <file>regex101/sql/updateTitle.sql</file>
+        <file>regex101/sql/deleteTags.sql</file>
+        <file>regex101/sql/insertTag.sql</file>
+        <file>regex101/sql/insertNewVersion.sql</file>
+        <file>regex101/sql/createDatabase.sql</file>
+        <file>regex101/sql/getUserDetails.sql</file>
+        <file>assets/Gianni-Polito-Colobrush-System-database.icns</file>
+        <file>assets/noun_Settings_716654.png</file>
+        <file>assets/noun_database_2757856.png</file>
     </qresource>
 </RCC>

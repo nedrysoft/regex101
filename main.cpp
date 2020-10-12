@@ -29,14 +29,45 @@
 #include "RegExSplashScreen.h"
 #include "RegExUrlSchemeHandler.h"
 #include <QApplication>
+#include <QDebug>
+#include <QDirIterator>
+#include <QFont>
+#include <QFontDatabase>
+#include <QMimeDatabase>
+#include <QRegularExpression>
+#include <stdio.h>
+#include <stdlib.h>
 
-constexpr auto applicationName = "Regular Expressions 101";
+constexpr auto applicationName = APPLICATION_LONG_NAME;                     //! Provided by CMake to the preprocessor
+constexpr auto applicationFontsPrefix = ":/fonts";                          //! Fonts are stored under :/fonts (recursive search is performed)
+
+void regexMessageHandler([[maybe_unused]] QtMsgType type, [[maybe_unused]] const QMessageLogContext &context, const QString &msg)
+{
+    fprintf(stdout, "%s\r\n", msg.toLatin1().data());
+}
 
 int main(int argc, char *argv[])
 {
-    Nedrysoft::RegExUrlSchemeHandler::registerScheme();
+    //qInstallMessageHandler(regexMessageHandler);
 
+    Nedrysoft::RegExUrlSchemeHandler::registerScheme();
+    QMimeDatabase mimeDatabase;
     QApplication application(argc, argv);
+
+    // search the /fonts folder in the resources and attempt to load any found fonts
+
+    auto fontDirIterator = QDirIterator(applicationFontsPrefix, QDirIterator::Subdirectories);
+
+    while(fontDirIterator.hasNext())
+    {
+        fontDirIterator.next();
+
+        auto mimeType = mimeDatabase.mimeTypeForFile(fontDirIterator.filePath()).name();
+
+        if (QRegularExpression(R"(font\/.*)").match(mimeType).hasMatch()) {
+            QFontDatabase::addApplicationFont(fontDirIterator.filePath());
+        }
+    }
 
     Nedrysoft::RegExSplashScreen splashScreen;
 

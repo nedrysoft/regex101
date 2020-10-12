@@ -29,9 +29,16 @@
 #include "RegExAboutDialog.h"
 #include "RegExWebEnginePage.h"
 #include "RegExSplashScreen.h"
+#include "SettingsDialog.h"
 #include "ui_MainWindow.h"
 
+#include <chrono>
+#include <QDebug>
 #include <QtWebEngineWidgets>
+
+using namespace std::chrono_literals;
+
+constexpr auto splashScreenDuration = 1s;
 
 Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent)
     : QMainWindow(parent),
@@ -40,13 +47,17 @@ Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QW
 {
     ui->setupUi(this);
 
+    m_settingsDialog = nullptr;
+
+    qApp->installEventFilter(this);
+
     showMaximized();
 
-    ui->widget->setPage(m_page);
+    ui->webEngineView->setPage(m_page);
 
-    connect(ui->widget->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
+    connect(ui->webEngineView->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
         if (finished) {
-            QTimer::singleShot(1500, splashScreen, [=]() {
+            QTimer::singleShot(splashScreenDuration, splashScreen, [=]() {
                 splashScreen->close();
             });
         }
@@ -73,7 +84,47 @@ void Nedrysoft::MainWindow::on_actionExit_triggered()
     close();
 }
 
-void Nedrysoft::MainWindow::handleOpenByUrl(const QUrl &url)
+void Nedrysoft::MainWindow::handleOpenByUrl([[maybe_unused]] const QUrl &url)
 {
-    qDebug() << url;
+}
+
+bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type()==QEvent::FileOpen) {
+        QFileOpenEvent *fileOpenEvent = static_cast<QFileOpenEvent*>(event);
+
+        if (!fileOpenEvent->url().isEmpty()) {
+            // fileOpenEvent->url() contains the url if launched via url scheme
+        } else if (!fileOpenEvent->file().isEmpty()) {
+            // fileOpenEvent->file() contains the filename if launched via file association
+        }
+
+        return false;
+    }
+
+    return QObject::eventFilter(obj, event);
+}
+
+void Nedrysoft::MainWindow::on_actionPreferences_triggered()
+{
+    if (m_settingsDialog) {
+        m_settingsDialog->raise();
+
+        return;
+    }
+
+    m_settingsDialog = new SettingsDialog(this);
+
+    m_settingsDialog->show();
+}
+
+void Nedrysoft::MainWindow::closeEvent(QCloseEvent *closeEvent)
+{
+    if (m_settingsDialog) {
+        m_settingsDialog->close();
+        m_settingsDialog->deleteLater();
+        m_settingsDialog = nullptr;
+    }
+
+    closeEvent->accept();
 }

@@ -26,6 +26,7 @@
  */
 
 #include "RegExApiEndpoint.h"
+#include "RegExDatabase.h"
 #include "RegExUrlSchemeHandler.h"
 
 #include <QBuffer>
@@ -33,10 +34,12 @@
 #include <QDesktopServices>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMimeDatabase>
 #include <QRegularExpression>
+#include <QSqlQuery>
 #include <QUrlQuery>
 #include <QWebEngineSettings>
 #include <QWebEngineUrlRequestJob>
@@ -46,7 +49,7 @@ constexpr auto advertResponse = R"(({"ads":[{}]});)";
 constexpr auto htmlMimeType = "text/html";
 constexpr auto javascriptMimeType = "application/javascript";
 constexpr auto qrcRootFolder = ":/";
-constexpr auto disableFetchJavascript = R"(<script type="text/javascript" src="/qwebchannel.js"></script><script src="/regexbridge.js"></script>)";
+constexpr auto javascriptBridgeFilename = ":/regex101/regexbridge.js";
 
 auto GET(QByteArrayLiteral("GET"));
 auto POST(QByteArrayLiteral("POST"));
@@ -85,6 +88,12 @@ void Nedrysoft::RegExUrlSchemeHandler::registerScheme()
 Nedrysoft::RegExUrlSchemeHandler::RegExUrlSchemeHandler(QString resourceRootFolder)
 {
     m_resourceRootFolder = resourceRootFolder;
+
+    QFile regexBridgeFile(javascriptBridgeFilename);
+
+    if (regexBridgeFile.open(QFile::ReadOnly)) {
+        m_injectedJavascript = QString::fromLatin1(regexBridgeFile.readAll());
+    }
 }
 
 void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *job)
@@ -141,7 +150,6 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
             if (type.inherits(htmlMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
 
-                fileString = disableFetchJavascript+fileString;
                 fileString = setInitialState(fileString, job->requestUrl());
 
                 fileString = fileString.replace(QRegularExpression(R"((http)(s{0,1}):\/\/regex101\.com)"), "regex101:/");
@@ -151,6 +159,15 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
             if (type.inherits(javascriptMimeType)) {
                 auto fileString = QString::fromUtf8(fileBuffer);
+
+                // when the applicaton javascript is requested, we wrap it in a bridge object which stops the application
+                // from executing before our replacement functions for fetch and local storage have been installed.
+
+                if (QRegularExpression(R"((bundle\.js)|(chunk.js))").match(job->requestUrl().path()).hasMatch()) {
+                    auto bridgeContent = m_injectedJavascript;
+
+                    fileString = bridgeContent.replace(QRegularExpression(R"(\/\/\s*!{3}NEDRYSOFT_INJECT_FILE!{3}.*)"), fileString);
+                }
 
                 // hide some of the left sidebar items that aren't appropriate for a offline application
 
@@ -188,16 +205,35 @@ void Nedrysoft::RegExUrlSchemeHandler::requestStarted(QWebEngineUrlRequestJob *j
 
 QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, QUrl requestUrl)
 {
-    Q_UNUSED(requestUrl);
-    QVariantMap initialState, regexEditor, matchResult, unitTests, editTest, general, account, regexLibrary,libraryEntry,quiz;
+    QJsonObject initialState, regexEditor, matchResult, unitTests, editTest, general, account, regexLibrary,libraryEntry,quiz;
     auto match = QRegularExpression(R"(\/r\/(?P<permalinkFragment>.*)\/(?P<version>\d+))").match(requestUrl.path());
 
     auto settingsData = Nedrysoft::RegExApiEndpoint::getInstance()->localStorageGetItem("regex101-state").toByteArray();
 
-    initialState = QJsonDocument::fromJson(settingsData).toVariant().toMap();
+    auto jsonDocument = QJsonDocument::fromJson(settingsData);
 
-    matchResult["data"] = QStringList();
+    initialState = jsonDocument.object();
+
+    matchResult["data"] = QJsonArray();
     matchResult["time"] = 0;
+
+    if (!initialState.contains("regexEditor")) {
+        initialState["regexEditor"] = QJsonObject();
+    } else {
+        regexEditor = initialState["regexEditor"].toObject();
+    }
+
+    if (!initialState.contains("libraryEntry")) {
+        initialState["libraryEntry"] = QJsonObject();
+    } else {
+        libraryEntry = initialState["libraryEntry"].toObject();
+    }
+
+    if (!initialState.contains("general")) {
+        initialState["general"] = QJsonObject();
+    } else {
+        general = initialState["general"].toObject();
+    }
 
     if (!match.hasMatch()) {
         regexEditor["flavor"] = "pcre";
@@ -206,68 +242,114 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
         regexEditor["regex"] = "";
         regexEditor["testString"] = "";
         regexEditor["matchResult"] = matchResult;
+
+        libraryEntry["title"] = QJsonValue::Null;
+        libraryEntry["description"] = QJsonValue::Null;
+        libraryEntry["author"] = QJsonValue::Null;
+
+        general["permalinkFragment"] = QJsonValue::Null;
+        general["version"] = QJsonValue::Null;
     } else {
-        regexEditor["flavor"] = "javascript";
-        regexEditor["delimiter"] = "/";
-        regexEditor["flags"] = "gm";
-        regexEditor["regex"] = "((\\u00a9|\\u00ae|[\\u2000-\\u3300]|\\ud83c[\\ud000-\\udfff]|\\ud83d[\\ud000-\\udfff]|\\ud83e[\\ud000-\\udfff]\\s?)+)";
-        regexEditor["testString"] = "ð§ââï";
-        regexEditor["matchResult"] = matchResult;
-        regexEditor["error"] = QVariant();
-        regexEditor["substString"] = "$1";
-        regexEditor["hasUnsavedData"] = false;
-        regexEditor["regexVersions"] = 0;
-        regexEditor["showMatchArea"] = false;
-        regexEditor["showSubstitutionArea"] = true;
-        regexEditor["showUnitTestArea"] = false;
+        Nedrysoft::RegExApiEndpoint::getInstance()->regex(initialState, match.captured("permalinkFragment"), match.captured("version").toInt());
+
+        regexEditor = initialState["regexEditor"].toObject();
+        general = initialState["general"].toObject();
+        libraryEntry = initialState["libraryEntry"].toObject();
     }
 
-    editTest["test"] = QVariantMap();
+    general["deleteCode"] = QJsonValue::Null;
+    general["userId"] = QJsonValue::Null;
+    general["email"] = QJsonValue::Null;
+    general["profilePicture"] = QJsonValue::Null;
+    general["serviceProvider"] = QJsonValue::Null;
+    general["isFavorite"] = false;
+    general["isLibraryEntry"] = false;
+    general["cookie"] = QJsonValue::Null;
+    general["sponsorData"] = QJsonValue::Null;
+
+    auto database = RegExDatabase::getInstance();
+
+    auto query = database->prepareQuery("getUserDetails");
+
+    query.bindValue(":userId", 1);
+
+    if (query.exec()) {
+        if (query.first()) {
+            general["userId"] = query.value("userId").toString();
+            general["email"] = query.value("email").toString();
+        }
+    }
+
+    if (general.count()) {
+        initialState["general"] = general;
+    }
+
+    if (regexEditor.count()) {
+        initialState["regexEditor"] = regexEditor;
+    }
+
+    initialState["libraryEntry"] = libraryEntry;
+
+    // set up unit tests data
+
+    if (!initialState.contains("unitTests")) {
+        initialState["unitTests"] = QJsonObject();
+    } else {
+        unitTests = initialState["unitTests"].toObject();
+    }
+
+    editTest["test"] = QJsonObject();
     editTest["id"] = -1;
 
-    unitTests["tests"] = QStringList();
+    unitTests["tests"] = QJsonArray();
     unitTests["editTest"] = editTest;
     unitTests["testsRunning"] = false;
 
-    general["permalinkFragment"] = "ebZRGK";
-    general["version"] = 1;
-    general["deleteCode"] = QVariant();
-    general["userId"] = QVariant();
-    general["email"] = QVariant();
-    general["profilePicture"] = QVariant();
-    general["serviceProvider"] = QVariant();
-    general["isFavorite"] = false;
-    general["isLibraryEntry"] = true;
-    general["title"] = QVariant();
-    general["cookie"] = "_ga=GA1.2.1171425424.1599835688; _gid=GA1.2.1060624053.1601204614";
-    general["sponsorData"] = QVariant();
-    general["error"] = QVariant();
+    initialState["unitTests"] = unitTests;
 
-    account["data"] = QStringList();
+    // set up account information
+
+    if (!initialState.contains("account")) {
+        initialState["account"] = QJsonObject();
+    } else {
+        account = initialState["account"].toObject();
+    }
+
+    account["data"] = QJsonArray();
     account["pages"] = 0;
-    account["allTags"] = QStringList();
+    account["allTags"] = QJsonArray();
     account["staleData"] = true;
 
-    regexLibrary["libraryData"] = QStringList();
-    regexLibrary["pages"] =  0;
-    regexLibrary["details"] =  QVariant();
-
-    libraryEntry["title"] = "Match emojis in source";
-    libraryEntry["description"] = "Use to match source text emojis.";
-    libraryEntry["author"] = "";
-
-    quiz["allTasks"] = QStringList();
-    quiz["mostRecentTaskIdx"] = QVariant();
-
-    initialState["regexEditor"] = regexEditor;
-    initialState["unitTests"] = unitTests;
-    initialState["general"] = general;
     initialState["account"] = account;
+
+    // set up & store library information
+
+    if (!initialState.contains("regexLibrary")) {
+        initialState["regexLibrary"] = QJsonObject();
+    } else {
+        regexLibrary = initialState["regexLibrary"].toObject();
+    }
+
+    regexLibrary["libraryData"] = QJsonArray();
+    regexLibrary["pages"] =  0;
+    regexLibrary["details"] = QJsonValue::Null;
+
     initialState["regexLibrary"] = regexLibrary;
-    initialState["libraryEntry"] = libraryEntry;
+
+    // set up & store quiz information
+
+    if (!initialState.contains("quiz")) {
+        initialState["quiz"] = QJsonObject();
+    } else {
+        quiz = initialState["quiz"].toObject();
+    }
+
+    quiz["allTasks"] = QJsonArray();
+    quiz["mostRecentTaskIdx"] = QJsonValue::Null;
+
     initialState["quiz"] = quiz;
 
-    auto initialStateString = QUrl::toPercentEncoding(QJsonDocument(QJsonObject::fromVariantMap(initialState)).toJson(QJsonDocument::Compact));
+    auto initialStateString = QUrl::toPercentEncoding(QJsonDocument(initialState).toJson(QJsonDocument::Compact));
 
-    return(fileContent.replace(QRegularExpression(R"(nedrySoft\.initialState)"), QString::fromUtf8(initialStateString)));
+    return fileContent.replace(QRegularExpression(R"(nedrySoft\.initialState)"), QString::fromUtf8(initialStateString));
 }

@@ -9,9 +9,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>644</width>
-    <height>399</height>
+    <width>620</width>
+    <height>375</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>620</width>
+    <height>375</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>620</width>
+    <height>375</height>
+   </size>
   </property>
   <property name="mouseTracking">
    <bool>false</bool>
@@ -25,30 +43,7 @@
   <property name="modal">
    <bool>false</bool>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="pixmap">
-      <pixmap resource="regex101.qrc">:/assets/splash_620x375@2x.png</pixmap>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-    </widget>
-   </item>
-  </layout>
  </widget>
- <resources>
-  <include location="regex101.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

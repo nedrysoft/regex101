@@ -37,78 +37,79 @@ class QWebChannel;
 
 namespace Nedrysoft {
     /**
-     * @brief           RegExWebEnginePage class.
+     * @brief               RegExWebEnginePage class.
      *
-     * @details         This subclass provides a web page that is set up to use the handlers,
-     *                  interceptors and web channels.
+     * @details             This subclass provides a web page that is set up to use the handlers,
+     *                      interceptors and web channels.
      */
     class RegExWebEnginePage : public QWebEnginePage {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs a web engine page.
+             * @brief           Constructs a web engine page.
              */
             RegExWebEnginePage();
 
             /**
-             * @brief       Destroys the web engine page.
+             * @brief           Destroys the web engine page.
              */
             ~RegExWebEnginePage();
 
         protected:
             /**
-             * @brief       javaScriptConsoleMessage
+             * @brief           javaScriptConsoleMessage
              *
-             * @details     This overridden function allows debug information from the console.log functions
-             *              to be obtained.
+             * @details         This overridden function allows debug information from the console.log functions
+             *                  to be obtained.
              *
-             * @param[in]   level is the level of message.
-             * @param[in]   message is the content of the message sent via javascript.
-             * @param[in]   lineNumber is the number of the line that caused the output.
-             * @param[in]   sourceID is the identifier of the source of the message.
+             * @param[in]       level is the level of message.
+             * @param[in]       message is the content of the message sent via javascript.
+             * @param[in]       lineNumber is the number of the line that caused the output.
+             * @param[in]       sourceID is the identifier of the source of the message.
              */
             virtual void javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString& message, int lineNumber, const QString& sourceID) override;
 
             /**
-             * @brief       javaScriptAlert
+             * @brief           javaScriptAlert
              *
-             * @details     This overridden function allows javascript alerts to be handled.
+             * @details         This overridden function allows javascript alerts to be handled.
              *
-             * @param[in]   securityOrigin is the origin which is considered secure.
-             * @param[in]   msg is the alert message.
+             * @param[in]       securityOrigin is the origin which is considered secure.
+             * @param[in]       msg is the alert message.
              */
             void javaScriptAlert(const QUrl &securityOrigin, const QString &msg) override;
 
             /**
-             * @brief       acceptNavigationRequest
+             * @brief           acceptNavigationRequest
              *
-             * @details     Allows or blocks requests that are send by the page
+             * @details         Allows or blocks requests that are send by the page
              *
-             * @param[in]   url is the url to be navigated to.
-             * @param[in]   type is the type of request, click etc.
-             * @param[in]   isMainFrame is true if this is the main browser; otherwise false.
+             * @param[in]       url is the url to be navigated to.
+             * @param[in]       type is the type of request, click etc.
+             * @param[in]       isMainFrame is true if this is the main browser; otherwise false.
              *
-             * @returns     true if the navigation is allowed; otherwise false.
+             * @returns         true if the navigation is allowed; otherwise false.
              */
             bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame) override;
 
             /**
-             * @brief       createWindow
+             * @brief           createWindow
              *
-             * @details     Called when a new window is to be opened.
+             * @details         Called when a new window is to be opened.
              *
-             * @param[in]   type is the type of request, click etc.
-             * @param[in]   isMainFrame is true if this is the main browser; otherwise false.
+             * @param[in]       type is the type of request, click etc.
+             * @param[in]       isMainFrame is true if this is the main browser; otherwise false.
              *
-             * @returns     a pointer to the new page page; otherwise null to deny the request.
+             * @returns         a pointer to the new page page; otherwise null to deny the request.
              */
             QWebEnginePage *createWindow(QWebEnginePage::WebWindowType type) override;
 
         private:
-            Nedrysoft::RegExUrlRequestInterceptor *m_urlInterceptor;
-            RegExWebEngineProfile *m_profile;
-            QWebChannel *m_apiChannel;
+            Nedrysoft::RegExUrlRequestInterceptor *m_urlInterceptor;            //! url interceptor object to block everything other than our scheme
+            RegExWebEngineProfile *m_profile;                                   //! profile object with access settings for our scheme
+            QWebChannel *m_apiChannel;                                          //! channel object to pass functions between c++ & javascript
     };
 }
 

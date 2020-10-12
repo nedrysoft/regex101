@@ -33,24 +33,35 @@
 
 namespace Nedrysoft {
     /**
-     * @brief           RegExWebEngineProfile class
+     * @brief               RegExWebEngineProfile class
      *
-     * @details         Provides a profile which is set up to handle the custom scheme with
-     *                  appropriate security levels.
+     * @details             Provides a profile which is set up to handle the custom scheme with
+     *                      appropriate security levels.
      */
     class RegExWebEngineProfile : public QWebEngineProfile {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**
-             * @brief       Constructs a web engine profile.
+             * @brief           Constructs a web engine profile.
              *
-             * @param[in]   parent is the the owner of the profile.
+             * @param[in]       parent is the the owner of the profile.
              */
             RegExWebEngineProfile(QObject *parent=nullptr);
 
+        protected:
+            /**
+             * @brief           Reads a file into a string
+             *
+             * @param[in]       filename is the file name to open and read
+             *
+             * @returns         returns the content of the file
+             */
+            QString readFile(QString filename);
+
         private:
-            Nedrysoft::RegExUrlSchemeHandler *m_schemeHandler;
+            Nedrysoft::RegExUrlSchemeHandler *m_schemeHandler;                  //! pointer to the regex101: scheme handler object
     };
 }
 

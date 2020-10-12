@@ -48,10 +48,40 @@
 # ./deploy.py --qtdir="/home/adrian/Qt/5.14.2/gcc_64" \
 #             --curlbin="/usr/bin/curl” \
 #             -—cert=05DDE1C3F3B50B53112A13C231A0DBA53EEA9FE6
+#
+# ------------
+#
+# The follow definitions are available to the compiler preprocessor:
+#
+# APPLICATION_LONG_NAME             The full application name.
+# APPLICATION_SHORT_NAME            The abbreviated application name.
+#
+# APPLICATION_GIT_YEAR              The year of the current git commit.
+# APPLICATION_GIT_MONTH             The month of the current git commit.
+# APPLICATION_GIT_DAY               The day of the current git commit.
+# APPLICATION_GIT_BRANCH            The branch of the current git commit.
+# APPLICATION_GIT_HASH              The hash of the current git commit.
 
 cmake_minimum_required(VERSION 3.5)
 
-project("Regular Expressions 101" LANGUAGES CXX)
+set(APPLICATION_SHORT_NAME "regex101")
+set(APPLICATION_LONG_NAME "Regular Expressions 101")
+
+project(${APPLICATION_LONG_NAME} LANGUAGES CXX)
+
+if((APPLE) AND (CMAKE_OSX_ARCHITECTURES MATCHES "arm64"))
+    set(APPLICATION_PLATFORM_ARCH "arm64")
+else()
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(APPLICATION_PLATFORM_ARCH "x86_64")
+    else()
+        set(APPLICATION_PLATFORM_ARCH "x86_32")
+    endif()
+endif()
+
+set(APPLICATON_SOURCE_ROOT "${CMAKE_CURRENT_LIST_DIR}")
+
+set(APPLICATION_BIN_OUTPUT "${CMAKE_CURRENT_LIST_DIR}/bin/${APPLICATION_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -59,20 +89,18 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Sql WebEngineWidgets WebChannel Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Sql WebEngineWidgets WebChannel Widgets REQUIRED)
+# The list of source files
 
-add_executable(regex101 MACOSX_BUNDLE
+set(APPLICATION_SOURCES
     main.cpp
     MainWindow.cpp
     MainWindow.h
     MainWindow.ui
     RegExAboutDialog.cpp
     RegExAboutDialog.h
-    RegExAboutDialog.ui
     RegExApiEndpoint.cpp
     RegExApiEndpoint.h
     RegExNullWebEnginePage.cpp
@@ -88,28 +116,126 @@ add_executable(regex101 MACOSX_BUNDLE
     RegExWebEngineProfile.cpp
     RegExWebEngineProfile.h
     regex101.qrc
-    regex101.icns
+    assets/regex101.icns
+    Info.plist.in
+    opensans.qrc
+    SettingsDialog.cpp
+    SettingsDialog.h
+    TransparentWidget.cpp
+    TransparentWidget.h
+    RegExDatabase.cpp
+    RegExDatabase.h
+    ISettingsPage.h
+    DatabaseSettingsPage.cpp
+    DatabaseSettingsPage.h
+    DatabaseSettingsPage.ui
 )
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(APPLICATION_PLATFORM_ARCH "x86_64")
-else()
-    set(APPLICATION_PLATFORM_ARCH "x86_32")
+# List of Qt libraries used by the application
+
+set(APPLICATION_QT_LIBRARIES
+    Core
+    Gui
+    Sql
+    WebEngineWidgets
+    WebChannel
+    Widgets
+)
+
+if(APPLE)
+    list(APPEND APPLICATION_SOURCES
+        MacHelper.mm
+        MacHelper.h
+    )
+
+    list(APPEND APPLICATION_QT_LIBRARIES MacExtras)
 endif()
 
+# Check that the Qt libraries are available
 
-set_target_properties(regex101 PROPERTIES OUTPUT_NAME "Regular Expressions 101")
-set_target_properties(regex101 PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/bin/${APPLICATION_PLATFORM_ARCH}/${CMAKE_BUILD_TYPE}")
+find_package(Qt5 COMPONENTS ${APPLICATION_QT_LIBRARIES} REQUIRED)
 
-set(MACOSX_BUNDLE_ICON_FILE regex101.icns)
-set_source_files_properties(regex101.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+# use Git to produce version information and pass into compiler
 
-target_link_libraries(regex101
-    PRIVATE
-    Qt${QT_VERSION_MAJOR}::Core
-    Qt${QT_VERSION_MAJOR}::Gui
-    Qt${QT_VERSION_MAJOR}::Sql
-    Qt${QT_VERSION_MAJOR}::WebEngineWidgets
-    Qt${QT_VERSION_MAJOR}::WebChannel
-    Qt${QT_VERSION_MAJOR}::Widgets
-)
+find_package(Git REQUIRED)
+
+execute_process(COMMAND git --git-dir=${APPLICATON_SOURCE_ROOT}/.git log -1 --format=%cd --date=format:%Y OUTPUT_VARIABLE APPLICATION_GIT_YEAR)
+execute_process(COMMAND git --git-dir=${APPLICATON_SOURCE_ROOT}/.git log -1 --format=%cd --date=format:%m OUTPUT_VARIABLE APPLICATION_GIT_MONTH)
+execute_process(COMMAND git --git-dir=${APPLICATON_SOURCE_ROOT}/.git log -1 --format=%cd --date=format:%d OUTPUT_VARIABLE APPLICATION_GIT_DAY)
+execute_process(COMMAND git --git-dir=${APPLICATON_SOURCE_ROOT}/.git log -1 --format=%h OUTPUT_VARIABLE APPLICATION_GIT_HASH)
+execute_process(COMMAND git --git-dir=${APPLICATON_SOURCE_ROOT}/.git branch --show-current OUTPUT_VARIABLE APPLICATION_GIT_BRANCH)
+execute_process(COMMAND git --git-dir=${APPLICATON_SOURCE_ROOT}/.git diff --quiet HEAD RESULT_VARIABLE APPLICATION_GIT_UNCOMMITED)
+
+if (APPLICATION_GIT_UNCOMMITED EQUAL 1)
+    set(APPLICATION_GIT_UNCOMMITED "+")
+else()
+    set(APPLICATION_GIT_UNCOMMITED "")
+endif()
+
+if ("${APPLICATION_GIT_YEAR}" STREQUAL "")
+    set(APPLICATION_GIT_YEAR 0)
+    set(APPLICATION_GIT_MONTH 0)
+    set(APPLICATION_GIT_DAY 0)
+    set(APPLICATION_GIT_BRANCH none)
+    set(APPLICATION_GIT_HASH 0)
+else()
+    string(STRIP "${APPLICATION_GIT_YEAR}" APPLICATION_GIT_YEAR)
+    string(STRIP "${APPLICATION_GIT_MONTH}" APPLICATION_GIT_MONTH)
+    string(STRIP "${APPLICATION_GIT_DAY}" APPLICATION_GIT_DAY)
+    string(STRIP "${APPLICATION_GIT_BRANCH}" APPLICATION_GIT_BRANCH)
+    string(STRIP "${APPLICATION_GIT_HASH}" APPLICATION_GIT_HASH)
+endif()
+
+# Add prepressor definitions
+
+add_definitions("-DAPPLICATION_GIT_YEAR=\"${APPLICATION_GIT_YEAR}\"")
+add_definitions("-DAPPLICATION_GIT_MONTH=\"${APPLICATION_GIT_MONTH}\"")
+add_definitions("-DAPPLICATION_GIT_DAY=\"${APPLICATION_GIT_DAY}\"")
+add_definitions("-DAPPLICATION_GIT_BRANCH=\"${APPLICATION_GIT_BRANCH}\"")
+add_definitions("-DAPPLICATION_GIT_HASH=\"${APPLICATION_GIT_HASH}\"")
+add_definitions("-DAPPLICATION_LONG_NAME=\"${APPLICATION_LONG_NAME}\"")
+add_definitions("-DAPPLICATION_SHORT_NAME=\"${APPLICATION_SHORT_NAME}\"")
+
+# Generate the list of Qt libraries to link into the application
+
+set(APPLICATION_QT_LINK_LIBRARIES "")
+
+foreach(arg IN ITEMS ${APPLICATION_QT_LIBRARIES})
+    list(APPEND APPLICATION_QT_LINK_LIBRARIES "Qt5::${arg}")
+endforeach()
+
+# Create an application executable (and ensure it's an application bundle under macOS)
+
+add_executable(${APPLICATION_SHORT_NAME} MACOSX_BUNDLE ${APPLICATION_SOURCES})
+
+# Set the target executable name
+
+set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES OUTPUT_NAME "${APPLICATION_LONG_NAME}")
+
+# Set the folder where the binary should be placed
+
+set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${APPLICATION_BIN_OUTPUT})
+
+# If macOS build, then ensure the icon is copied to the bundle and set up the Info.plist file
+
+if(APPLE)
+    set_source_files_properties("assets/${APPLICATION_SHORT_NAME}.icns" PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    set_target_properties(${APPLICATION_SHORT_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${APPLICATON_SOURCE_ROOT}/Info.plist.in)
+
+    set(APPLICATION_BUNDLE_NAME "${CMAKE_PROJECT_NAME}")
+    set(APPLICATION_BUNDLE_ICONS "${APPLICATION_SHORT_NAME}.icns")
+    set(APPLICATION_BUNDLE_IDENTIFIER "com.nedrysoft.${APPLICATION_SHORT_NAME}")
+    set(APPLICATION_BUNDLE_SCHEME "${APPLICATION_SHORT_NAME}")
+endif()
+
+# cocoa frameworks
+
+if(APPLE)
+    list(APPEND APPLICATION_QT_LINK_LIBRARIES "-framework AppKit")
+endif()
+
+# Set the libraries be linked in
+
+target_link_libraries(${APPLICATION_SHORT_NAME} PRIVATE ${APPLICATION_QT_LINK_LIBRARIES})
+
+

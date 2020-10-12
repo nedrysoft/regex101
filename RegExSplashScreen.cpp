@@ -26,11 +26,40 @@
  */
 
 #include "RegExSplashScreen.h"
+#include <QLabel>
+#include <QPainter>
 
 constexpr auto splashScreenFilename = ":/assets/splash_620x375@2x.png";
+constexpr auto fontFamily = "Open Sans";
+constexpr auto fontSize = 14;
 
 Nedrysoft::RegExSplashScreen::RegExSplashScreen() :
     QSplashScreen(QPixmap(splashScreenFilename), Qt::WindowStaysOnTopHint)
 {
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+
     show();
+}
+
+Nedrysoft::RegExSplashScreen::~RegExSplashScreen()
+{
+}
+
+void Nedrysoft::RegExSplashScreen::drawContents(QPainter *painter)
+{
+    auto font = QFont(fontFamily, fontSize, QFont::Weight::Normal);
+    auto versionText = QString("%1.%2.%3 (%4 %5)").arg(APPLICATION_GIT_YEAR).arg(APPLICATION_GIT_MONTH).arg(APPLICATION_GIT_DAY).arg(APPLICATION_GIT_BRANCH).arg(APPLICATION_GIT_HASH);
+
+    QSplashScreen::drawContents(painter);
+
+    painter->save();
+
+    painter->setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter->setPen(Qt::white);
+    painter->setBrush(Qt::white);
+    painter->setFont(font);
+
+    painter->drawText(QRect(350, 300, 250, 71), Qt::AlignRight | Qt::AlignVCenter, versionText);
+
+    painter->restore();
 }

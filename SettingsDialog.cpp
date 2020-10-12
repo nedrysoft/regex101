@@ -25,6 +25,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DatabaseSettingsPage.h"
 #include "SettingsDialog.h"
 #include "TransparentWidget.h"
 
@@ -49,7 +50,12 @@
 #if defined(Q_OS_MACOS)
 #include "MacHelper.h"
 
-constexpr auto transisionDuration = 100;
+using namespace std::chrono_literals;
+
+constexpr auto transisionDuration = 200ms;
+constexpr auto toolbarItemWidth = 64;
+constexpr auto alphaTransparent = 0;
+constexpr auto alphaOpaque = 1;
 #else
 constexpr auto categoryFontSize = 24;
 constexpr auto settingsTreeWidth = 144;
@@ -57,17 +63,14 @@ constexpr auto settingsIconSize = 32;
 #endif
 
 Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
-    QWidget(parent)
+    QWidget(nullptr)
 {
 #if defined(Q_OS_MACOS)
     m_currentPage = nullptr;
 
     m_toolBar = new QMacToolBar(this);
 
-    resize(600,400);
-
-    auto databaseIcon = QIcon("://assets/Gianni-Polito-Colobrush-System-database.icns");
-    auto generalIcon = QIcon(Nedrysoft::MacHelper::macStandardImage(Nedrysoft::StandardImage::NSImageNamePreferencesGeneral, QSize(256,256)));
+    m_animationGroup = nullptr;
 #else
     m_layout = new QHBoxLayout;
 
@@ -106,15 +109,34 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
     m_layout->addLayout(m_detailLayout);
 
     setLayout(m_layout);
-
-    auto databaseIcon = QIcon(":/assets/noun_database_2757856.png");
-    auto generalIcon = QIcon(":/assets/noun_Settings_716654.png");
 #endif
-    addPage(tr("General"), tr("General settings"), generalIcon, new QLabel("HELLO"), true);
-    addPage(tr("Database"), tr("The database settings"), databaseIcon, new QLabel("GOODBYE"));
+    addPage(tr("General"), tr("General settings"), SettingsPage::Icon::General, new QLabel("HELLO"), true);
+    addPage(tr("Database"), tr("The database settings"), SettingsPage::Icon::Database, new DatabaseSettingsPage);
 
 #if defined(Q_OS_MACOS)
     m_toolBar->attachToWindow(nativeWindowHandle());
+
+    QSize size;
+
+    for(auto page : m_pages) {
+        size = QSize(qMax(page->m_widget->sizeHint().width(), size.width()), qMax(page->m_widget->sizeHint().height(), size.height()));
+    }
+
+    QPoint parentCentre(parent->frameGeometry().center());
+    QPoint point((parentCentre.x()+size.width())/2, (parentCentre.y()+size.height())/2);
+
+    move(point);
+
+    m_toolbarHeight = frameGeometry().size().height()-geometry().size().height();
+
+    if (m_currentPage) {
+        auto minSize = QSize(qMax(toolbarItemWidth*m_pages.count(), m_currentPage->m_widget->sizeHint().width()), m_currentPage->m_widget->sizeHint().height());
+
+        setMinimumSize(minSize);
+        setMaximumSize(minSize);
+
+        resize(minSize);
+    }
 #endif
 }
 
@@ -159,7 +181,7 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
     return window()->windowHandle();
 }
 
-Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QString description, QIcon icon, QWidget *widget, bool defaultPage)
+Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QString description, SettingsPage::Icon icon, QWidget *widget, bool defaultPage)
 {
 #if defined(Q_OS_MACOS)
     auto widgetContainer = new TransparentWidget(widget, 0, this);
@@ -171,7 +193,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
     settingsPage->m_icon = icon;
     settingsPage->m_description = description;
 
-    settingsPage->m_toolBarItem = m_toolBar->addItem(icon, name);
+    settingsPage->m_toolBarItem = m_toolBar->addItem(getIcon(icon), name);
 
     m_pages[settingsPage->m_toolBarItem] = settingsPage;
 
@@ -179,38 +201,58 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
         auto currentItem = m_pages[m_currentPage->m_toolBarItem]->m_widget;
         auto nextItem = settingsPage->m_widget;
 
-        auto animationGroup = new QParallelAnimationGroup;
+        if (currentItem==nextItem) {
+            return;
+        }
 
-        auto sizeAnimation = new QPropertyAnimation(this, "size");
+        if (m_animationGroup) {
+            m_animationGroup->stop();
+            m_animationGroup->deleteLater();
+        }
 
-        sizeAnimation->setDuration(transisionDuration);
-        sizeAnimation->setStartValue(currentItem->sizeHint()+QSize(200,200));
-        sizeAnimation->setEndValue(nextItem->sizeHint()+QSize(200,200));
+        m_animationGroup = new QParallelAnimationGroup;
 
-        animationGroup->addAnimation(sizeAnimation);
+        auto minSize = QSize(qMax(toolbarItemWidth*m_pages.count(), nextItem->sizeHint().width()), nextItem->sizeHint().height());
+
+        auto propertyNames = {"size", "minimumSize", "maximumSize"};
+
+        for(auto property : propertyNames) {
+            auto sizeAnimation = new QPropertyAnimation(this, property);
+
+            sizeAnimation->setDuration(transisionDuration.count());
+            sizeAnimation->setStartValue(currentItem->size());
+            sizeAnimation->setEndValue(minSize);
+
+            m_animationGroup->addAnimation(sizeAnimation);
+        }
 
         auto outgoingAnimation = new QPropertyAnimation(currentItem->transparencyEffect(), "opacity");
 
-        outgoingAnimation->setDuration(transisionDuration);
-        outgoingAnimation->setStartValue(1);
-        outgoingAnimation->setEndValue(0);
+        outgoingAnimation->setDuration(transisionDuration.count());
+        outgoingAnimation->setStartValue(currentItem->transparencyEffect()->opacity());
+        outgoingAnimation->setEndValue(alphaTransparent);
 
-        animationGroup->addAnimation(outgoingAnimation);
+        m_animationGroup->addAnimation(outgoingAnimation);
 
         auto incomingAnimation = new QPropertyAnimation(nextItem->transparencyEffect(), "opacity");
 
-        incomingAnimation->setDuration(transisionDuration);
-        incomingAnimation->setStartValue(0);
-        incomingAnimation->setEndValue(1);
+        incomingAnimation->setDuration(transisionDuration.count());
+        incomingAnimation->setStartValue(nextItem->transparencyEffect()->opacity());
+        incomingAnimation->setEndValue(alphaOpaque);
 
-        animationGroup->addAnimation(incomingAnimation);
+        m_animationGroup->addAnimation(incomingAnimation);
 
-        animationGroup->start(QParallelAnimationGroup::DeleteWhenStopped);
+        m_animationGroup->start(QParallelAnimationGroup::DeleteWhenStopped);
 
-        connect(animationGroup, &QParallelAnimationGroup::finished, [this, settingsPage, animationGroup]() {
-            m_currentPage = settingsPage;
+        // the current page is set here immediately, so that if the page is changed again before the animation is
+        // complete then the new selection will be animated in from the current position in the previous animation
 
-            animationGroup->deleteLater();
+        m_currentPage = settingsPage;
+
+        connect(m_animationGroup, &QParallelAnimationGroup::finished, [this]() {
+            m_animationGroup->deleteLater();
+
+            m_animationGroup = 0;
         });
     });
 
@@ -222,13 +264,15 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
         m_currentPage = settingsPage;
 
         m_currentPage->m_widget->setTransparency(1);
+
+        resize(m_currentPage->m_widget->sizeHint());
     }
 
     return settingsPage;
 #else
     auto newTreeItem = new QTreeWidgetItem(m_treeWidget);
 
-    newTreeItem->setIcon(0, icon);
+    newTreeItem->setIcon(0, getIcon(icon));
     newTreeItem->setText(0, name);
     newTreeItem->setData(0, Qt::UserRole, QVariant::fromValue(widget));
     newTreeItem->setData(0, Qt::ToolTipRole, description);
@@ -259,4 +303,32 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
 
     return settingsPage;
 #endif
+}
+
+QIcon Nedrysoft::SettingsDialog::getIcon(SettingsPage::Icon icon)
+{
+#if defined(Q_OS_MACOS)
+    switch(icon) {
+        case SettingsPage::Database: {
+            return QIcon("://assets/Gianni-Polito-Colobrush-System-database.icns");
+        }
+
+        case SettingsPage::General: {
+            return QIcon(Nedrysoft::MacHelper::macStandardImage(Nedrysoft::StandardImage::NSImageNamePreferencesGeneral, QSize(256,256)));
+        }
+    }
+#else
+    switch(icon) {
+        case SettingsPage::Database: {
+            return QIcon(":/assets/noun_database_2757856.png");
+        }
+
+        case SettingsPage::General: {
+            return QIcon(":/assets/noun_Settings_716654.png");
+        }
+    }
+
+#endif
+
+    return QIcon();
 }

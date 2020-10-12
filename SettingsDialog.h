@@ -42,6 +42,7 @@ class QStackedWidget;
 class QTreeWidget;
 class QLabel;
 class QMacToolBarItem;
+class QParallelAnimationGroup;
 
 namespace Nedrysoft {
     class TransparentWidget;
@@ -53,10 +54,13 @@ namespace Nedrysoft {
      */
     class SettingsPage
     {
-        private:
-            friend class SettingsDialog;
+        public:
+            enum Icon {
+                General,
+                Database
+            };
 
-        private:
+        public:
             QString m_name;                     //! display name of the settings category page
             QString m_description;              //! description of the settings category page
 #if defined(Q_OS_MACOS)
@@ -64,7 +68,7 @@ namespace Nedrysoft {
 #else
             QWidget *m_widget;                  //! the widget that contains the settings for this category
 #endif
-            QIcon m_icon;                       //! the icon of the page
+            Icon m_icon;                        //! the icon of the page
             QMacToolBarItem *m_toolBarItem;     //! toolbar item
     };
 
@@ -100,6 +104,14 @@ namespace Nedrysoft {
              */
             QWindow *nativeWindowHandle();
 
+            /**
+             * @brief           Returns the platform specific icon for the given icon type
+             *
+             * @param[in]       icon the icon to get
+             * @returns         the requested icon
+             */
+            QIcon getIcon(SettingsPage::Icon icon);
+
         protected:
             /**
              * @brief           Window resize event
@@ -123,12 +135,14 @@ namespace Nedrysoft {
              *
              * @returns         the settings page structure
              */
-            Nedrysoft::SettingsPage *addPage(QString name, QString description, QIcon icon, QWidget *widget, bool defaultPage=false);
+            Nedrysoft::SettingsPage *addPage(QString name, QString description, SettingsPage::Icon icon, QWidget *widget, bool defaultPage=false);
 
         private:
 #if defined(Q_OS_MACOS)
             QMacToolBar *m_toolBar;                             //! A native macOS toolbar (unified style)
             SettingsPage *m_currentPage;                        //! current widget
+            int m_toolbarHeight;                                //! the height of the unified toolbar
+            QParallelAnimationGroup *m_animationGroup;          //! the currently active animation
 #else
             QHBoxLayout *m_layout;                              //! box layout
             QVBoxLayout *m_detailLayout;                        //! detail layout
@@ -137,7 +151,6 @@ namespace Nedrysoft {
             QLabel *m_categoryLabel;                            //! category label
 #endif
             QMap<QMacToolBarItem *, SettingsPage *> m_pages;    //! The list of settings widgets
-
     };
 }
 

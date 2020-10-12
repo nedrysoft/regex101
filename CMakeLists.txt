@@ -125,6 +125,10 @@ set(APPLICATION_SOURCES
     TransparentWidget.h
     RegExDatabase.cpp
     RegExDatabase.h
+    ISettingsPage.h
+    DatabaseSettingsPage.cpp
+    DatabaseSettingsPage.h
+    DatabaseSettingsPage.ui
 )
 
 # List of Qt libraries used by the application

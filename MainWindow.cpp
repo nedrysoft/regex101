@@ -32,8 +32,13 @@
 #include "SettingsDialog.h"
 #include "ui_MainWindow.h"
 
+#include <chrono>
 #include <QDebug>
 #include <QtWebEngineWidgets>
+
+using namespace std::chrono_literals;
+
+constexpr auto splashScreenDuration = 1s;
 
 Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent)
     : QMainWindow(parent),
@@ -52,7 +57,7 @@ Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QW
 
     connect(ui->webEngineView->page(), &QWebEnginePage::loadFinished, splashScreen, [=](bool finished) {
         if (finished) {
-            QTimer::singleShot(1500, splashScreen, [=]() {
+            QTimer::singleShot(splashScreenDuration, splashScreen, [=]() {
                 splashScreen->close();
             });
         }
@@ -108,7 +113,7 @@ void Nedrysoft::MainWindow::on_actionPreferences_triggered()
         return;
     }
 
-    m_settingsDialog = new SettingsDialog;
+    m_settingsDialog = new SettingsDialog(this);
 
     m_settingsDialog->show();
 }

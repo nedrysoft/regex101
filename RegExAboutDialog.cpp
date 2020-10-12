@@ -47,8 +47,6 @@ Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
 
     auto dialogSize = (QSizeF(m_backgroundPixmap.size())/m_backgroundPixmap.devicePixelRatioF());
 
-    qDebug() << dialogSize << devicePixelRatioF() << m_backgroundPixmap.devicePixelRatioF();
-
     resize((dialogSize.toSize()));
 
     setAttribute(Qt::WA_TranslucentBackground);

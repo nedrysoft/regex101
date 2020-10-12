@@ -100,8 +100,6 @@ QVariant Nedrysoft::RegExApiEndpoint::fetch(const QVariant &pathParameter, const
     auto valueMap = requestParameter.toMap();
     auto method = valueMap["method"].toString();
 
-    qDebug() << "RQ:" << pathParameter << requestParameter;
-
     if (method=="PUT") {
         return processPutRequest(pathParameter, requestParameter);
     } else if (method=="POST") {
@@ -219,8 +217,6 @@ QVariant Nedrysoft::RegExApiEndpoint::processPutRequest(const QVariant &pathPara
 
     auto historyMatch = QRegularExpression(R"(\/api\/user\/history\/(?P<permalinkFragment>[A-Z|a-z|0-9]*)\/(?P<version>\d*)\/(?P<action>([a-z|A-Z|0-9]*))$)").match(path);
     auto userOperationMatch = QRegularExpression(R"(\/api\/user\/(?P<operation>.*)\/(?P<permalinkFragment>[A-Z|a-z|0-9]*)\/(?P<version>\d*)$)").match(path);
-
-    qDebug() <<"userop:" << userOperationMatch;
 
     if (historyMatch.hasMatch()) {
         return processPutHistoryRequest(pathParameter, requestParameter, historyMatch);
@@ -651,7 +647,7 @@ QVariant Nedrysoft::RegExApiEndpoint::processSetFavorite([[maybe_unused]] const 
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processGetHistory([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processGetHistory([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, [[maybe_unused]] const QRegularExpressionMatch &match) const
 {
-
+    return QVariant();
 }

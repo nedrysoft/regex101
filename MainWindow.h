@@ -81,6 +81,21 @@ namespace Nedrysoft {
 
         private slots:
             /**
+             * @brief           Event filter mathod
+             *
+             * @details         This event filter is using qApp as a target, this allows us to receive events from the
+             *                  operating system such as opening registered file types or handling the regex101:// URL
+             *                  scheme.
+             *
+             * @param[in]       obj is the object that has caused this event
+             * @param[in]       event contains the details of the event, such as file name or the url path.
+             *
+             * @returns         true if the event is handled; otherwise false.
+             */
+            bool eventFilter(QObject *obj, QEvent *event);
+
+    private slots:
+            /**
              * @brief           About slot function.
              *
              * @details         This slot is called when the About action is triggered, the about dialog is displayed.
@@ -95,19 +110,10 @@ namespace Nedrysoft {
             void on_actionExit_triggered();
 
             /**
-             * @brief           Event filter mathod
+             * @brief           Preferences action triggered function
              *
-             * @details         This event filter is using qApp as a target, this allows us to receive events from the
-             *                  operating system such as opening registered file types or handling the regex101:// URL
-             *                  scheme.
-             *
-             * @param[in]       obj is the object that has caused this event
-             * @param[in]       event contains the details of the event, such as file name or the url path.
-             *
-             * @returns         true if the event is handled; otherwise false.
+             * @details         This slot is called when the preferences action is triggered
              */
-            bool eventFilter(QObject *obj, QEvent *event);
-
             void on_actionPreferences_triggered();
 
     private:

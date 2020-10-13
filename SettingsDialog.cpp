@@ -26,6 +26,7 @@
  */
 
 #include "DatabaseSettingsPage.h"
+#include "GeneralSettingsPage.h"
 #include "SettingsDialog.h"
 #include "TransparentWidget.h"
 
@@ -52,7 +53,7 @@
 
 using namespace std::chrono_literals;
 
-constexpr auto transisionDuration = 200ms;
+constexpr auto transisionDuration = 100ms;
 constexpr auto toolbarItemWidth = 64;
 constexpr auto alphaTransparent = 0;
 constexpr auto alphaOpaque = 1;
@@ -110,7 +111,7 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
     setLayout(m_layout);
 #endif
-    addPage(tr("General"), tr("General settings"), SettingsPage::Icon::General, new QLabel("HELLO"), true);
+    addPage(tr("General"), tr("General settings"), SettingsPage::Icon::General, new GeneralSettingsPage, true);
     addPage(tr("Database"), tr("The database settings"), SettingsPage::Icon::Database, new DatabaseSettingsPage);
 
 #if defined(Q_OS_MACOS)
@@ -192,6 +193,10 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
     settingsPage->m_widget = widgetContainer;
     settingsPage->m_icon = icon;
     settingsPage->m_description = description;
+
+    if (widget->layout()) {
+        widget->layout()->setSizeConstraint(QLayout::SetMinimumSize);
+    }
 
     settingsPage->m_toolBarItem = m_toolBar->addItem(getIcon(icon), name);
 
@@ -327,7 +332,6 @@ QIcon Nedrysoft::SettingsDialog::getIcon(SettingsPage::Icon icon)
             return QIcon(":/assets/noun_Settings_716654.png");
         }
     }
-
 #endif
 
     return QIcon();

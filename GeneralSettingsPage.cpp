@@ -25,67 +25,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseSettingsPage.h"
-#include "ui_DatabaseSettingsPage.h"
+#include "GeneralSettingsPage.h"
+#include "ui_GeneralSettingsPage.h"
 
 #include <QDebug>
-#include <QMap>
-#include <QSqlDatabase>
 
-Nedrysoft::DatabaseSettingsPage::DatabaseSettingsPage(QWidget *parent) :
+Nedrysoft::GeneralSettingsPage::GeneralSettingsPage(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::DatabaseSettingsPage)
+    ui(new Ui::GeneralSettingsPage)
 {
     ui->setupUi(this);
-
-    QMap<QString, QString> databaseDriverMap(std::map<QString, QString> {
-        {"QDB2", "IBM DB2 (version 7.1 and above)"},
-        {"QIBASE", "Borland InterBase" },
-        {"QMYSQL", "MySQL or MariaDB (version 5.0 and above)"},
-        {"QOCI", "Oracle Call Interface Driver"},
-        {"QODBC", "Open Database Connectivity (ODBC)"},
-        {"QODBC3", "Open Database Connectivity (ODBC)"},
-        {"QPSQL", "PostgreSQL (versions 7.3 and above)"},
-        {"QPSQL7", "PostgreSQL (version 6.x and 7.x)"},
-        {"QSQLITE2", "SQLite version 2"},
-        {"QSQLITE", "SQLite version 3"},
-        {"QTDS", "Sybase Adaptive Server"}
-    });
 
 #if defined(Q_OS_MACOS)
     m_size = QSize(qMax(minimumSizeHint().width(), size().width()), qMax(minimumSizeHint().height(), size().height()));
 #else
     m_size = minimumSizeHint();
 #endif
-
-    auto driverList = QSqlDatabase::drivers();
-
-    for(auto driver : driverList) {
-        QString displayName = driver;
-
-        if (databaseDriverMap.contains(driver)) {
-            displayName = databaseDriverMap[driver]+" ";
-        }
-
-        ui->databaseTypeComboBox->addItem(displayName);
-    }
 }
 
-Nedrysoft::DatabaseSettingsPage::~DatabaseSettingsPage()
+Nedrysoft::GeneralSettingsPage::~GeneralSettingsPage()
 {
     delete ui;
 }
 
-bool Nedrysoft::DatabaseSettingsPage::canAcceptSettings()
+bool Nedrysoft::GeneralSettingsPage::canAcceptSettings()
 {
     return true;
 }
 
-void Nedrysoft::DatabaseSettingsPage::acceptSettings()
+void Nedrysoft::GeneralSettingsPage::acceptSettings()
 {
 }
 
-QSize Nedrysoft::DatabaseSettingsPage::sizeHint() const
+QSize Nedrysoft::GeneralSettingsPage::sizeHint() const
 {
     return m_size;
 }

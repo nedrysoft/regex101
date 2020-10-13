@@ -129,6 +129,9 @@ set(APPLICATION_SOURCES
     DatabaseSettingsPage.cpp
     DatabaseSettingsPage.h
     DatabaseSettingsPage.ui
+    GeneralSettingsPage.cpp
+    GeneralSettingsPage.h
+    GeneralSettingsPage.ui
 )
 
 # List of Qt libraries used by the application

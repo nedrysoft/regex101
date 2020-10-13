@@ -263,6 +263,8 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
 
     QSqlQuery query;
 
+    qDebug() << requestParameter;
+
     if (bodyObject["permalinkFragment"].isNull())
     {
         query = m_database->prepareQuery("insertExpression");

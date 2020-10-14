@@ -43,8 +43,10 @@
 #endif
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
+#include <QPushButton>
 #include <QResizeEvent>
 #include <QStackedWidget>
+#include <QTabWidget>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
@@ -58,9 +60,10 @@ constexpr auto toolbarItemWidth = 64;
 constexpr auto alphaTransparent = 0;
 constexpr auto alphaOpaque = 1;
 #else
-constexpr auto categoryFontSize = 24;
+constexpr auto categoryFontAdjustment = 6;
 constexpr auto settingsTreeWidth = 144;
 constexpr auto settingsIconSize = 32;
+constexpr auto settingsDialogScaleFactor = 0.5;
 #endif
 
 Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
@@ -73,7 +76,9 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
     m_animationGroup = nullptr;
 #else
-    m_layout = new QHBoxLayout;
+    resize((QSizeF(parent->frameSize())*settingsDialogScaleFactor).toSize());
+
+    m_mainLayout = new QHBoxLayout;
 
     m_treeWidget = new QTreeWidget(this);
 
@@ -93,21 +98,48 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
     m_stackedWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    m_layout->addWidget(m_treeWidget);
+    m_stackedWidget->layout()->setMargin(0);
+
+    m_mainLayout->addWidget(m_treeWidget);
 
     m_categoryLabel = new QLabel;
 
-    m_categoryLabel->setFont(QFont(m_categoryLabel->font().family(), categoryFontSize));
+    m_categoryLabel->setContentsMargins(4,0,0,9);
+
+    m_categoryLabel->setFont(QFont(m_categoryLabel->font().family(), m_categoryLabel->font().pointSize()+categoryFontAdjustment));
     m_categoryLabel->setAlignment(Qt::AlignLeft);
 
     m_detailLayout = new QVBoxLayout;
 
+    m_detailLayout->setContentsMargins(9,0,0,0);
+
     m_detailLayout->addWidget(m_categoryLabel);
+
     m_detailLayout->addWidget(m_stackedWidget);
 
     m_detailLayout->setAlignment(m_categoryLabel, Qt::AlignLeft);
 
-    m_layout->addLayout(m_detailLayout);
+    m_mainLayout->addLayout(m_detailLayout);
+
+    m_mainLayout->setSpacing(0);
+
+    m_layout = new QVBoxLayout;
+
+    m_layout->addLayout(m_mainLayout);
+
+    m_controlsLayout = new QHBoxLayout;
+
+    m_controlsLayout->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Minimum));
+
+    m_okButton = new QPushButton("OK");
+    m_cancelButton = new QPushButton("Cancel");
+    m_applyButton = new QPushButton("Apply");
+
+    m_controlsLayout->addWidget(m_okButton);
+    m_controlsLayout->addWidget(m_cancelButton);
+    m_controlsLayout->addWidget(m_applyButton);
+
+    m_layout->addLayout(m_controlsLayout);
 
     setLayout(m_layout);
 #endif
@@ -276,15 +308,18 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
     return settingsPage;
 #else
     auto newTreeItem = new QTreeWidgetItem(m_treeWidget);
+    auto tabWidget = new QTabWidget();
 
     newTreeItem->setIcon(0, getIcon(icon));
     newTreeItem->setText(0, name);
-    newTreeItem->setData(0, Qt::UserRole, QVariant::fromValue(widget));
+    newTreeItem->setData(0, Qt::UserRole, QVariant::fromValue(tabWidget));
     newTreeItem->setData(0, Qt::ToolTipRole, description);
 
     m_treeWidget->addTopLevelItem(newTreeItem);
 
-    m_stackedWidget->addWidget(widget);
+    tabWidget->addTab(widget, "Interface");
+
+    m_stackedWidget->addWidget(tabWidget);
 
     auto settingsPage = new SettingsPage;
 

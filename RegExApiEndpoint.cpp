@@ -28,6 +28,7 @@
 #include "RegExApiEndpoint.h"
 #include "RegExDatabase.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
@@ -36,6 +37,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QRandomGenerator>
+#include <QRegularExpression>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>

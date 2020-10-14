@@ -37,12 +37,13 @@ class QMacToolBar;
 #endif
 
 class QHBoxLayout;
-class QVBoxLayout;
-class QStackedWidget;
-class QTreeWidget;
 class QLabel;
 class QMacToolBarItem;
 class QParallelAnimationGroup;
+class QPushButton;
+class QStackedWidget;
+class QTreeWidget;
+class QVBoxLayout;
 
 namespace Nedrysoft {
     class TransparentWidget;
@@ -144,11 +145,16 @@ namespace Nedrysoft {
             int m_toolbarHeight;                                //! the height of the unified toolbar
             QParallelAnimationGroup *m_animationGroup;          //! the currently active animation
 #else
-            QHBoxLayout *m_layout;                              //! box layout
+            QVBoxLayout *m_layout;                              //! details layout + main layout + control layout
             QVBoxLayout *m_detailLayout;                        //! detail layout
+            QHBoxLayout *m_mainLayout;                          //! detail layout + tree widget
+            QHBoxLayout *m_controlsLayout;                      //! apply/ok/cancel layout
             QTreeWidget *m_treeWidget;                          //! tree widget for categories
             QStackedWidget *m_stackedWidget;                    //! stacked widget for page content
             QLabel *m_categoryLabel;                            //! category label
+            QPushButton *m_okButton;                            //! ok button, saves and dismisses the dialog (if changes valud)
+            QPushButton *m_cancelButton;                        //! cancel button, fogets any changes made since last apply
+            QPushButton *m_applyButton;                         //! apply button, saves changes but keeps dialog open
 #endif
             QMap<QMacToolBarItem *, SettingsPage *> m_pages;    //! The list of settings widgets
     };

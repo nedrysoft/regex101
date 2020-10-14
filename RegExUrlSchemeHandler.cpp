@@ -79,7 +79,7 @@ void Nedrysoft::RegExUrlSchemeHandler::registerScheme()
                     QWebEngineUrlScheme::LocalAccessAllowed |
                     QWebEngineUrlScheme::ContentSecurityPolicyIgnored |
                     QWebEngineUrlScheme::ServiceWorkersAllowed |
-                    QWebEngineUrlScheme::CorsEnabled |
+                   // QWebEngineUrlScheme::CorsEnabled |
                     QWebEngineUrlScheme::ContentSecurityPolicyIgnored);
 
     QWebEngineUrlScheme::registerScheme(scheme);

@@ -385,7 +385,9 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString section, QSt
     settingsPage->m_icon = icon;
     settingsPage->m_description = description;
 
-    connect(m_treeWidget, &QTreeWidget::currentItemChanged, [=](QTreeWidgetItem *current, [[maybe_unused]] QTreeWidgetItem *previous) {
+    connect(m_treeWidget, &QTreeWidget::currentItemChanged, [=](QTreeWidgetItem *current, QTreeWidgetItem *previous) {
+        Q_UNUSED(previous);
+
         auto widget = current->data(0, Qt::UserRole).value<QWidget *>();
 
         if (widget) {

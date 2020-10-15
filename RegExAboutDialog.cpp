@@ -53,8 +53,10 @@ Nedrysoft::RegExAboutDialog::RegExAboutDialog(QWidget *parent) :
     setAttribute(Qt::WA_AlwaysStackOnTop);
 }
 
-void Nedrysoft::RegExAboutDialog::focusOutEvent([[maybe_unused]] QFocusEvent *event)
+void Nedrysoft::RegExAboutDialog::focusOutEvent(QFocusEvent *event)
 {
+    Q_UNUSED(event);
+
     close();
 }
 

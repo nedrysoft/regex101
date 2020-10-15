@@ -247,8 +247,11 @@ QVariant Nedrysoft::RegExApiEndpoint::processPostRequest(const QVariant &pathPar
     return QVariantMap();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processDeleteRequest([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter) const
+QVariant Nedrysoft::RegExApiEndpoint::processDeleteRequest(const QVariant &pathParameter, const QVariant &requestParameter) const
 {
+    Q_UNUSED(pathParameter);
+    Q_UNUSED(requestParameter);
+
     QJsonObject jsonResponse;
 
     jsonResponse["message"] = "Your regex has been deleted.";
@@ -256,8 +259,10 @@ QVariant Nedrysoft::RegExApiEndpoint::processDeleteRequest([[maybe_unused]] cons
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const QVariant &pathParameter, const QVariant &requestParameter) const
+QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest(const QVariant &pathParameter, const QVariant &requestParameter) const
 {
+    Q_UNUSED(pathParameter);
+
     QJsonObject jsonResponse;
     QJsonObject bodyObject = QJsonDocument::fromJson(requestParameter.toMap()["body"].toByteArray()).object();
     QString permalinkFragment = createPermalinkFragment();
@@ -325,8 +330,10 @@ QVariant Nedrysoft::RegExApiEndpoint::processSaveRequest([[maybe_unused]] const 
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processForkRequest([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter) const
+QVariant Nedrysoft::RegExApiEndpoint::processForkRequest(const QVariant &pathParameter, const QVariant &requestParameter) const
 {
+    Q_UNUSED(pathParameter);
+
     QJsonObject jsonResponse;
     QJsonObject bodyObject = QJsonDocument::fromJson(requestParameter.toMap()["body"].toByteArray()).object();
     QString permalinkFragment = createPermalinkFragment();
@@ -368,8 +375,11 @@ QVariant Nedrysoft::RegExApiEndpoint::processForkRequest([[maybe_unused]] const 
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processGetLibraryItems([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, [[maybe_unused]] const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processGetLibraryItems(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(pathParameter);
+    Q_UNUSED(requestParameter);
+
     QJsonArray jsonResultArray;
     QJsonObject jsonResponse, jsonResult;
 
@@ -408,8 +418,10 @@ QVariant Nedrysoft::RegExApiEndpoint::processGetLibraryItems([[maybe_unused]] co
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processGetItemDetails([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processGetItemDetails(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(requestParameter);
+
     QJsonObject jsonResponse;
     QSqlQuery query;
     auto path = pathParameter.toString();
@@ -436,8 +448,11 @@ QVariant Nedrysoft::RegExApiEndpoint::processGetItemDetails([[maybe_unused]] con
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processGetStatic([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, [[maybe_unused]] const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processGetStatic(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(requestParameter);
+    Q_UNUSED(match);
+
     auto path = pathParameter.toString();
 
     QFile file(QDir::cleanPath(":/regex101/"+path));
@@ -480,8 +495,10 @@ QString Nedrysoft::RegExApiEndpoint::createDeleteCode() const
     return createRandomString(deleteCodeStringLength);
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processPutHistoryRequest([[maybe_unused]] const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processPutHistoryRequest(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(pathParameter);
+
     QSqlQuery query;
     auto bodyObject = QJsonDocument::fromJson(requestParameter.toMap()["body"].toByteArray()).object();
     auto permalinkFragment = match.captured("permalinkFragment");
@@ -521,12 +538,16 @@ QVariant Nedrysoft::RegExApiEndpoint::processPutHistoryRequest([[maybe_unused]] 
     return QString();
 }
 
-void Nedrysoft::RegExApiEndpoint::notifyApplication([[maybe_unused]] QVariant message) const
+void Nedrysoft::RegExApiEndpoint::notifyApplication(QVariant message) const
 {
+    Q_UNUSED(message);
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processGetRegEx([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processGetRegEx(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(pathParameter);
+    Q_UNUSED(requestParameter);
+
     QSqlQuery query;
     QJsonObject jsonResponse;
 
@@ -545,8 +566,10 @@ QVariant Nedrysoft::RegExApiEndpoint::processGetRegEx([[maybe_unused]] const QVa
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processUploadToLibraryRequest([[maybe_unused]] const QVariant &pathParameter, const QVariant &requestParameter) const
+QVariant Nedrysoft::RegExApiEndpoint::processUploadToLibraryRequest(const QVariant &pathParameter, const QVariant &requestParameter) const
 {
+    Q_UNUSED(pathParameter);
+
     QJsonObject jsonResponse;
     QJsonObject bodyObject = QJsonDocument::fromJson(requestParameter.toMap()["body"].toByteArray()).object();
     QString permalinkFragment = createPermalinkFragment();
@@ -626,8 +649,10 @@ QVariant Nedrysoft::RegExApiEndpoint::processUploadToLibraryRequest([[maybe_unus
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processSetFavorite([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processSetFavorite(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(pathParameter);
+
     QJsonObject jsonResponse;
     QJsonObject bodyObject = QJsonDocument::fromJson(requestParameter.toMap()["body"].toByteArray()).object();
     QSqlQuery query;
@@ -651,7 +676,11 @@ QVariant Nedrysoft::RegExApiEndpoint::processSetFavorite([[maybe_unused]] const 
     return QJsonDocument(jsonResponse).toJson();
 }
 
-QVariant Nedrysoft::RegExApiEndpoint::processGetHistory([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, [[maybe_unused]] const QRegularExpressionMatch &match) const
+QVariant Nedrysoft::RegExApiEndpoint::processGetHistory(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const
 {
+    Q_UNUSED(pathParameter);
+    Q_UNUSED(requestParameter);
+    Q_UNUSED(match);
+
     return QVariant();
 }

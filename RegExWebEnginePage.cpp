@@ -62,22 +62,35 @@ Nedrysoft::RegExWebEnginePage::~RegExWebEnginePage()
     m_urlInterceptor->deleteLater();
 }
 
-void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage([[maybe_unused]] JavaScriptConsoleMessageLevel level, [[maybe_unused]] const QString &message, [[maybe_unused]] int lineNumber, [[maybe_unused]] const QString &sourceID)
+void Nedrysoft::RegExWebEnginePage::javaScriptConsoleMessage(JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID)
 {
+    Q_UNUSED(level);
+    Q_UNUSED(message);
+    Q_UNUSED(lineNumber);
+    Q_UNUSED(sourceID);
+
     //qDebug() << message;
 }
 
-void Nedrysoft::RegExWebEnginePage::javaScriptAlert([[maybe_unused]] const QUrl &securityOrigin, [[maybe_unused]] const QString &msg)
+void Nedrysoft::RegExWebEnginePage::javaScriptAlert(const QUrl &securityOrigin, const QString &msg)
 {
+    Q_UNUSED(securityOrigin);
+    Q_UNUSED(msg);
 }
 
-QWebEnginePage *Nedrysoft::RegExWebEnginePage::createWindow([[maybe_unused]] QWebEnginePage::WebWindowType type)
+QWebEnginePage *Nedrysoft::RegExWebEnginePage::createWindow(QWebEnginePage::WebWindowType type)
 {
+    Q_UNUSED(type);
+
     return new Nedrysoft::RegExNullWebEnginePage();
 }
 
-bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, [[maybe_unused]] QWebEnginePage::NavigationType type, [[maybe_unused]] bool isMainFrame)
+bool Nedrysoft::RegExWebEnginePage::acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame)
 {
+    Q_UNUSED(url);
+    Q_UNUSED(type);
+    Q_UNUSED(isMainFrame);
+
     if (url.scheme()!=Nedrysoft::RegExUrlSchemeHandler::name()) {
         return false;
     }

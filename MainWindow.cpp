@@ -92,8 +92,9 @@ void Nedrysoft::MainWindow::on_actionExit_triggered()
     close();
 }
 
-void Nedrysoft::MainWindow::handleOpenByUrl([[maybe_unused]] const QUrl &url)
+void Nedrysoft::MainWindow::handleOpenByUrl(const QUrl &url)
 {
+    Q_UNUSED(url);
 }
 
 bool Nedrysoft::MainWindow::eventFilter(QObject *obj, QEvent *event)

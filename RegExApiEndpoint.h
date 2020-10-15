@@ -338,7 +338,7 @@ namespace Nedrysoft {
              *
              * @returns         a QVariant response to the request
              */
-            QVariant processSetFavorite([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+            QVariant processSetFavorite(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
             /**
              * @brief           Handles calls to the get history api endpoint
@@ -351,7 +351,7 @@ namespace Nedrysoft {
              *
              * @returns         a QVariant response to the request
              */
-            QVariant processGetHistory([[maybe_unused]] const QVariant &pathParameter, [[maybe_unused]] const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
+            QVariant processGetHistory(const QVariant &pathParameter, const QVariant &requestParameter, const QRegularExpressionMatch &match) const;
 
         private:
             QSettings *m_settings;                          //! settings object to store the web application local storage data

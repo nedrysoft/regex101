@@ -124,6 +124,12 @@ void Nedrysoft::MainWindow::on_actionPreferences_triggered()
     m_settingsDialog = new SettingsDialog(this);
 
     m_settingsDialog->show();
+
+    connect(m_settingsDialog, &SettingsDialog::closed, [=](){
+        m_settingsDialog->deleteLater();
+
+        m_settingsDialog = nullptr;
+    });
 }
 
 void Nedrysoft::MainWindow::closeEvent(QCloseEvent *closeEvent)

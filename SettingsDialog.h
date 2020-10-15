@@ -107,6 +107,15 @@ namespace Nedrysoft {
              * @returns         true if closed; otherwise false.
              */
             bool close();
+
+        signals:
+            /**
+             * @brief           Closed signal
+             *
+             * @details         Emmited when the dialog is closed
+             */
+            void closed();
+
         private:
             /**
              * @brief           Returns the QWindow handle from native widget
@@ -138,7 +147,8 @@ namespace Nedrysoft {
              *
              * @details         Adds the given page to the settings dialog
              *
-             * @params[in]      name is the displayed name of the page
+             * @params[in]      section is the displayed name of the section
+             * @params[in]      category is the category within the section
              * @params[in]      description is the description of the purpose of the page
              * @params[in]      icon is the icon of the page
              * @params[in]      widget is the widget containing the page content
@@ -146,7 +156,7 @@ namespace Nedrysoft {
              *
              * @returns         the settings page structure
              */
-            Nedrysoft::SettingsPage *addPage(QString name, QString description, SettingsPage::Icon icon, QWidget *widget, bool defaultPage=false);
+            SettingsPage *addPage(QString section, QString category, QString description, SettingsPage::Icon icon, QWidget *widget, bool defaultPage=false);
 
         private:
 #if defined(Q_OS_MACOS)

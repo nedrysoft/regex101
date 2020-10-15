@@ -131,9 +131,53 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
     m_controlsLayout->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    m_okButton = new QPushButton("OK");
-    m_cancelButton = new QPushButton("Cancel");
-    m_applyButton = new QPushButton("Apply");
+    m_okButton = new QPushButton(tr("OK"));
+    m_cancelButton = new QPushButton(tr("Cancel"));
+    m_applyButton = new QPushButton(tr("Apply)"));
+
+    connect(m_okButton, &QPushButton::clicked, [=](bool /*checked*/) {
+        bool settingsValid = true;
+
+        for(auto page : m_pages) {
+            if (!page->m_pageSettings->canAcceptSettings()) {
+                settingsValid = false;
+                break;
+            }
+        }
+
+        if (!settingsValid) {
+            //TODO go to page with error
+        } else {
+            for(auto page : m_pages) {
+                page->m_pageSettings->acceptSettings();
+            }
+
+            close();
+        }
+    });
+
+    connect(m_applyButton, &QPushButton::clicked, [=](bool /*checked*/) {
+        bool settingsValid = true;
+
+        for(auto page : m_pages) {
+            if (!page->m_pageSettings->canAcceptSettings()) {
+                settingsValid = false;
+                break;
+            }
+        }
+
+        if (!settingsValid) {
+            //TODO go to page with error
+        } else {
+            for(auto page : m_pages) {
+                page->m_pageSettings->acceptSettings();
+            }
+        }
+    });
+
+    connect(m_cancelButton, &QPushButton::clicked, [=](bool /*checked*/) {
+       close();
+    });
 
     m_controlsLayout->addWidget(m_okButton);
     m_controlsLayout->addWidget(m_cancelButton);
@@ -143,8 +187,8 @@ Nedrysoft::SettingsDialog::SettingsDialog(QWidget *parent) :
 
     setLayout(m_layout);
 #endif
-    addPage(tr("General"), tr("General settings"), SettingsPage::Icon::General, new GeneralSettingsPage, true);
-    addPage(tr("Database"), tr("The database settings"), SettingsPage::Icon::Database, new DatabaseSettingsPage);
+    addPage(tr("General"), tr("Application Clone"), tr("General settings"), SettingsPage::Icon::General, new GeneralSettingsPage, true);
+    addPage(tr("Database"), tr("Connection"), tr("Database connection settings"), SettingsPage::Icon::Database, new DatabaseSettingsPage);
 
 #if defined(Q_OS_MACOS)
     m_toolBar->attachToWindow(nativeWindowHandle());
@@ -202,7 +246,9 @@ bool Nedrysoft::SettingsDialog::close()
         page->m_pageSettings->acceptSettings();
     }
 #endif
-    return true;
+    emit closed();
+
+    return QWidget::close();
 }
 void Nedrysoft::SettingsDialog::resizeEvent(QResizeEvent *event)
 {
@@ -223,14 +269,14 @@ QWindow *Nedrysoft::SettingsDialog::nativeWindowHandle()
     return window()->windowHandle();
 }
 
-Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QString description, SettingsPage::Icon icon, QWidget *widget, bool defaultPage)
+Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString section, QString category, QString description, SettingsPage::Icon icon, QWidget *widget, bool defaultPage)
 {
 #if defined(Q_OS_MACOS)
     auto widgetContainer = new TransparentWidget(widget, 0, this);
 
     auto settingsPage = new SettingsPage;
 
-    settingsPage->m_name = name;
+    settingsPage->m_name = section;
     settingsPage->m_widget = widgetContainer;
     settingsPage->m_pageSettings = dynamic_cast<ISettingsPage *>(widget);
     settingsPage->m_icon = icon;
@@ -321,19 +367,19 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
     auto tabWidget = new QTabWidget();
 
     newTreeItem->setIcon(0, getIcon(icon));
-    newTreeItem->setText(0, name);
+    newTreeItem->setText(0, section);
     newTreeItem->setData(0, Qt::UserRole, QVariant::fromValue(tabWidget));
     newTreeItem->setData(0, Qt::ToolTipRole, description);
 
     m_treeWidget->addTopLevelItem(newTreeItem);
 
-    tabWidget->addTab(widget, "Interface");
+    tabWidget->addTab(widget, category);
 
     m_stackedWidget->addWidget(tabWidget);
 
     auto settingsPage = new SettingsPage;
 
-    settingsPage->m_name = name;
+    settingsPage->m_name = section;
     settingsPage->m_widget = widget;
     settingsPage->m_pageSettings = dynamic_cast<ISettingsPage *>(widget);
     settingsPage->m_icon = icon;

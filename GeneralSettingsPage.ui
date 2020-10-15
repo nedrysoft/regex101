@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>466</width>
-    <height>104</height>
+    <height>113</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -55,7 +55,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Mirror Detail:</string>
+        <string>Info:</string>
        </property>
       </widget>
      </item>

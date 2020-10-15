@@ -286,7 +286,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString section, QSt
         widget->layout()->setSizeConstraint(QLayout::SetMinimumSize);
     }
 
-    settingsPage->m_toolBarItem = m_toolBar->addItem(getIcon(icon), name);
+    settingsPage->m_toolBarItem = m_toolBar->addItem(getIcon(icon), section);
 
     m_pages[settingsPage->m_toolBarItem] = settingsPage;
 

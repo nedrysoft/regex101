@@ -195,6 +195,15 @@ Nedrysoft::SettingsDialog::~SettingsDialog()
 #endif
 }
 
+bool Nedrysoft::SettingsDialog::close()
+{
+#if defined(Q_OS_MACOS)
+    for(auto page : m_pages) {
+        page->m_pageSettings->acceptSettings();
+    }
+#endif
+    return true;
+}
 void Nedrysoft::SettingsDialog::resizeEvent(QResizeEvent *event)
 {
     for(auto page : m_pages) {
@@ -223,6 +232,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
 
     settingsPage->m_name = name;
     settingsPage->m_widget = widgetContainer;
+    settingsPage->m_pageSettings = dynamic_cast<ISettingsPage *>(widget);
     settingsPage->m_icon = icon;
     settingsPage->m_description = description;
 
@@ -325,6 +335,7 @@ Nedrysoft::SettingsPage *Nedrysoft::SettingsDialog::addPage(QString name, QStrin
 
     settingsPage->m_name = name;
     settingsPage->m_widget = widget;
+    settingsPage->m_pageSettings = dynamic_cast<ISettingsPage *>(widget);
     settingsPage->m_icon = icon;
     settingsPage->m_description = description;
 

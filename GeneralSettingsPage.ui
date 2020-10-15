@@ -60,23 +60,26 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="cloneDetailLineEdit">
        <property name="readOnly">
         <bool>true</bool>
+       </property>
+       <property name="placeholderText">
+        <string>Factory Clone (01/02/2020)</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="updateClonePushButton">
        <property name="text">
-        <string>Update Mirror...</string>
+        <string>Clone...</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="resetToFactoryClonePushButton">
        <property name="text">
-        <string>Reset To Factory Mirror...</string>
+        <string>Reset To Factory Clone...</string>
        </property>
       </widget>
      </item>

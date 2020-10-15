@@ -54,9 +54,8 @@ namespace Nedrysoft {
              *
              * @param[in]       splashScreen is a pointer to the splashscreen that was created
              *                  by the main thread at startup.
-             * @param[in]       parent is the parent widget that owns this main window.
              */
-            MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent = nullptr);
+            MainWindow(Nedrysoft::RegExSplashScreen *splashScreen);
 
             /**
              * @brief           Destroys the main window.
@@ -69,6 +68,13 @@ namespace Nedrysoft {
              * @param[in]       url is the requested url.
              */
             void handleOpenByUrl(const QUrl &url);
+
+            /**
+             * @brief           Returns the last instance of the class
+             *
+             * @returns         a pointer to the MainWindow instance.
+             */
+            static MainWindow *getInstance();
 
         protected:
 
@@ -120,6 +126,7 @@ namespace Nedrysoft {
             Ui::MainWindow *ui;                                     //! ui class for the main window
             Nedrysoft::RegExWebEnginePage *m_page;                  //! web page object set up for our scheme
             SettingsDialog *m_settingsDialog;                       //! the settings dialog
+            static MainWindow *m_instance;                          //! instance of the main window
     };
 }
 

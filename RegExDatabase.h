@@ -3,6 +3,7 @@
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QVariantMap>
 
 namespace Nedrysoft
 {
@@ -48,6 +49,24 @@ namespace Nedrysoft
              * @returns         the prepared query
              */
             QSqlQuery prepareQuery(QString queryName);
+
+            /**
+             * @brief           Returns the database configuration
+             *
+             * @details         Returns the parameters for the database connection in a variant map
+             *
+             * @returns         a variant map containing the configuration
+             */
+            QVariantMap getSettings();
+
+            /**
+             * @brief           Stores the database configuration
+             *
+             * @details         Stores the configuration for the database
+             *
+             * @param[in]       settingsMap is the map containing the configuration keys and values
+             */
+            void storeSettings(QVariantMap settingsMap);
 
         private:
             QSqlDatabase m_database;                        //! database instance to store regular expressions

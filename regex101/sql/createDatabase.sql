@@ -1,6 +1,4 @@
-
-
-CREATE TABLE expressions (
+CREATE TABLE IF NOT EXISTS expressions (
   id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   title varchar(128),
   description varchar(128),
@@ -15,27 +13,25 @@ CREATE TABLE expressions (
   deleteCode varchar(128)
 );
 
-
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
   id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   expressionId integer(128),
   tag varchar(128)
 );
 
-
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   userId integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   email varchar(128)
 );
 
-CREATE TABLE favorites (
+CREATE TABLE IF NOT EXISTS favorites (
   id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   userId integer(128),
   expressionId integer(128),
   UNIQUE(userId, expressionId)
 );
 
-CREATE TABLE versions (
+CREATE TABLE IF NOT EXISTS versions (
   id integer PRIMARY KEY AUTOINCREMENT NOT NULL,
   version integer(128),
   expressionId integer(128),

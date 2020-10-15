@@ -1,24 +1,46 @@
+#include "MainWindow.h"
 #include "RegExDatabase.h"
 
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
+#include <QSettings>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QStandardPaths>
 
+constexpr auto defaultDatabaseType = "QSQLITE";
+
 Nedrysoft::RegExDatabase::RegExDatabase()
 {
-    QFileInfo fileInfo(QDir::cleanPath(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0)+QDir::separator()+"regex101.sqlite"));
-    bool fileExists = fileInfo.exists();
+    QVariantMap settingsMap;
 
-    m_database = QSqlDatabase::addDatabase("QSQLITE");
+    auto defaultDatabaseFile = QDir::cleanPath(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0)+QDir::separator()+"regex101.sqlite");
 
-    m_database.setDatabaseName(fileInfo.absoluteFilePath());
+    settingsMap = getSettings();
 
-    m_database.open();
+    auto databaseDriver = settingsMap["databaseDriver"].toString();
+    auto databaseName = settingsMap["databaseName"].toString();
+    auto databaseHost = settingsMap["databaseHost"].toString();;
+    auto databaseUser = settingsMap["databaseUser"].toString();
+    auto databasePassword = settingsMap["databasePassword"].toString();
 
-    if (!fileExists) {
+    m_database = QSqlDatabase::addDatabase(databaseDriver);
+
+    m_database.setDatabaseName(databaseName);
+    m_database.setHostName(databaseHost);
+    m_database.setUserName(databaseUser);
+    m_database.setPassword(databasePassword);
+
+    if (!m_database.open()) {
+        auto errorTitle = QCoreApplication::translate("database", "Unable to open error");
+        auto errorMessage = QCoreApplication::translate("database", "Unable to open database, the following error was reported.\r\n\r\n%1").arg(m_database.lastError().text());;
+
+        QMessageBox::warning(Nedrysoft::MainWindow::getInstance(), errorTitle, errorMessage);
+    } else {
         initialiseDatabase();
     }
 }
@@ -28,6 +50,33 @@ Nedrysoft::RegExDatabase *Nedrysoft::RegExDatabase::getInstance()
     static Nedrysoft::RegExDatabase instance;
 
     return(&instance);
+}
+
+QVariantMap Nedrysoft::RegExDatabase::getSettings()
+{
+    QSettings settings;
+    auto defaultDatabaseFile = QDir::cleanPath(QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at(0)+QDir::separator()+"regex101.sqlite");
+
+    QVariantMap settingsMap;
+
+    settingsMap["databaseDriver"] = settings.value(QStringLiteral("databaseDriver"), defaultDatabaseType);
+    settingsMap["databaseHost"] = settings.value(QStringLiteral("databaseHost"), QStringLiteral(""));
+    settingsMap["databaseName"] = settings.value(QStringLiteral("databaseName"), defaultDatabaseFile);
+    settingsMap["databaseUser"] = settings.value(QStringLiteral("databaseUser"), QStringLiteral(""));
+    settingsMap["databasePassword"]= settings.value(QStringLiteral("databasePassword"), QStringLiteral(""));
+
+    return settingsMap;
+}
+
+void Nedrysoft::RegExDatabase::storeSettings(QVariantMap settingsMap)
+{
+    QSettings settings;
+
+    settings.setValue("databaseDriver", settingsMap["databaseDriver"]);
+    settings.setValue("databaseHost", settingsMap["databaseHost"]);
+    settings.setValue("databaseName", settingsMap["databaseName"]);
+    settings.setValue("databaseUser", settingsMap["databaseUser"]);
+    settings.setValue("databasePassword", settingsMap["databasePassword"]);
 }
 
 QSqlQuery Nedrysoft::RegExDatabase::prepareQuery(QString queryName)

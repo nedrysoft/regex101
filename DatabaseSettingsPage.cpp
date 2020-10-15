@@ -26,6 +26,7 @@
  */
 
 #include "DatabaseSettingsPage.h"
+#include "RegExDatabase.h"
 #include "ui_DatabaseSettingsPage.h"
 
 #include <QDebug>
@@ -39,18 +40,20 @@ Nedrysoft::DatabaseSettingsPage::DatabaseSettingsPage(QWidget *parent) :
     ui->setupUi(this);
 
     QMap<QString, QString> databaseDriverMap(std::map<QString, QString> {
-        {"QDB2", "IBM DB2 (version 7.1 and above)"},
+        {"QDB2", "IBM DB2 (Version 7.1 and above)"},
         {"QIBASE", "Borland InterBase" },
-        {"QMYSQL", "MySQL or MariaDB (version 5.0 and above)"},
+        {"QMYSQL", "MySQL or MariaDB (Version 5.0 and above)"},
         {"QOCI", "Oracle Call Interface Driver"},
-        {"QODBC", "Open Database Connectivity (ODBC)"},
-        {"QODBC3", "Open Database Connectivity (ODBC)"},
-        {"QPSQL", "PostgreSQL (versions 7.3 and above)"},
-        {"QPSQL7", "PostgreSQL (version 6.x and 7.x)"},
-        {"QSQLITE2", "SQLite version 2"},
-        {"QSQLITE", "SQLite version 3"},
+        {"QODBC", "ODBC"},
+        {"QODBC3", "ODBC (Version 3 and above)"},
+        {"QPSQL", "PostgreSQL (Version 7.3 and above)"},
+        {"QPSQL7", "PostgreSQL (Version 6.x and 7.x)"},
+        {"QSQLITE2", "SQLite (Version 2)"},
+        {"QSQLITE", "SQLite (Version 3)"},
         {"QTDS", "Sybase Adaptive Server"}
     });
+
+    auto ignoredDriverList = QStringList() << "QODBC" << "QPSQL7" << "QSQLITE2";
 
 #if defined(Q_OS_MACOS)
     m_size = QSize(qMax(minimumSizeHint().width(), size().width()), qMax(minimumSizeHint().height(), size().height()));
@@ -61,14 +64,26 @@ Nedrysoft::DatabaseSettingsPage::DatabaseSettingsPage(QWidget *parent) :
     auto driverList = QSqlDatabase::drivers();
 
     for(auto driver : driverList) {
-        QString displayName = driver;
-
-        if (databaseDriverMap.contains(driver)) {
-            displayName = databaseDriverMap[driver]+" ";
+        if ((ignoredDriverList.contains(driver))) {
+            continue;
         }
 
-        ui->databaseTypeComboBox->addItem(displayName);
+        if (databaseDriverMap.contains(driver)) {
+            ui->databaseTypeComboBox->addItem(databaseDriverMap[driver]+"  ", driver);;
+        } else {
+            ui->databaseTypeComboBox->addItem(driver, driver);
+        }
     }
+
+    QVariantMap settingsMap;
+
+    settingsMap = RegExDatabase::getInstance()->getSettings();
+
+    ui->databaseTypeComboBox->setCurrentText(settingsMap["databaseDriver"].toString());
+    ui->databaseNameLineEdit->setText(settingsMap["databaseName"].toString());
+    ui->hostNameLineEdit->setText(settingsMap["databaseHost"].toString());
+    ui->usernameLineEdit->setText(settingsMap["databaseUser"].toString());
+    ui->passwordLineEdit->setText(settingsMap["databasePassword"].toString());
 }
 
 Nedrysoft::DatabaseSettingsPage::~DatabaseSettingsPage()
@@ -82,7 +97,16 @@ bool Nedrysoft::DatabaseSettingsPage::canAcceptSettings()
 }
 
 void Nedrysoft::DatabaseSettingsPage::acceptSettings()
-{
+{    
+    QVariantMap settingsMap;
+
+    settingsMap["databaseDriver"] = ui->databaseTypeComboBox->currentData();
+    settingsMap["databaseName"] = ui->databaseNameLineEdit->text();
+    settingsMap["databaseHost"] = ui->hostNameLineEdit->text();
+    settingsMap["databaseUser"] = ui->usernameLineEdit->text();
+    settingsMap["databasePassword"]= ui->passwordLineEdit->text();
+
+    RegExDatabase::getInstance()->storeSettings(settingsMap);
 }
 
 QSize Nedrysoft::DatabaseSettingsPage::sizeHint() const

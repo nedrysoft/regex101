@@ -40,16 +40,19 @@ using namespace std::chrono_literals;
 
 constexpr auto splashScreenDuration = 1s;
 
-Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen, QWidget *parent)
-    : QMainWindow(parent),
+Nedrysoft::MainWindow *Nedrysoft::MainWindow::m_instance = nullptr;
+
+Nedrysoft::MainWindow::MainWindow(Nedrysoft::RegExSplashScreen *splashScreen)
+    : QMainWindow(nullptr),
       ui(new Ui::MainWindow),
-      m_page(new Nedrysoft::RegExWebEnginePage)
+      m_page(new Nedrysoft::RegExWebEnginePage),
+      m_settingsDialog(nullptr)
 {
     ui->setupUi(this);
 
-    m_settingsDialog = nullptr;
-
     qApp->installEventFilter(this);
+
+    m_instance = this;
 
     showMaximized();
 
@@ -70,6 +73,11 @@ Nedrysoft::MainWindow::~MainWindow()
 {
     delete m_page;
     delete ui;
+}
+
+Nedrysoft::MainWindow *Nedrysoft::MainWindow::getInstance()
+{
+    return(m_instance);
 }
 
 void Nedrysoft::MainWindow::on_actionAbout_triggered()

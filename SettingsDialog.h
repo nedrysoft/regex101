@@ -47,6 +47,7 @@ class QVBoxLayout;
 
 namespace Nedrysoft {
     class TransparentWidget;
+    class ISettingsPage;
 
     /**
      * @brief               Settings page class
@@ -69,6 +70,7 @@ namespace Nedrysoft {
 #else
             QWidget *m_widget;                  //! the widget that contains the settings for this category
 #endif
+            ISettingsPage *m_pageSettings;      //! pointer to the page interface
             Icon m_icon;                        //! the icon of the page
             QMacToolBarItem *m_toolBarItem;     //! toolbar item
     };
@@ -97,6 +99,14 @@ namespace Nedrysoft {
              */
             ~SettingsDialog();
 
+            /**
+             * @brief           Close event
+             *
+             * @details         Called when the dialog is closed
+             *
+             * @returns         true if closed; otherwise false.
+             */
+            bool close();
         private:
             /**
              * @brief           Returns the QWindow handle from native widget

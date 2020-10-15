@@ -79,7 +79,6 @@ void Nedrysoft::RegExUrlSchemeHandler::registerScheme()
                     QWebEngineUrlScheme::LocalAccessAllowed |
                     QWebEngineUrlScheme::ContentSecurityPolicyIgnored |
                     QWebEngineUrlScheme::ServiceWorkersAllowed |
-                   // QWebEngineUrlScheme::CorsEnabled |
                     QWebEngineUrlScheme::ContentSecurityPolicyIgnored);
 
     QWebEngineUrlScheme::registerScheme(scheme);
@@ -265,18 +264,10 @@ QString Nedrysoft::RegExUrlSchemeHandler::setInitialState(QString fileContent, Q
     general["cookie"] = QJsonValue::Null;
     general["sponsorData"] = QJsonValue::Null;
 
-    auto database = RegExDatabase::getInstance();
+    // TODO: use table in database
 
-    auto query = database->prepareQuery("getUserDetails");
-
-    query.bindValue(":userId", 1);
-
-    if (query.exec()) {
-        if (query.first()) {
-            general["userId"] = query.value("userId").toString();
-            general["email"] = query.value("email").toString();
-        }
-    }
+    general["userId"] = "1";
+    general["email"] = "default";
 
     if (general.count()) {
         initialState["general"] = general;

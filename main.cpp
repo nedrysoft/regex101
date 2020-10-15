@@ -77,9 +77,11 @@ int main(int argc, char *argv[])
     application.setApplicationDisplayName(applicationName);
     application.setApplicationName(applicationName);
 
-    Nedrysoft::MainWindow mainWindow(&splashScreen);
+    auto mainWindow = new Nedrysoft::MainWindow(&splashScreen);
 
-    mainWindow.show();
+    auto returnValue = application.exec();
 
-    return application.exec();
+    delete mainWindow;
+
+    return returnValue;
 }

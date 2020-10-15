@@ -26,9 +26,11 @@
  */
 
 #include "GeneralSettingsPage.h"
+#include "MainWindow.h"
 #include "ui_GeneralSettingsPage.h"
 
 #include <QDebug>
+#include <QMessageBox>
 
 Nedrysoft::GeneralSettingsPage::GeneralSettingsPage(QWidget *parent) :
     QWidget(parent),
@@ -41,6 +43,20 @@ Nedrysoft::GeneralSettingsPage::GeneralSettingsPage(QWidget *parent) :
 #else
     m_size = minimumSizeHint();
 #endif
+
+    connect(ui->updateClonePushButton, &QPushButton::clicked, [=](bool /*checked*/) {
+        if (QMessageBox::warning(MainWindow::getInstance(), "Update Clone", tr("Updating the clone may break functionality.\r\n\r\nYou can revert to the factory supplied clone which has been tested for compatability by clicking the \"Reset to Factory Clone\" button if you experience problems.\r\n\r\nDo you want to update the clone?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No)==QMessageBox::Yes) {
+            // TODO: Do factory clone
+        }
+    });
+
+    connect(ui->resetToFactoryClonePushButton, &QPushButton::clicked, [=](bool /*checked*/) {
+        if (QMessageBox::warning(MainWindow::getInstance(), "Update Clone", tr("Are you sure you want to revent back to the factory clone?"), QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::No)==QMessageBox::Yes) {
+            // TODO: Delete user clone
+        }
+    });
+
+    ui->resetToFactoryClonePushButton->setEnabled(false);
 }
 
 Nedrysoft::GeneralSettingsPage::~GeneralSettingsPage()

@@ -25,47 +25,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REGEXSPLASHSCREEN_H
-#define REGEXSPLASHSCREEN_H
-
-#include <QSplashScreen>
-
-class QLabel;
+#ifndef CLONER_H
+#define CLONER_H
 
 namespace Nedrysoft {
     /**
-     * @brief               RegExSplashScreen class
+     * @brief               Clones the regex101.com
      *
-     * @details             A dialog box that provides a custom splash screen.
+     * @details             Downloads all the required files from the regex101.com site,
+     *                      this involves searching through each file that is downloaded to find any
+     *                      other dependencies that are required.
+     *
+     *                      The purpose of this is to allow users to update to a later verison of the
+     *                      regex101.com application, although they do this at their own risk as newer version
+     *                      may have changes that break the url handler.
      */
-    class RegExSplashScreen :
-            public QSplashScreen
+    class Cloner
     {
-        private:
-            Q_OBJECT
-
         public:
             /**
-             * @brief           Constructs a splash screen dialog.
-             */
-            RegExSplashScreen();
-
-            /**
-             * @brief           Destructor for the splash screen dialog.
-             */
-            ~RegExSplashScreen();
-
-        protected:
-            /**
-             * @brief           Draw contents of splash screen
+             * @brief               Constructor
              *
-             * @details         Draws the splash screen, uses the default implementation and then overlays version
-             *                  information over the top
-             *
-             * @param[in]       painter is the painter to draw to.
+             * @details             Constructs a Cloner instance
              */
-            virtual void drawContents(QPainter *painter) override;
+            Cloner();
     };
 }
 
-#endif // REGEXSPLASHSCREEN_H
+#endif // CLONER_H

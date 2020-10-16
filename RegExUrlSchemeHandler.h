@@ -40,7 +40,9 @@ namespace Nedrysoft {
      *                  with the RefExUrlRequestInterceptor and RegExApiEndpoint classes to provide
      *                  a full implementation.
      */
-    class RegExUrlSchemeHandler : public QWebEngineUrlSchemeHandler {
+    class RegExUrlSchemeHandler :
+            public QWebEngineUrlSchemeHandler
+    {
         private:
             Q_OBJECT
 
@@ -100,7 +102,6 @@ namespace Nedrysoft {
             static QString root();
 
         protected:
-
             /**
              * @brief           setInitialState
              *

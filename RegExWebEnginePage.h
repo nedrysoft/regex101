@@ -42,7 +42,9 @@ namespace Nedrysoft {
      * @details             This subclass provides a web page that is set up to use the handlers,
      *                      interceptors and web channels.
      */
-    class RegExWebEnginePage : public QWebEnginePage {
+    class RegExWebEnginePage :
+            public QWebEnginePage
+    {
         private:
             Q_OBJECT
 

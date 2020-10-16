@@ -39,7 +39,9 @@ namespace Nedrysoft {
      *                      link target.  This class denies the navigation request, but uses the qt desktop services
      *                      to open the link in the system default web browser.
      */
-    class RegExNullWebEnginePage : public QWebEnginePage {
+    class RegExNullWebEnginePage :
+            public QWebEnginePage
+    {
         private:
             Q_OBJECT
 
@@ -61,7 +63,7 @@ namespace Nedrysoft {
              *
              * @returns         true if the navigation is allowed; otherwise false.
              */
-            bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame);
+            bool acceptNavigationRequest(const QUrl &url, QWebEnginePage::NavigationType type, bool isMainFrame) override;
     };
 }
 #endif // REGEXNULLWEBENGINEPAGE_H

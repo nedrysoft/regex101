@@ -42,7 +42,9 @@ namespace Nedrysoft {
      *
      * @details             Provides functions that can be called from javascript in the web browser.
      */
-    class RegExApiEndpoint : public QObject {
+    class RegExApiEndpoint :
+            public QObject
+    {
         private:
             Q_OBJECT
 
@@ -147,8 +149,8 @@ namespace Nedrysoft {
              * @param[in]       message contains the message received.
              */
             Q_INVOKABLE void notifyApplication(QVariant message) const;
-        private:
 
+        private:
             /**
              * @brief           Creates a random string of characters
              *

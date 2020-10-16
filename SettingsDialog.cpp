@@ -246,7 +246,7 @@ bool Nedrysoft::SettingsDialog::close()
         page->m_pageSettings->acceptSettings();
     }
 #endif
-    emit closed();
+    Q_EMIT closed();
 
     return QWidget::close();
 }

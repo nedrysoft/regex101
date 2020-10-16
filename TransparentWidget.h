@@ -39,9 +39,11 @@ namespace Nedrysoft {
      *
      * @details             QWidget subclass with support for transparency
      */
-    class TransparentWidget : public QWidget
+    class TransparentWidget :
+            public QWidget
     {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**

@@ -37,7 +37,9 @@ namespace Nedrysoft {
      *
      * @details             A dialog box that shows details about the application.
      */
-    class RegExAboutDialog : public QDialog {
+    class RegExAboutDialog :
+            public QDialog
+    {
         private:
             Q_OBJECT
 

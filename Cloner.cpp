@@ -25,35 +25,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REGEXURLREQUESTINTERCEPTOR_H
-#define REGEXURLREQUESTINTERCEPTOR_H
+#include "Cloner.h"
+/*#include "node.h"
 
-#include <QWebEngineUrlRequestInterceptor>
+#include <QDebug>
 
-namespace Nedrysoft {
-    /**
-     * @brief               RegExUrlRequestInterceptor class
-     *
-     * @details             Class to intercept any requests that originate from the web page, the application
-     *                      blocks all requests that are not aimed at the custom scheme so ensure that the
-     *                      application is completely standalone.
-     */
-    class RegExUrlRequestInterceptor :
-            public QWebEngineUrlRequestInterceptor
-    {
-        private:
-            Q_OBJECT
+using node::ArrayBufferAllocator;
+using node::Environment;
+using node::IsolateData;
+using node::MultiIsolatePlatform;
+using v8::Context;
+using v8::HandleScope;
+using v8::Isolate;
+using v8::Local;
+using v8::Locker;
+using v8::MaybeLocal;
+using v8::SealHandleScope;
+using v8::V8;
+using v8::Value;
+*/
+Nedrysoft::Cloner::Cloner()
+{
+/*    argv = uv_setup_args(0, 0);
 
-        public:
-            /**
-             * @brief           interceptRequest
-             *
-             * @details         Allows or blocks requests that are send by the page
-             *
-             * @param[in]       info is an object that contains HTTP request parameters.
-             */
-            void interceptRequest(QWebEngineUrlRequestInfo &info) override;
-    };
+    std::vector<std::string> args(argv, argv + argc);
+    std::vector<std::string> exec_args;
+    std::vector<std::string> errors;
+
+    int exit_code = node::InitializeNodeWithArgs(&args, &exec_args, &errors);
+
+    for (const std::string& error : errors) {
+          qDebug() << error.c_str());
+    }
+
+    if (exit_code != 0) {
+        qDebug() << "error:" << exit_code;
+    }
+
+    std::unique_ptr<MultiIsolatePlatform> platform = MultiIsolatePlatform::Create(4);
+
+    V8::InitializePlatform(platform.get());
+    V8::Initialize();*/
 }
-
-#endif // REGEXURLREQUESTINTERCEPTOR_H

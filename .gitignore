@@ -5,3 +5,5 @@ deployment
 tools
 assets/dmg_background.tiff
 *.autosave
+
+libnode/

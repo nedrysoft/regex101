@@ -38,7 +38,9 @@ namespace Nedrysoft {
      * @details             Provides a profile which is set up to handle the custom scheme with
      *                      appropriate security levels.
      */
-    class RegExWebEngineProfile : public QWebEngineProfile {
+    class RegExWebEngineProfile :
+            public QWebEngineProfile
+    {
         private:
             Q_OBJECT
 

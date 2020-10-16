@@ -82,9 +82,11 @@ namespace Nedrysoft {
      *                      is presented in a native style, under Windows & Linux the dialog uses a
      *                      format which is consistent and has a standard appearance for those OS's.
      */
-    class SettingsDialog : public QWidget
+    class SettingsDialog :
+            public QWidget
     {
-        Q_OBJECT
+        private:
+            Q_OBJECT
 
         public:
             /**
@@ -108,13 +110,13 @@ namespace Nedrysoft {
              */
             bool close();
 
-        signals:
+        public:
             /**
              * @brief           Closed signal
              *
              * @details         Emmited when the dialog is closed
              */
-            void closed();
+            Q_SIGNAL void closed();
 
         private:
             /**
@@ -140,7 +142,7 @@ namespace Nedrysoft {
              *
              * @params[in]      event is the event containing the resize information
              */
-            virtual void resizeEvent(QResizeEvent *event);
+            virtual void resizeEvent(QResizeEvent *event) override;
 
             /**
              * @brief           Adds a setting page

@@ -132,6 +132,8 @@ set(APPLICATION_SOURCES
     GeneralSettingsPage.cpp
     GeneralSettingsPage.h
     GeneralSettingsPage.ui
+    Cloner.cpp
+    Cloner.h
 )
 
 # List of Qt libraries used by the application
@@ -229,6 +231,14 @@ if(APPLE)
     set(APPLICATION_BUNDLE_ICONS "${APPLICATION_SHORT_NAME}.icns")
     set(APPLICATION_BUNDLE_IDENTIFIER "com.nedrysoft.${APPLICATION_SHORT_NAME}")
     set(APPLICATION_BUNDLE_SCHEME "${APPLICATION_SHORT_NAME}")
+endif()
+
+# nodejs static libration
+
+if(EXISTS ${APPLICATON_SOURCE_ROOT}/libnode)
+    target_include_directories(${APPLICATION_SHORT_NAME} PRIVATE "${APPLICATON_SOURCE_ROOT}/libnode/include")
+    list(APPEND APPLICATION_QT_LINK_LIBRARIES "-L${APPLICATON_SOURCE_ROOT}/libnode/lib")
+    list(APPEND APPLICATION_QT_LINK_LIBRARIES "node")
 endif()
 
 # cocoa frameworks

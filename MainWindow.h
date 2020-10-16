@@ -44,7 +44,9 @@ namespace Nedrysoft {
      *
      * @details             Provides the main window for the application.
      */
-    class MainWindow : public QMainWindow {
+    class MainWindow :
+            public QMainWindow
+    {
         private:
             Q_OBJECT
 
@@ -83,9 +85,9 @@ namespace Nedrysoft {
              *
              * @param[in]       closeEvent contains the information about the event including accpt/regect functions
              */
-            virtual void closeEvent(QCloseEvent *closeEvent);
+            virtual void closeEvent(QCloseEvent *closeEvent) override;
 
-        private slots:
+        private:
             /**
              * @brief           Event filter mathod
              *
@@ -98,29 +100,28 @@ namespace Nedrysoft {
              *
              * @returns         true if the event is handled; otherwise false.
              */
-            bool eventFilter(QObject *obj, QEvent *event);
+            Q_SLOT bool eventFilter(QObject *obj, QEvent *event);
 
-    private slots:
             /**
              * @brief           About slot function.
              *
              * @details         This slot is called when the About action is triggered, the about dialog is displayed.
              */
-            void on_actionAbout_triggered();
+            Q_SLOT void on_actionAbout_triggered();
 
             /**
              * @brief           Exit slot function.
              *
              * @details         This slot is called when the Exit action is triggered, the application is closed.
              */
-            void on_actionExit_triggered();
+            Q_SLOT void on_actionExit_triggered();
 
             /**
              * @brief           Preferences action triggered function
              *
              * @details         This slot is called when the preferences action is triggered
              */
-            void on_actionPreferences_triggered();
+            Q_SLOT void on_actionPreferences_triggered();
 
     private:
             Ui::MainWindow *ui;                                     //! ui class for the main window

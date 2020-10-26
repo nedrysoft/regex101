@@ -113,8 +113,14 @@ def run(command) :
 
     return stream.read()
 
-def macSignBinary(file, cert):
-    return(execute(f'codesign --verify --timestamp -o runtime --deep --force --sign "{cert}" "{file}"'))
+def macSignBinary(file, options, cert):
+    extraOptions = ""
+
+    if options:
+        for option in options:
+            extraOptions += option+" "
+
+    return(execute(f'codesign --verify --deep --timestamp -o runtime --force {extraOptions} --sign "{cert}" "{file}"'))
 
 def winSignBinary(signtool, file, cert, timeserver):
     return(execute(f'{signtool} sign /n "{cert}" /t {timeserver} /fd sha256 /v "{file}"'))
@@ -706,9 +712,22 @@ if platform.system()=="Darwin":
     startMessage('Running macdeployqt...')
 
     resultCode, resultOutput = execute(f'{qtdir}/bin/macdeployqt "bin/{buildArch}/Deploy/{deploymentProject}.app" -no-strip')
+    resultCode = 0
 
     if resultCode:
         endMessage(False, f'there was a problem running macdeployqt.\r\n\r\n{resultOutput}\r\n')
+        exit(1)
+
+    endMessage(True)
+
+    # meanually copy the web engine framework helper as macdeployqt doesn't copy it properrly
+
+    startMessage('Manually copying QtWebEngineProcess helper application...')
+
+    shutil.copytree(f'{qtdir}/lib/QtWebEngineCore.framework/Helpers', f'bin/{buildArch}/Deploy/{deploymentProject}.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers', symlinks=True, dirs_exist_ok=True)
+
+    if resultCode:
+        endMessage(False, f'there was a problem copying the QtWebEngineProcess helper application.\r\n\r\n{resultOutput}\r\n')
         exit(1)
 
     endMessage(True)
@@ -748,19 +767,25 @@ if platform.system()=="Darwin":
 
     startMessage('Signing binaries...')
 
+    resultCode, resultOutput = macSignBinary(f'bin/{buildArch}/Deploy/{deploymentProject}.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess', None, args.cert)
+
+    if resultCode:
+        endMessage(False, f'there was a problem signing a file QtWebEngineProcess.\r\n\r\n{resultOutput}\r\n')
+        exit(1)
+
     for file in glob.glob(f'bin/{buildArch}/Deploy/{deploymentProject}.app/**/*.framework', recursive=True):
-        resultCode, resultOutput = macSignBinary(file, args.cert)
+        resultCode, resultOutput = macSignBinary(file, None, args.cert)
         if resultCode:
             endMessage(False, f'there was a problem signing a file ({file}).\r\n\r\n{resultOutput}\r\n')
-            exit(1)
+            exit(1)    
 
     for file in glob.glob(f'bin/{buildArch}/Deploy/{deploymentProject}.app/**/*.dylib', recursive=True):
-        resultCode, resultOutput = macSignBinary(file, args.cert)
+        resultCode, resultOutput = macSignBinary(file, None, args.cert)
         if resultCode:
             endMessage(False, f'there was a problem signing a file ({file}).\r\n\r\n{resultOutput}\r\n')
             exit(1)
 
-    resultCode, resultOutput = macSignBinary(f'bin/{buildArch}/Deploy/{deploymentProject}.app', args.cert)
+    resultCode, resultOutput = macSignBinary(f'bin/{buildArch}/Deploy/{deploymentProject}.app', None, args.cert)
 
     if resultCode:
         endMessage(False, f'there was a problem signing a file ({file}).\r\n\r\n{resultOutput}\r\n')
@@ -824,7 +849,7 @@ if platform.system()=="Darwin":
 
     startMessage('Signing dmg...')
 
-    resultCode, resultOutput = macSignBinary(f'./bin/{buildArch}/Deploy/{deploymentProject}.dmg', args.cert)
+    resultCode, resultOutput = macSignBinary(f'./bin/{buildArch}/Deploy/{deploymentProject}.dmg', None, args.cert)
 
     if resultCode:
         endMessage(False, f'there was a problem signing the dmg.\r\n\r\n{resultOutput}\r\n')

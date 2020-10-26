@@ -100,7 +100,7 @@ namespace Nedrysoft {
              *
              * @returns         true if the event is handled; otherwise false.
              */
-            Q_SLOT bool eventFilter(QObject *obj, QEvent *event);
+            Q_SLOT bool eventFilter(QObject *obj, QEvent *event) override;
 
             /**
              * @brief           About slot function.

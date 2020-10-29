@@ -33,11 +33,14 @@ import logging
 import datetime
 import enum
 
-deploymentProject = "Regular Expressions 101"
-
 if platform.python_version_tuple()<('3','6','0'):
     print('requires python >= 3.6')
     quit(1)
+
+if platform.system()=="Darwin":
+    import dmgbuild
+
+deploymentProject = "Regular Expressions 101"
 
 try:
     from colorama import Fore, Back, Style, init
@@ -133,7 +136,7 @@ def notarizeFile(file, username, password):
 
     uploadId = str(int(time.time()))
 
-    resultCode,result = execute(f'xcrun altool --notarize-app --primary-bundle-id "com.fizzyade.{uploadId}" -u {args.appleid} --password {args.password} --file "{file}"')
+    resultCode,result = execute(f'xcrun altool --notarize-app --primary-bundle-id "com.fizzyade.{uploadId}" -u {username} --password {password} --file "{file}"')
 
     if resultCode:
         return(False)
@@ -169,54 +172,10 @@ def notarizeFile(file, username, password):
 
     return(status)
 
-# application entry point
+def deployWindows(args):
 
-hostArch = "x86"
-
-parser = argparse.ArgumentParser(description='Qt Deployment Tool')
-
-parser.add_argument('--qtdir', type=str, nargs='?', help='path to qt')
-parser.add_argument('--curlbin', type=str, nargs='?', help='path to curl binary')
-
-if platform.system()=="Darwin":
-    status, hostArch = execute(f'arch')
-
-    if not status:
-        hostArch = hostArch.strip()
-
-    parser.add_argument('--arch', choices=['x86_64', 'arm64', 'universal'], type=str, default='x64_64', nargs='?', help='architecture type to deploy')
-else:
-    parser.add_argument('--arch', choices=['x86', 'x86_64'], type=str, default='x86_64', nargs='?', help='architecture type to deploy')
-
-parser.add_argument('--type', choices=['release', 'debug'], default='release', type=str, nargs='?', help='type of build to deploy')
-parser.add_argument('--cert', type=str, nargs='?', help='certificate id to sign with')
-
-if platform.system()=="Linux":
-    status, hostArch = execute(f'arch')
-
-    if not status:
-        hostArch = hostArch.strip()
-
-    parser.add_argument('--linuxdeployqt', type=str, default=f'tools/linuxdeployqt/linuxdeployqt-6-{hostArch}.AppImage', nargs='?', help='path to linuxdeployqt')
-    parser.add_argument('--appimagetool', type=str, default=f'tools/appimagetool/appimagetool-{hostArch}.AppImage', nargs='?', help='path to appimagetool')
-
-if platform.system()=="Windows":
-    parser.add_argument('--timeserver', type=str, default='http://time.certum.pl/', nargs='?', help='time server to use for signing')
-    parser.add_argument('--signtool', type=str, nargs='?', default='tools\\smartcardtools\\x64\\ScSignTool.exe', help='path to signing binary')
-
-if platform.system()=="Darwin":
-    parser.add_argument('--appleid', type=str, nargs='?', help='apple id to use for notarization')
-    parser.add_argument('--password', type=str, nargs='?', help='password for apple id')
-
-args = parser.parse_args()
-
-buildArch = args.arch
-buildType = args.type.capitalize()
-
-if platform.system()=="Windows":
-    print(Style.BRIGHT+'Deployment process started at '+str(datetime.datetime.now())+'\r\n')
-
-    startTime = time.time()
+    buildArch = args.arch
+    buildType = args.type.capitalize()
 
     isRDP = os.environ['SESSIONNAME'].startswith('RDP-')
 
@@ -406,14 +365,10 @@ if platform.system()=="Windows":
 
     print(f'\r\n'+Style.BRIGHT+Fore.CYAN+f'Finished! Installer at "deployment\\{deploymentProject}.exe" is '+Fore.GREEN+'ready'+Fore.CYAN+' for distribution.')
 
-    print(Style.BRIGHT+f'\r\nTotal time taken to perform deployment was '+timeDelta(endTime-startTime)+'.')
+def deployLinux(args):
 
-    exit(0)
-
-if platform.system()=="Linux" :
-    print(Style.BRIGHT+'Deployment process started at '+str(datetime.datetime.now())+'\r\n')
-
-    startTime = time.time()
+    buildArch = args.arch
+    buildType = args.type.capitalize()
 
     # check curl is available
 
@@ -575,20 +530,14 @@ if platform.system()=="Linux" :
 
     endMessage(True)
 
-    endTime = time.time()
-
     # done!
 
     print(f'\r\n'+Style.BRIGHT+Fore.CYAN+f'Finished! AppImage at "deployment/{deploymentProject}-{buildArch}.AppImage" is '+Fore.GREEN+'ready'+Fore.CYAN+' for distribution.')
 
-    print(Style.BRIGHT+f'\r\nTotal time taken to perform deployment was '+timeDelta(endTime-startTime)+'.')
+def deployMacOS(args):
 
-    exit(0)
-
-if platform.system()=="Darwin":
-    print(Style.BRIGHT+'Deployment process started at '+str(datetime.datetime.now())+'\r\n')
-
-    startTime = time.time()
+    buildArch = args.arch
+    buildType = args.type.capitalize()
 
     # check for qt installation
 
@@ -825,70 +774,151 @@ if platform.system()=="Darwin":
 
     endMessage(True)
 
+    outputName = f'bin/{buildArch}/Deploy/{deploymentProject}.app';
+    outputType = 'Application'
+
     # create dmg    
+
+    if (os.path.isfile('assets/dmg_background@1x.tiff') and
+        os.path.isfile('assets/dmg_background@2x.tiff') and
+        os.path.isfile('assets/dmgbuild_config.py')):
     
-    startMessage('Creating installation dmg...')
+        startMessage('Creating installation dmg...')
 
-    resultCode, resultOutput = execute(f'tiffutil -cat "assets/dmg_background@1x.tiff" "assets/dmg_background@2x.tiff" -out "assets/dmg_background.tiff"')
+        resultCode, resultOutput = execute(f'tiffutil -cat "assets/dmg_background@1x.tiff" "assets/dmg_background@2x.tiff" -out "assets/dmg_background.tiff"')
 
-    if resultCode:
-        endMessage(False, f'there was a problem creating the combined tiff.\r\n\r\n{resultOutput}\r\n')
+        if resultCode:
+            endMessage(False, f'there was a problem creating the combined tiff.\r\n\r\n{resultOutput}\r\n')
+            exit(1)
+        
+        if not os.path.exists('assets/dmgbuild_config.py'):
+            endMessage(False, f'the dmgbuild_config.py configuration file could not be found.\r\n\r\n')
+            exit(1)
+
+        try:
+            resultCode = dmgbuild.build_dmg(volume_name=f'{deploymentProject}', filename=f'./bin/{buildArch}/Deploy/{deploymentProject}.dmg', settings_file='./assets/dmgbuild_config.py', settings={}, defines={'sourceRoot':'./', 'buildArch': buildArch}, lookForHiDPI=True, detach_retries=5)
+        
+        except:
+            endMessage(False, f'there was a problem creating the dmg.\r\n\r\n')
+            exit(1)
+
+        if resultCode:
+            endMessage(False, f'there was a problem creating the dmg.\r\n\r\n')
+            exit(1)
+
+        endMessage(True)
+
+        # sign the dmg and notarize it
+
+        startMessage('Signing dmg...')
+
+        resultCode, resultOutput = macSignBinary(f'./bin/{buildArch}/Deploy/{deploymentProject}.dmg', None, args.cert)
+
+        if resultCode:
+            endMessage(False, f'there was a problem signing the dmg.\r\n\r\n{resultOutput}\r\n')
+            exit(1)
+
+        endMessage(True)
+
+        startMessage('Performing notarization of installation dmg...')
+
+        status = notarizeFile(f'bin/{buildArch}/Deploy/{deploymentProject}.dmg', args.appleid, args.password)
+
+        if not status=="success":
+            endMessage(False, f'there was a problem notarizing the dmg ({status}).')
+            exit(1)
+
+        endMessage(True)
+
+        startMessage('Stapling notarization ticket to dmg...')
+
+        resultCode, resultOutput = execute(f'xcrun stapler staple "bin/{buildArch}/Deploy/{deploymentProject}.dmg"')
+
+        if resultCode:
+            endMessage(False, f'there was a problem stapling the ticket to dmg.\r\n\r\n{resultOutput}\r\n')
+            exit(1)
+
+        endMessage(True)
+
+        startMessage('Copying dmg to deployment directory...')
+
+        shutil.copy2(f'bin/{buildArch}/Deploy/{deploymentProject}.dmg', f'deployment/{deploymentProject}.dmg')
+
+        endMessage(True)
+
+        outputName = f'deployment/{deploymentProject}.dmg';
+        outputType = 'Disk Image'
+
+    else:
+        sys.stdout.write(Style.BRIGHT+Fore.YELLOW+'Skipped DMG creation due to missing files.\r\n')
+
+        
+    endTime = time.time()
+
+    # done!
+
+    print(f'\r\n'+Style.BRIGHT+Fore.CYAN+f'Finished! {outputType} at "{outputName}" is '+Fore.GREEN+'ready'+Fore.CYAN+' for distribution.')
+
+def main():
+
+    hostArch = "x86"
+
+    parser = argparse.ArgumentParser(description='Qt Deployment Tool')
+
+    parser.add_argument('--qtdir', type=str, nargs='?', help='path to qt')
+    parser.add_argument('--curlbin', type=str, nargs='?', help='path to curl binary')
+
+    if platform.system()=="Darwin":
+        status, hostArch = execute(f'arch')
+
+        if not status:
+            hostArch = hostArch.strip()
+
+        parser.add_argument('--arch', choices=['x86_64', 'arm64', 'universal'], type=str, default='x64_64', nargs='?', help='architecture type to deploy')
+    else:
+        parser.add_argument('--arch', choices=['x86', 'x86_64', 'arm64'], type=str, default='x86_64', nargs='?', help='architecture type to deploy')
+
+    parser.add_argument('--type', choices=['release', 'debug'], default='release', type=str, nargs='?', help='type of build to deploy')
+    parser.add_argument('--cert', type=str, nargs='?', help='certificate id to sign with')
+
+    if platform.system()=="Linux":
+        status, hostArch = execute(f'arch')
+
+        if not status:
+            hostArch = hostArch.strip()
+
+        parser.add_argument('--linuxdeployqt', type=str, default=f'tools/linuxdeployqt/linuxdeployqt-6-{hostArch}.AppImage', nargs='?', help='path to linuxdeployqt')
+        parser.add_argument('--appimagetool', type=str, default=f'tools/appimagetool/appimagetool-{hostArch}.AppImage', nargs='?', help='path to appimagetool')
+
+    if platform.system()=="Windows":
+        parser.add_argument('--timeserver', type=str, default='http://time.certum.pl/', nargs='?', help='time server to use for signing')
+        parser.add_argument('--signtool', type=str, nargs='?', default='tools\\smartcardtools\\x64\\ScSignTool.exe', help='path to signing binary')
+
+    if platform.system()=="Darwin":
+        parser.add_argument('--appleid', type=str, nargs='?', help='apple id to use for notarization')
+        parser.add_argument('--password', type=str, nargs='?', help='password for apple id')
+
+    args = parser.parse_args()
+
+    print(Style.BRIGHT+'Deployment process started at '+str(datetime.datetime.now())+'\r\n')
+
+    startTime = time.time()
+
+    if platform.system()=="Windows":
+        deployWindows(args)
+    elif platform.system()=="Linux":
+        deployLinux(args)
+    elif platform.system()=="Darwin":
+        deployMacOS(args)
+    else:
+        print(f'\r\n'+Style.BRIGHT+Fore.RED+f'Unknown platform for deployment. {platform.system()}')
         exit(1)
-    
-    resultCode, resultOutput = execute(f'tools/create-dmg/create-dmg --volname "{deploymentProject}" --background "./assets/dmg_background.tiff" --window-size 768 534 --icon-size 160 --icon "{deploymentProject}.app" 199 276 --app-drop-link 569 276 "./bin/{buildArch}/Deploy/{deploymentProject}.dmg" "./bin/{buildArch}/Deploy/{deploymentProject}.app"')
-
-    if resultCode:
-        endMessage(False, f'there was a problem creating the dmg.\r\n\r\n{resultOutput}\r\n')
-
-        print(f'tools/create-dmg/create-dmg --volname "{deploymentProject}" --background "./assets/dmg_background.tiff" --window-size 768 534 --icon-size 160 --icon "{deploymentProject}.app" 199 276 --app-drop-link 569 276 "./bin/{buildArch}/Deploy/{deploymentProject}.dmg" "./bin/{buildArch}/Deploy/{deploymentProject}.app"')
-        exit(1)
-
-    endMessage(True)
-
-    # sign the dmg and notarize it
-
-    startMessage('Signing dmg...')
-
-    resultCode, resultOutput = macSignBinary(f'./bin/{buildArch}/Deploy/{deploymentProject}.dmg', None, args.cert)
-
-    if resultCode:
-        endMessage(False, f'there was a problem signing the dmg.\r\n\r\n{resultOutput}\r\n')
-        exit(1)
-
-    endMessage(True)
-
-    startMessage('Performing notarization of installation dmg...')
-
-    status = notarizeFile(f'bin/{buildArch}/Deploy/{deploymentProject}.dmg', args.appleid, args.password)
-
-    if not status=="success":
-        endMessage(False, f'there was a problem notarizing the dmg ({status}).')
-        exit(1)
-
-    endMessage(True)
-
-    startMessage('Stapling notarization ticket to dmg...')
-
-    resultCode, resultOutput = execute(f'xcrun stapler staple "bin/{buildArch}/Deploy/{deploymentProject}.dmg"')
-
-    if resultCode:
-        endMessage(False, f'there was a problem stapling the ticket to dmg.\r\n\r\n{resultOutput}\r\n')
-        exit(1)
-
-    endMessage(True)
-
-    startMessage('Copying dmg to deployment directory...')
-
-    shutil.copy2(f'bin/{buildArch}/Deploy/{deploymentProject}.dmg', f'deployment/{deploymentProject}.dmg')
-
-    endMessage(True)
 
     endTime = time.time()
 
     # done!
 
-    print(f'\r\n'+Style.BRIGHT+Fore.CYAN+f'Finished! Disk Image at "deployment/{deploymentProject}.dmg" is '+Fore.GREEN+'ready'+Fore.CYAN+' for distribution.')
-
     print(Style.BRIGHT+f'\r\nTotal time taken to perform deployment was '+timeDelta(endTime-startTime)+'.')
 
-    exit(0)
+if __name__ == "__main__":
+    main()

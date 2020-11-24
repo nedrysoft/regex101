@@ -1,4 +1,6 @@
-# Regular Expressions 101 Desktop Edition
+# Regular Expressions 101 (Desktop Edition)
+
+![Regular Expressions 101](https://user-images.githubusercontent.com/55795671/100066099-86352280-2e2c-11eb-8ba1-858b3dad057d.png)
 
 This project is a desktop version of the [regex101.com](https://regex101.com) site.  It embeds a copy of the site inside the application so that no internet connection is required to work on regular expressions.  The motivation behind this was that when developing regular expressions for use in products, I often find myself opening the website again and again, resulting in many tabs in various states swamped in the sea of web pages.
 

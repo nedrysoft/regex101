@@ -51,7 +51,7 @@ Nedrysoft::RegExWebEnginePage::RegExWebEnginePage() :
 
     m_apiChannel->registerObject(QString("RegExApiEndpoint"), RegExApiEndpoint::getInstance());
 
-    setUrlRequestInterceptor(m_urlInterceptor);
+    m_profile->setRequestInterceptor(m_urlInterceptor);
 
     setUrl(url);
 }

@@ -33,7 +33,7 @@ import logging
 import datetime
 import enum
 
-if platform.python_version_tuple()<('3','6','0'):
+if tuple(int(i) for i in platform.python_version_tuple())<(3,6,0):
     print('requires python >= 3.6')
     quit(1)
 
